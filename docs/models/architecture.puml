@@ -1,0 +1,274 @@
+@startuml BridalCover CRM - Architecture
+
+!define RECTANGLE class
+!define INTERFACE interface
+!define COMPONENT component
+
+title BridalCover CRM - Hexagonal Architecture
+
+skinparam componentStyle uml2
+skinparam rectangle {
+    BackgroundColor<<domain>> LightBlue
+    BackgroundColor<<application>> LightGreen
+    BackgroundColor<<infrastructure>> LightYellow
+    BackgroundColor<<external>> LightPink
+    BackgroundColor<<database>> Orange
+    BackgroundColor<<messaging>> Purple
+}
+
+package "Frontend Layer" {
+    [Web UI] as WebUI
+    [Mobile App] as MobileApp
+    [Desktop App] as DesktopApp
+}
+
+package "API Gateway" {
+    [Load Balancer] as LB
+    [Authentication] as Auth
+    [Rate Limiting] as RateLimit
+}
+
+package "Lead Management Context" <<application>> {
+    package "Ports" {
+        interface "Lead Management Port" as LeadPort
+        interface "Lead Repository Port" as LeadRepoPort
+        interface "Client Repository Port" as ClientRepoPort
+    }
+    
+    package "Application Services" <<application>> {
+        [Lead Service] as LeadService
+        [Client Service] as ClientService
+        [Conversion Service] as ConversionService
+    }
+    
+    package "Domain" <<domain>> {
+        [Lead Aggregate] as LeadAgg
+        [Client Aggregate] as ClientAgg
+        [Address Value Object] as AddressVO
+        [Lead Status] as LeadStatus
+    }
+    
+    package "Infrastructure" <<infrastructure>> {
+        [Lead Controller] as LeadController
+        [Lead Repository] as LeadRepo
+        [Client Repository] as ClientRepo
+    }
+}
+
+package "Sales Execution Context" <<application>> {
+    package "Ports" {
+        interface "Contact Management Port" as ContactPort
+        interface "Script Management Port" as ScriptPort
+        interface "Contact Repository Port" as ContactRepoPort
+    }
+    
+    package "Application Services" <<application>> {
+        [Contact Service] as ContactService
+        [Script Service] as ScriptService
+        [Follow-up Service] as FollowupService
+    }
+    
+    package "Domain" <<domain>> {
+        [Contact Log Aggregate] as ContactAgg
+        [Script Aggregate] as ScriptAgg
+        [Script Usage VO] as ScriptUsageVO
+        [Contact Channel] as ContactChannel
+    }
+    
+    package "Infrastructure" <<infrastructure>> {
+        [Contact Controller] as ContactController
+        [Contact Repository] as ContactRepo
+        [Script Repository] as ScriptRepo
+    }
+}
+
+package "Geographic Analytics Context" <<application>> {
+    package "Ports" {
+        interface "Analytics Port" as AnalyticsPort
+        interface "Territory Repository Port" as TerritoryRepoPort
+    }
+    
+    package "Application Services" <<application>> {
+        [Territory Service] as TerritoryService
+        [Density Service] as DensityService
+        [Heatmap Service] as HeatmapService
+    }
+    
+    package "Domain" <<domain>> {
+        [Territory Aggregate] as TerritoryAgg
+        [Lead Density Entity] as DensityEntity
+        [Coordinates VO] as CoordinatesVO
+        [Priority Enum] as Priority
+    }
+    
+    package "Infrastructure" <<infrastructure>> {
+        [Analytics Controller] as AnalyticsController
+        [Territory Repository] as TerritoryRepo
+        [Maps Integration] as MapsIntegration
+    }
+}
+
+package "External Integration Context" <<application>> {
+    package "Ports" {
+        interface "External Integration Port" as ExternalPort
+        interface "Import Repository Port" as ImportRepoPort
+    }
+    
+    package "Application Services" <<application>> {
+        [Import Service] as ImportService
+        [Validation Service] as ValidationService
+        [Place Mapping Service] as PlaceMappingService
+    }
+    
+    package "Domain" <<domain>> {
+        [Google Places Data VO] as GooglePlacesVO
+        [Import Batch Entity] as ImportBatch
+        [Validation Status] as ValidationStatus
+    }
+    
+    package "Infrastructure" <<infrastructure>> {
+        [Import Controller] as ImportController
+        [Google Places Client] as GoogleClient
+        [Import Repository] as ImportRepo
+    }
+}
+
+package "Shared Infrastructure" <<infrastructure>> {
+    package "Databases" <<database>> {
+        database "PostgreSQL\n(Main Data)" as PostgresDB
+        database "Redis\n(Cache)" as RedisDB
+        database "Event Store\n(Events)" as EventStoreDB
+    }
+    
+    package "Messaging" <<messaging>> {
+        queue "Kafka\n(Domain Events)" as KafkaQueue
+        queue "RabbitMQ\n(Commands)" as RabbitQueue
+    }
+    
+    package "External Services" <<external>> {
+        cloud "Google Places API" as GoogleAPI
+        cloud "Google Maps API" as MapsAPI
+        cloud "Email Service" as EmailService
+        cloud "SMS Service" as SMSService
+    }
+    
+    package "Monitoring & Security" {
+        [Logging Service] as LoggingService
+        [Metrics Collector] as MetricsCollector
+        [Security Manager] as SecurityManager
+    }
+}
+
+' Frontend to API Gateway
+WebUI --> LB
+MobileApp --> LB
+DesktopApp --> LB
+
+' API Gateway to Controllers
+LB --> Auth
+Auth --> RateLimit
+RateLimit --> LeadController
+RateLimit --> ContactController
+RateLimit --> AnalyticsController
+RateLimit --> ImportController
+
+' Controllers to Application Services
+LeadController --> LeadService
+ContactController --> ContactService
+AnalyticsController --> TerritoryService
+ImportController --> ImportService
+
+' Application Services to Domain
+LeadService --> LeadAgg
+ClientService --> ClientAgg
+ContactService --> ContactAgg
+ScriptService --> ScriptAgg
+TerritoryService --> TerritoryAgg
+ImportService --> GooglePlacesVO
+
+' Domain to Value Objects/Enums
+LeadAgg --> AddressVO
+LeadAgg --> LeadStatus
+ContactAgg --> ContactChannel
+ScriptAgg --> ScriptUsageVO
+TerritoryAgg --> CoordinatesVO
+TerritoryAgg --> Priority
+
+' Application Services to Repositories
+LeadService --> LeadRepo
+ClientService --> ClientRepo
+ContactService --> ContactRepo
+ScriptService --> ScriptRepo
+TerritoryService --> TerritoryRepo
+ImportService --> ImportRepo
+
+' Repositories to Databases
+LeadRepo --> PostgresDB
+ClientRepo --> PostgresDB
+ContactRepo --> PostgresDB
+ScriptRepo --> PostgresDB
+TerritoryRepo --> PostgresDB
+ImportRepo --> PostgresDB
+
+' Cache Integration
+LeadRepo --> RedisDB
+ContactRepo --> RedisDB
+TerritoryRepo --> RedisDB
+
+' External Service Integration
+GoogleClient --> GoogleAPI
+MapsIntegration --> MapsAPI
+ContactService --> EmailService
+ContactService --> SMSService
+
+' Event-Driven Communication
+LeadService --> KafkaQueue : publishes LeadCreated
+ContactService --> KafkaQueue : publishes ContactAttempted
+ImportService --> KafkaQueue : publishes PlacesImported
+TerritoryService --> KafkaQueue : consumes events
+
+KafkaQueue --> EventStoreDB
+
+' Command Processing
+LeadController --> RabbitQueue
+ContactController --> RabbitQueue
+AnalyticsController --> RabbitQueue
+
+' Monitoring
+LeadService --> LoggingService
+ContactService --> LoggingService
+TerritoryService --> LoggingService
+ImportService --> LoggingService
+
+LeadService --> MetricsCollector
+ContactService --> MetricsCollector
+TerritoryService --> MetricsCollector
+
+Auth --> SecurityManager
+
+' Port implementations (Hexagonal Architecture)
+LeadService ..|> LeadPort
+ContactService ..|> ContactPort
+TerritoryService ..|> AnalyticsPort
+ImportService ..|> ExternalPort
+
+LeadRepo ..|> LeadRepoPort
+ContactRepo ..|> ContactRepoPort
+TerritoryRepo ..|> TerritoryRepoPort
+ImportRepo ..|> ImportRepoPort
+
+note right of LeadAgg : Aggregate Root\nManages lead lifecycle\nBusiness rules enforcement
+
+note right of ContactAgg : Aggregate Root\nTracks all contact attempts\nScript effectiveness
+
+note right of TerritoryAgg : Aggregate Root\nGeographic analysis\nDensity calculations
+
+note right of GooglePlacesVO : Value Object\nExternal data mapping\nValidation logic
+
+note bottom of KafkaQueue : Event-Driven Architecture\nAsynchronous communication\nBetween bounded contexts
+
+note bottom of PostgresDB : ACID Transactions\nRelational data\nConsistent state
+
+note bottom of RedisDB : Performance cache\nSession storage\nFrequent queries
+
+@enduml 

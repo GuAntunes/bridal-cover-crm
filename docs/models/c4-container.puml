@@ -1,0 +1,147 @@
+@startuml BridalCover CRM - C4 Container Diagram
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title BridalCover CRM - Container Diagram
+
+' People
+Person(vendedor, "Vendedor", "Responsável por prospecção e contatos com leads")
+Person(gerente, "Gerente de Vendas", "Analisa métricas e define estratégias")
+
+System_Boundary(bridal_system, "BridalCover CRM") {
+    ' Frontend Containers
+    Container(web_app, "Web Application", "React/TypeScript", "Interface web responsiva para desktop e mobile com dashboard, formulários e visualizações")
+    Container(mobile_app, "Mobile App", "React Native", "Aplicativo móvel para vendedores em campo realizarem contatos e atualizações")
+    
+    ' Backend Containers
+    Container(api_gateway, "API Gateway", "Spring Cloud Gateway", "Ponto único de entrada, autenticação, rate limiting e roteamento de requisições")
+    
+    Container(lead_service, "Lead Management Service", "Spring Boot/Kotlin", "Gerencia ciclo de vida de leads e clientes, conversões e qualificação")
+    Container(sales_service, "Sales Execution Service", "Spring Boot/Kotlin", "Controla tentativas de contato, scripts de vendas e follow-ups")
+    Container(analytics_service, "Geographic Analytics Service", "Spring Boot/Kotlin", "Análise territorial, densidade de leads e visualizações geográficas")
+    Container(integration_service, "External Integration Service", "Spring Boot/Kotlin", "Integração com Google Places API e validação de dados externos")
+    
+    ' Data Containers
+    ContainerDb(main_db, "Main Database", "PostgreSQL", "Armazena dados de leads, contatos, scripts e configurações do sistema")
+    ContainerDb(cache_db, "Cache Database", "Redis", "Cache de alta performance para dados frequentes e sessões de usuário")
+    ContainerDb(event_store, "Event Store", "PostgreSQL/EventStore", "Armazena eventos de domínio para auditoria e replay")
+    
+    ' Messaging Containers
+    Container(message_broker, "Message Broker", "Apache Kafka", "Broker de mensagens para eventos de domínio entre bounded contexts")
+    Container(task_queue, "Task Queue", "RabbitMQ", "Fila de tarefas para processamento assíncrono de comandos")
+    
+    ' Monitoring Containers
+    Container(monitoring, "Monitoring Service", "Prometheus/Grafana", "Coleta métricas, monitora saúde do sistema e gera alertas")
+    Container(logging, "Logging Service", "ELK Stack", "Centraliza logs do sistema para análise e troubleshooting")
+}
+
+' External Systems
+System_Ext(google_places, "Google Places API", "Dados de estabelecimentos comerciais")
+System_Ext(google_maps, "Google Maps API", "Mapas e dados geográficos")
+System_Ext(email_service, "Email Service", "SendGrid/Mailgun")
+System_Ext(sms_service, "SMS Service", "Twilio")
+System_Ext(whatsapp_api, "WhatsApp Business API", "Comunicação via WhatsApp")
+System_Ext(auth_provider, "Auth Provider", "Auth0/OAuth2")
+
+' User Relationships
+Rel(vendedor, web_app, "Acessa sistema via navegador", "HTTPS")
+Rel(vendedor, mobile_app, "Usa em campo para contatos", "HTTPS")
+Rel(gerente, web_app, "Analisa relatórios e configura sistema", "HTTPS")
+
+' Frontend to Backend
+Rel(web_app, api_gateway, "Requisições API", "HTTPS/REST")
+Rel(mobile_app, api_gateway, "Requisições API", "HTTPS/REST")
+
+' API Gateway to Services
+Rel(api_gateway, lead_service, "Roteamento de requisições", "HTTP/gRPC")
+Rel(api_gateway, sales_service, "Roteamento de requisições", "HTTP/gRPC")
+Rel(api_gateway, analytics_service, "Roteamento de requisições", "HTTP/gRPC")
+Rel(api_gateway, integration_service, "Roteamento de requisições", "HTTP/gRPC")
+
+' Services to Databases
+Rel(lead_service, main_db, "Persiste leads e clientes", "SQL/JDBC")
+Rel(sales_service, main_db, "Persiste contatos e scripts", "SQL/JDBC")
+Rel(analytics_service, main_db, "Consulta dados para análises", "SQL/JDBC")
+Rel(integration_service, main_db, "Persiste dados importados", "SQL/JDBC")
+
+' Services to Cache
+Rel(lead_service, cache_db, "Cache de leads frequentes", "Redis Protocol")
+Rel(sales_service, cache_db, "Cache de scripts e configurações", "Redis Protocol")
+Rel(analytics_service, cache_db, "Cache de análises territoriais", "Redis Protocol")
+
+' Event-Driven Communication
+Rel(lead_service, message_broker, "Publica LeadCreated, LeadConverted", "Kafka Protocol")
+Rel(sales_service, message_broker, "Publica ContactAttempted, ScriptUsed", "Kafka Protocol")
+Rel(integration_service, message_broker, "Publica PlacesImported", "Kafka Protocol")
+Rel(analytics_service, message_broker, "Consome eventos para análises", "Kafka Protocol")
+
+' Event Storage
+Rel(message_broker, event_store, "Persiste eventos para auditoria", "SQL/JDBC")
+
+' Async Processing
+Rel(sales_service, task_queue, "Agenda emails e SMS", "AMQP")
+Rel(integration_service, task_queue, "Processa importações", "AMQP")
+
+' External Integrations
+Rel(integration_service, google_places, "Busca estabelecimentos", "HTTPS/REST")
+Rel(analytics_service, google_maps, "Obtém dados geográficos", "HTTPS/REST")
+Rel(sales_service, email_service, "Envia emails para leads", "HTTPS/REST")
+Rel(sales_service, sms_service, "Envia SMS", "HTTPS/REST")
+Rel(sales_service, whatsapp_api, "Envia mensagens WhatsApp", "HTTPS/REST")
+Rel(api_gateway, auth_provider, "Valida autenticação", "HTTPS/OAuth2")
+
+' Monitoring
+Rel(lead_service, monitoring, "Exporta métricas", "HTTP/Prometheus")
+Rel(sales_service, monitoring, "Exporta métricas", "HTTP/Prometheus")
+Rel(analytics_service, monitoring, "Exporta métricas", "HTTP/Prometheus")
+Rel(integration_service, monitoring, "Exporta métricas", "HTTP/Prometheus")
+
+Rel(lead_service, logging, "Envia logs", "HTTP/JSON")
+Rel(sales_service, logging, "Envia logs", "HTTP/JSON")
+Rel(analytics_service, logging, "Envia logs", "HTTP/JSON")
+Rel(integration_service, logging, "Envia logs", "HTTP/JSON")
+
+' Technology Notes
+note right of lead_service
+  **Bounded Context: Lead Management**
+  • Hexagonal Architecture
+  • Domain Events
+  • CQRS Pattern
+  • Repository Pattern
+end note
+
+note right of sales_service
+  **Bounded Context: Sales Execution**
+  • Script Engine
+  • Contact Orchestration
+  • Follow-up Automation
+  • Performance Metrics
+end note
+
+note right of analytics_service
+  **Bounded Context: Geographic Analytics**
+  • Spatial Data Processing
+  • Heat Map Generation
+  • Territory Optimization
+  • Statistical Analysis
+end note
+
+note right of integration_service
+  **Bounded Context: External Integration**
+  • Anti-corruption Layer
+  • Data Transformation
+  • Batch Processing
+  • Error Handling
+end note
+
+note bottom of message_broker
+  **Event-Driven Architecture**
+  • Asynchronous Communication
+  • Bounded Context Decoupling
+  • Event Sourcing Support
+  • Replay Capabilities
+end note
+
+SHOW_LEGEND()
+
+@enduml 

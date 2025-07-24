@@ -1,0 +1,213 @@
+@startuml Domain Model - BridalCover CRM
+
+!define ENTITY class
+!define VALUE_OBJECT class
+!define AGGREGATE_ROOT class
+
+title BridalCover CRM - Domain Model
+
+package "Lead Management" {
+    AGGREGATE_ROOT Lead {
+        +id: LeadId
+        +name: String
+        +cnpj: String?
+        +phone: String?
+        +email: String?
+        +address: Address
+        +status: LeadStatus
+        +source: LeadSource
+        +createdAt: LocalDateTime
+        +updatedAt: LocalDateTime
+        --
+        +convertToClient(): Client
+        +updateStatus(status: LeadStatus): void
+        +addContact(contact: ContactLog): void
+    }
+
+    AGGREGATE_ROOT Client {
+        +id: ClientId
+        +name: String
+        +cnpj: String
+        +phone: String
+        +email: String?
+        +address: Address
+        +registrationDate: LocalDate
+        +isActive: Boolean
+        --
+        +deactivate(): void
+        +updateContactInfo(phone: String, email: String?): void
+    }
+
+    enum LeadStatus {
+        NEW
+        CONTACTED
+        QUALIFIED
+        PROPOSAL_SENT
+        NEGOTIATING
+        CONVERTED
+        LOST
+    }
+
+    enum LeadSource {
+        MANUAL_ENTRY
+        GOOGLE_PLACES
+        REFERRAL
+        WEBSITE
+    }
+}
+
+package "Contact Management" {
+    ENTITY ContactLog {
+        +id: ContactLogId
+        +leadId: LeadId
+        +contactDate: LocalDateTime
+        +channel: ContactChannel
+        +result: ContactResult
+        +notes: String?
+        +scriptUsed: ScriptId?
+        +nextFollowUp: LocalDate?
+        --
+        +scheduleFollowUp(date: LocalDate): void
+    }
+
+    enum ContactChannel {
+        PHONE
+        EMAIL
+        WHATSAPP
+        IN_PERSON
+        WEBSITE
+    }
+
+    enum ContactResult {
+        NO_ANSWER
+        INTERESTED
+        NOT_INTERESTED
+        CALLBACK_REQUESTED
+        MEETING_SCHEDULED
+        PROPOSAL_REQUESTED
+        CONVERTED
+    }
+}
+
+package "Sales Scripts" {
+    AGGREGATE_ROOT Script {
+        +id: ScriptId
+        +name: String
+        +content: String
+        +category: ScriptCategory
+        +isActive: Boolean
+        +createdAt: LocalDateTime
+        +usage: ScriptUsage
+        --
+        +recordUsage(result: ContactResult): void
+        +calculateEffectiveness(): Double
+        +activate(): void
+        +deactivate(): void
+    }
+
+    VALUE_OBJECT ScriptUsage {
+        +totalUses: Int
+        +successfulUses: Int
+        +effectivenessRate: Double
+        --
+        +incrementUsage(successful: Boolean): ScriptUsage
+    }
+
+    enum ScriptCategory {
+        COLD_CALL
+        FOLLOW_UP
+        PROPOSAL
+        OBJECTION_HANDLING
+        CLOSING
+    }
+}
+
+package "Geographic Data" {
+    VALUE_OBJECT Address {
+        +street: String?
+        +city: String
+        +state: String
+        +postalCode: String?
+        +latitude: Double?
+        +longitude: Double?
+        +country: String
+        --
+        +isComplete(): Boolean
+        +getCoordinates(): Coordinates?
+    }
+
+    VALUE_OBJECT Coordinates {
+        +latitude: Double
+        +longitude: Double
+        --
+        +distanceTo(other: Coordinates): Double
+    }
+
+    ENTITY LeadDensity {
+        +city: String
+        +state: String
+        +totalLeads: Int
+        +convertedLeads: Int
+        +conversionRate: Double
+        +priority: Priority
+        --
+        +calculatePriority(): Priority
+    }
+
+    enum Priority {
+        LOW
+        MEDIUM
+        HIGH
+        CRITICAL
+    }
+}
+
+package "External Integration" {
+    VALUE_OBJECT GooglePlacesData {
+        +placeId: String
+        +name: String
+        +address: String
+        +phone: String?
+        +rating: Double?
+        +businessType: String
+        +coordinates: Coordinates
+        --
+        +toLead(): Lead
+    }
+}
+
+package "Value Objects" {
+    VALUE_OBJECT LeadId {
+        +value: String
+    }
+
+    VALUE_OBJECT ClientId {
+        +value: String
+    }
+
+    VALUE_OBJECT ContactLogId {
+        +value: String
+    }
+
+    VALUE_OBJECT ScriptId {
+        +value: String
+    }
+}
+
+' Relationships
+Lead ||--o{ ContactLog : "has contact history"
+Lead ||--o| Address : "located at"
+Client ||--o| Address : "located at"
+ContactLog }o--|| Script : "may use script"
+Lead }o--|| LeadDensity : "contributes to density"
+GooglePlacesData ..> Lead : "converts to"
+Address ||--o| Coordinates : "has coordinates"
+
+' Aggregates
+note right of Lead : Aggregate Root\nManages lead lifecycle\nand contact interactions
+
+note right of Client : Aggregate Root\nRepresents converted\ncustomers
+
+note right of Script : Aggregate Root\nManages sales scripts\nand effectiveness tracking
+
+@enduml 
