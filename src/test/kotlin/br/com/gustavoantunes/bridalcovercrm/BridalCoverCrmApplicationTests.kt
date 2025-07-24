@@ -1,4 +1,4 @@
-package br.com.gustavoantunes.bridal_cover_crm
+package br.com.gustavoantunes.bridalcovercrm
 
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest

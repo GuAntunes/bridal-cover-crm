@@ -1,4 +1,4 @@
-package br.com.gustavoantunes.bridal_cover_crm
+package br.com.gustavoantunes.bridalcovercrm
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
