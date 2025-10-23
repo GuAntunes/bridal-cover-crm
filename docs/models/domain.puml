@@ -1,18 +1,58 @@
-@startuml Domain Model - BridalCover CRM
+@startuml Domain Model
 
-!define ENTITY class
-!define VALUE_OBJECT class
-!define AGGREGATE_ROOT class
+!theme plain
+title 🎯 BridalCover CRM - Domain Model
 
-title BridalCover CRM - Domain Model
+skinparam class {
+    BackgroundColor<<implemented>> #90EE90
+    BackgroundColor<<planned>> #87CEEB
+    BackgroundColor<<in_progress>> #F0E68C
+    BorderColor<<implemented>> #228B22
+    BorderColor<<planned>> #4682B4
+    BorderColor<<in_progress>> #DAA520
+}
 
-package "Lead Management" {
-    AGGREGATE_ROOT Lead {
+' ===== FOUNDATION (IMPLEMENTED) =====
+package "🏗️ DDD Foundation" <<implemented>> {
+    abstract class DomainEvent <<implemented>> {
+        +eventId: String
+        +occurredOn: Instant
+        +eventVersion: String
+        +aggregateId: String
+        +eventType: String
+        +userId: String?
+        +correlationId: String?
+        +causationId: String?
+        +metadata: Map<String, Any>
+    }
+    
+    abstract class AggregateRoot<T> <<implemented>> {
+        +id: T
+        -_domainEvents: MutableList<DomainEvent>
+        +domainEvents: List<DomainEvent>
+        --
+        #addDomainEvent(event: DomainEvent): void
+        +clearDomainEvents(): void
+    }
+    
+    abstract class DomainObject<T> <<implemented>> {
+        +id: T
+        --
+        +equals(other: Any?): Boolean
+        +hashCode(): Int
+    }
+}
+
+' ===== CORE DOMAIN (NEXT TO IMPLEMENT) =====
+package "🎯 Core Business Domain" {
+    
+    ' Lead Aggregate (Priority 1)
+    class Lead <<in_progress>> {
         +id: LeadId
         +name: String
         +cnpj: String?
-        +phone: String?
         +email: String?
+        +phone: String?
         +address: Address
         +status: LeadStatus
         +source: LeadSource
@@ -22,108 +62,27 @@ package "Lead Management" {
         +convertToClient(): Client
         +updateStatus(status: LeadStatus): void
         +addContact(contact: ContactLog): void
+        +updateContactInfo(email: String?, phone: String?): void
     }
-
-    AGGREGATE_ROOT Client {
+    
+    ' Client Aggregate (Priority 2)
+    class Client <<planned>> {
         +id: ClientId
         +name: String
         +cnpj: String
+        +email: String
         +phone: String
-        +email: String?
         +address: Address
         +registrationDate: LocalDate
         +isActive: Boolean
         --
         +deactivate(): void
         +updateContactInfo(phone: String, email: String?): void
+        +reactivate(): void
     }
-
-    enum LeadStatus {
-        NEW
-        CONTACTED
-        QUALIFIED
-        PROPOSAL_SENT
-        NEGOTIATING
-        CONVERTED
-        LOST
-    }
-
-    enum LeadSource {
-        MANUAL_ENTRY
-        GOOGLE_PLACES
-        REFERRAL
-        WEBSITE
-    }
-}
-
-package "Contact Management" {
-    ENTITY ContactLog {
-        +id: ContactLogId
-        +leadId: LeadId
-        +contactDate: LocalDateTime
-        +channel: ContactChannel
-        +result: ContactResult
-        +notes: String?
-        +scriptUsed: ScriptId?
-        +nextFollowUp: LocalDate?
-        --
-        +scheduleFollowUp(date: LocalDate): void
-    }
-
-    enum ContactChannel {
-        PHONE
-        EMAIL
-        WHATSAPP
-        IN_PERSON
-        WEBSITE
-    }
-
-    enum ContactResult {
-        NO_ANSWER
-        INTERESTED
-        NOT_INTERESTED
-        CALLBACK_REQUESTED
-        MEETING_SCHEDULED
-        PROPOSAL_REQUESTED
-        CONVERTED
-    }
-}
-
-package "Sales Scripts" {
-    AGGREGATE_ROOT Script {
-        +id: ScriptId
-        +name: String
-        +content: String
-        +category: ScriptCategory
-        +isActive: Boolean
-        +createdAt: LocalDateTime
-        +usage: ScriptUsage
-        --
-        +recordUsage(result: ContactResult): void
-        +calculateEffectiveness(): Double
-        +activate(): void
-        +deactivate(): void
-    }
-
-    VALUE_OBJECT ScriptUsage {
-        +totalUses: Int
-        +successfulUses: Int
-        +effectivenessRate: Double
-        --
-        +incrementUsage(successful: Boolean): ScriptUsage
-    }
-
-    enum ScriptCategory {
-        COLD_CALL
-        FOLLOW_UP
-        PROPOSAL
-        OBJECTION_HANDLING
-        CLOSING
-    }
-}
-
-package "Geographic Data" {
-    VALUE_OBJECT Address {
+    
+    ' Value Objects (Priority 1)
+    class Address <<planned>> {
         +street: String?
         +city: String
         +state: String
@@ -134,80 +93,126 @@ package "Geographic Data" {
         --
         +isComplete(): Boolean
         +getCoordinates(): Coordinates?
+        +distanceTo(other: Address): Double?
     }
-
-    VALUE_OBJECT Coordinates {
+    
+    class Coordinates <<planned>> {
         +latitude: Double
         +longitude: Double
         --
         +distanceTo(other: Coordinates): Double
+        +isValid(): Boolean
     }
-
-    ENTITY LeadDensity {
-        +city: String
-        +state: String
-        +totalLeads: Int
-        +convertedLeads: Int
-        +conversionRate: Double
-        +priority: Priority
+    
+    ' ID Value Objects
+    class LeadId <<in_progress>> {
+        +value: String
         --
-        +calculatePriority(): Priority
+        +toString(): String
     }
-
-    enum Priority {
-        LOW
-        MEDIUM
-        HIGH
-        CRITICAL
-    }
-}
-
-package "External Integration" {
-    VALUE_OBJECT GooglePlacesData {
-        +placeId: String
-        +name: String
-        +address: String
-        +phone: String?
-        +rating: Double?
-        +businessType: String
-        +coordinates: Coordinates
+    
+    class ClientId <<planned>> {
+        +value: String
         --
-        +toLead(): Lead
+        +toString(): String
+    }
+    
+    ' Enums (Priority 1)
+    enum LeadStatus <<in_progress>> {
+        NEW
+        CONTACTED
+        QUALIFIED
+        PROPOSAL_SENT
+        NEGOTIATING
+        CONVERTED
+        LOST
+    }
+    
+    enum LeadSource <<in_progress>> {
+        MANUAL_ENTRY
+        GOOGLE_PLACES
+        REFERRAL
+        WEBSITE
     }
 }
 
-package "Value Objects" {
-    VALUE_OBJECT LeadId {
-        +value: String
+' ===== DOMAIN EVENTS (NEXT TO IMPLEMENT) =====
+package "⚡ Domain Events" {
+    class LeadCreatedEvent <<planned>> {
+        +aggregateId: String
+        +leadName: String
+        +leadSource: LeadSource
+        +eventType: String = "LeadCreated"
+        --
+        +getLeadDetails(): Map<String, Any>
     }
-
-    VALUE_OBJECT ClientId {
-        +value: String
+    
+    class LeadConvertedEvent <<planned>> {
+        +aggregateId: String
+        +clientId: String
+        +conversionDate: LocalDateTime
+        +eventType: String = "LeadConverted"
+        --
+        +getConversionDetails(): Map<String, Any>
     }
-
-    VALUE_OBJECT ContactLogId {
-        +value: String
-    }
-
-    VALUE_OBJECT ScriptId {
-        +value: String
+    
+    class LeadStatusChangedEvent <<planned>> {
+        +aggregateId: String
+        +previousStatus: LeadStatus
+        +newStatus: LeadStatus
+        +eventType: String = "LeadStatusChanged"
+        --
+        +getStatusChange(): Map<String, LeadStatus>
     }
 }
 
-' Relationships
-Lead ||--o{ ContactLog : "has contact history"
-Lead ||--o| Address : "located at"
-Client ||--o| Address : "located at"
-ContactLog }o--|| Script : "may use script"
-Lead }o--|| LeadDensity : "contributes to density"
-GooglePlacesData ..> Lead : "converts to"
-Address ||--o| Coordinates : "has coordinates"
+' ===== RELATIONSHIPS =====
+' Foundation relationships
+Lead --|> AggregateRoot : extends
+Client --|> AggregateRoot : extends
 
-' Aggregates
-note right of Lead : Aggregate Root\nManages lead lifecycle\nand contact interactions
+' Domain relationships
+Lead --> LeadId : has
+Lead --> Address : located at
+Lead --> LeadStatus : has status
+Lead --> LeadSource : originated from
+Client --> ClientId : has
+Client --> Address : located at
+Address --> Coordinates : may have
 
-note right of Client : Aggregate Root\nRepresents converted\ncustomers
+' Event relationships
+Lead ..> LeadCreatedEvent : generates
+Lead ..> LeadConvertedEvent : generates
+Lead ..> LeadStatusChangedEvent : generates
+LeadCreatedEvent --|> DomainEvent : extends
+LeadConvertedEvent --|> DomainEvent : extends
+LeadStatusChangedEvent --|> DomainEvent : extends
 
-note right of Script : Aggregate Root\nManages sales scripts\nand effectiveness tracking
+' ===== IMPLEMENTATION NOTES =====
+note top of Lead : 🚀 **PRIORITY 1**\nStart with this aggregate\nCore business entity\nRich domain model
 
-@enduml 
+note right of Address : 🗺️ **GEOGRAPHIC FOCUS**\nEssential for territory analysis\nGoogle Maps integration ready\nSupports coordinates
+
+note bottom of LeadCreatedEvent : ⚡ **EVENT-DRIVEN**\nGenerated when Lead is created\nTriggers welcome workflows\nEnables analytics
+
+note left of DomainEvent : ✅ **IMPLEMENTED**\nFoundation ready\nEvent sourcing capable\nMetadata for tracing
+
+' ===== IMPLEMENTATION ROADMAP =====
+legend bottom right
+    |= Status |= Color |= Next Action |
+    | <back:#90EE90>Implemented</back> | Green | ✅ Ready to use |
+    | <back:#87CEEB>Planned</back> | Blue | 🚧 Implement next |
+    | <back:#F0E68C>In Progress</back> | Yellow | 🔄 Currently working |
+    
+    **Implementation Order:**
+    1️⃣ **LeadId, Address, LeadStatus** (Value Objects & Enums)
+    2️⃣ **Lead Aggregate** (Core business logic)
+    3️⃣ **LeadCreatedEvent** (Domain event)
+    4️⃣ **Client Aggregate** (Conversion target)
+    5️⃣ **Additional Events** (Status changes, conversion)
+    
+    **Remember:** Update this diagram as you implement!
+    Mark components as <<in_progress>> then <<implemented>>
+endlegend
+
+@enduml

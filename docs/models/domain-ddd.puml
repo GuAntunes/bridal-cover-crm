@@ -1,0 +1,663 @@
+@startuml DDD Domain Model - Aggregates Separated
+
+!theme plain
+title 🏗️ BridalCover CRM - Domain Model (Aggregates + Entities + Value Objects)
+
+skinparam class {
+    BackgroundColor<<aggregate>> #87CEEB
+    BackgroundColor<<entity>> #98FB98
+    BackgroundColor<<valueobject>> #F0E68C
+    BackgroundColor<<domainservice>> #FFB6C1
+    BackgroundColor<<implemented>> #90EE90
+    BorderColor<<aggregate>> #4682B4
+    BorderColor<<entity>> #32CD32
+    BorderColor<<valueobject>> #DAA520
+    BorderColor<<domainservice>> #DC143C
+    BorderColor<<implemented>> #228B22
+}
+
+skinparam package {
+    BackgroundColor<<leadaggregate>> #E6F3FF
+    BackgroundColor<<clientaggregate>> #E6FFE6
+    BackgroundColor<<territoryaggregate>> #FFF0E6
+    BorderColor<<leadaggregate>> #4682B4
+    BorderColor<<clientaggregate>> #32CD32
+    BorderColor<<territoryaggregate>> #FF8C00
+}
+
+' ===== DDD FOUNDATION (IMPLEMENTED) =====
+package "🏗️ DDD Foundation" <<implemented>> {
+    abstract class AggregateRoot<T> <<implemented>> {
+        +id: T
+        -_domainEvents: MutableList<DomainEvent>
+        +domainEvents: List<DomainEvent>
+        --
+        #addDomainEvent(event: DomainEvent): void
+        +clearDomainEvents(): void
+    }
+    
+    abstract class Entity<T> <<implemented>> {
+        +id: T
+        --
+        +equals(other: Any?): Boolean
+        +hashCode(): Int
+    }
+    
+    abstract class ValueObject <<implemented>> {
+        --
+        +equals(other: Any?): Boolean
+        +hashCode(): Int
+    }
+    
+    abstract class DomainEvent <<implemented>> {
+        +eventId: String
+        +occurredOn: Instant
+        +aggregateId: String
+        +eventType: String
+    }
+}
+
+' ===== LEAD AGGREGATE =====
+package "🎯 Lead Aggregate" <<leadaggregate>> {
+    
+    ' Lead Aggregate Root
+    class Lead <<aggregate>> {
+        +id: LeadId
+        +name: CompanyName
+        +cnpj: CNPJ?
+        +contactInfo: ContactInfo
+        +address: Address
+        +status: LeadStatus
+        +source: LeadSource
+        +createdAt: LocalDateTime
+        +updatedAt: LocalDateTime
+        -contactAttempts: List<ContactAttempt>
+        --
+        +convertToClient(): Client
+        +updateStatus(status: LeadStatus): void
+        +updateContactInfo(contactInfo: ContactInfo): void
+        +addContactAttempt(attempt: ContactAttempt): void
+        +getContactAttempts(): List<ContactAttempt>
+        +isQualified(): Boolean
+        +canBeConverted(): Boolean
+        +getLastContactAttempt(): ContactAttempt?
+    }
+    
+    ' Lead Entities
+    class ContactAttempt <<entity>> {
+        +id: ContactAttemptId
+        +leadId: LeadId
+        +attemptDate: LocalDateTime
+        +channel: ContactChannel
+        +result: ContactResult
+        +notes: String?
+        +nextFollowUp: LocalDate?
+        +scriptUsed: ScriptId?
+        +duration: Duration?
+        --
+        +scheduleFollowUp(date: LocalDate): void
+        +wasSuccessful(): Boolean
+        +requiresFollowUp(): Boolean
+        +updateResult(result: ContactResult): void
+    }
+    
+    ' Lead-specific Value Objects
+    class LeadId <<valueobject>> {
+        +value: String
+        --
+        +toString(): String
+        +equals(other: Any?): Boolean
+        +hashCode(): Int
+    }
+    
+    class ContactAttemptId <<valueobject>> {
+        +value: String
+        --
+        +toString(): String
+        +equals(other: Any?): Boolean
+        +hashCode(): Int
+    }
+    
+    class ScriptId <<valueobject>> {
+        +value: String
+        --
+        +toString(): String
+        +equals(other: Any?): Boolean
+        +hashCode(): Int
+    }
+    
+    enum LeadStatus <<valueobject>> {
+        NEW
+        CONTACTED
+        QUALIFIED
+        PROPOSAL_SENT
+        NEGOTIATING
+        CONVERTED
+        LOST
+        --
+        +isActive(): Boolean
+        +canTransitionTo(newStatus: LeadStatus): Boolean
+        +isTerminal(): Boolean
+    }
+    
+    enum LeadSource <<valueobject>> {
+        MANUAL_ENTRY
+        GOOGLE_PLACES
+        REFERRAL
+        WEBSITE
+        COLD_CALL
+        SOCIAL_MEDIA
+        --
+        +isAutomated(): Boolean
+        +requiresVerification(): Boolean
+    }
+    
+    enum ContactChannel <<valueobject>> {
+        PHONE
+        EMAIL
+        WHATSAPP
+        IN_PERSON
+        WEBSITE
+        SOCIAL_MEDIA
+        --
+        +requiresPersonalContact(): Boolean
+        +isDigital(): Boolean
+    }
+    
+    enum ContactResult <<valueobject>> {
+        NO_ANSWER
+        INTERESTED
+        NOT_INTERESTED
+        CALLBACK_REQUESTED
+        MEETING_SCHEDULED
+        PROPOSAL_REQUESTED
+        CONVERTED
+        INVALID_CONTACT
+        --
+        +isPositive(): Boolean
+        +requiresFollowUp(): Boolean
+        +isTerminal(): Boolean
+    }
+    
+    ' Lead Aggregate Internal Relationships
+    Lead ||--o{ ContactAttempt : contains
+    Lead --> LeadId : identified by
+    Lead --> LeadStatus : has
+    Lead --> LeadSource : originated from
+    ContactAttempt --> ContactAttemptId : identified by
+    ContactAttempt --> ContactChannel : uses
+    ContactAttempt --> ContactResult : produces
+    ContactAttempt --> LeadId : belongs to
+    ContactAttempt --> ScriptId : may use
+}
+
+' ===== CLIENT AGGREGATE =====
+package "🏢 Client Aggregate" <<clientaggregate>> {
+    
+    ' Client Aggregate Root
+    class Client <<aggregate>> {
+        +id: ClientId
+        +name: CompanyName
+        +cnpj: CNPJ
+        +contactInfo: ContactInfo
+        +address: Address
+        +registrationDate: LocalDate
+        +status: ClientStatus
+        +originLeadId: LeadId?
+        -contractInfo: ContractInfo?
+        --
+        +deactivate(): void
+        +reactivate(): void
+        +updateContactInfo(contactInfo: ContactInfo): void
+        +createContract(terms: ContractTerms): ContractInfo
+        +renewContract(newEndDate: LocalDate): void
+        +terminateContract(): void
+        +isActive(): Boolean
+        +hasActiveContract(): Boolean
+        +getContractInfo(): ContractInfo?
+    }
+    
+    ' Client Entities
+    class ContractInfo <<entity>> {
+        +id: ContractId
+        +clientId: ClientId
+        +startDate: LocalDate
+        +endDate: LocalDate?
+        +terms: ContractTerms
+        +status: ContractStatus
+        +monthlyValue: Money
+        +renewalCount: Int
+        --
+        +isActive(): Boolean
+        +renew(newEndDate: LocalDate): void
+        +terminate(): void
+        +calculateRemainingDays(): Int
+        +isNearExpiration(days: Int): Boolean
+        +updateTerms(terms: ContractTerms): void
+    }
+    
+    ' Client-specific Value Objects
+    class ClientId <<valueobject>> {
+        +value: String
+        --
+        +toString(): String
+        +equals(other: Any?): Boolean
+        +hashCode(): Int
+    }
+    
+    class ContractId <<valueobject>> {
+        +value: String
+        --
+        +toString(): String
+        +equals(other: Any?): Boolean
+        +hashCode(): Int
+    }
+    
+    class ContractTerms <<valueobject>> {
+        +serviceDescription: String
+        +paymentTerms: String
+        +deliveryTerms: String
+        +cancellationPolicy: String
+        +specialConditions: List<String>
+        --
+        +isValid(): Boolean
+        +hasSpecialConditions(): Boolean
+        +equals(other: Any?): Boolean
+        +hashCode(): Int
+    }
+    
+    class Money <<valueobject>> {
+        +amount: BigDecimal
+        +currency: Currency
+        --
+        +add(other: Money): Money
+        +subtract(other: Money): Money
+        +multiply(factor: BigDecimal): Money
+        +isPositive(): Boolean
+        +format(): String
+        +equals(other: Any?): Boolean
+        +hashCode(): Int
+    }
+    
+    enum ClientStatus <<valueobject>> {
+        ACTIVE
+        INACTIVE
+        SUSPENDED
+        TERMINATED
+        --
+        +isActive(): Boolean
+        +canTransitionTo(newStatus: ClientStatus): Boolean
+    }
+    
+    enum ContractStatus <<valueobject>> {
+        ACTIVE
+        SUSPENDED
+        TERMINATED
+        EXPIRED
+        PENDING_RENEWAL
+        --
+        +isActive(): Boolean
+        +requiresAction(): Boolean
+    }
+    
+    ' Client Aggregate Internal Relationships
+    Client ||--o| ContractInfo : may have
+    Client --> ClientId : identified by
+    Client --> ClientStatus : has
+    ContractInfo --> ContractId : identified by
+    ContractInfo --> ContractTerms : governed by
+    ContractInfo --> ContractStatus : has
+    ContractInfo --> Money : valued at
+    ContractInfo --> ClientId : belongs to
+}
+
+' ===== TERRITORY AGGREGATE =====
+package "🗺️ Territory Aggregate" <<territoryaggregate>> {
+    
+    ' Territory Aggregate Root
+    class Territory <<aggregate>> {
+        +id: TerritoryId
+        +name: String
+        +boundaries: GeographicBoundary
+        +priority: TerritoryPriority
+        +createdAt: LocalDateTime
+        +lastAnalyzed: LocalDateTime?
+        -leadDensity: LeadDensity
+        -leadIds: Set<LeadId>
+        --
+        +calculateLeadDensity(leads: List<Lead>): void
+        +updatePriority(): void
+        +addLead(leadId: LeadId): void
+        +removeLead(leadId: LeadId): void
+        +getLeadCount(): Int
+        +getLeadDensity(): LeadDensity
+        +contains(coordinates: Coordinates): Boolean
+        +isHighPriority(): Boolean
+    }
+    
+    ' Territory Entities
+    class LeadDensity <<entity>> {
+        +id: LeadDensityId
+        +territoryId: TerritoryId
+        +totalLeads: Int
+        +qualifiedLeads: Int
+        +convertedLeads: Int
+        +conversionRate: Percentage
+        +qualificationRate: Percentage
+        +lastCalculated: LocalDateTime
+        +areaKm2: Double
+        --
+        +recalculate(leads: List<Lead>): void
+        +getConversionRate(): Percentage
+        +getQualificationRate(): Percentage
+        +getLeadsPerKm2(): Double
+        +isHighDensity(): Boolean
+        +compareWith(other: LeadDensity): Int
+    }
+    
+    ' Territory-specific Value Objects
+    class TerritoryId <<valueobject>> {
+        +value: String
+        --
+        +toString(): String
+        +equals(other: Any?): Boolean
+        +hashCode(): Int
+    }
+    
+    class LeadDensityId <<valueobject>> {
+        +value: String
+        --
+        +toString(): String
+        +equals(other: Any?): Boolean
+        +hashCode(): Int
+    }
+    
+    class GeographicBoundary <<valueobject>> {
+        +northEast: Coordinates
+        +southWest: Coordinates
+        +name: String?
+        --
+        +contains(coordinates: Coordinates): Boolean
+        +getArea(): Double
+        +getCenter(): Coordinates
+        +intersects(other: GeographicBoundary): Boolean
+        +equals(other: Any?): Boolean
+        +hashCode(): Int
+    }
+    
+    class Percentage <<valueobject>> {
+        +value: Double
+        --
+        +isValid(): Boolean
+        +format(): String
+        +compareTo(other: Percentage): Int
+        +add(other: Percentage): Percentage
+        +equals(other: Any?): Boolean
+        +hashCode(): Int
+    }
+    
+    enum TerritoryPriority <<valueobject>> {
+        LOW
+        MEDIUM
+        HIGH
+        CRITICAL
+        --
+        +getWeight(): Int
+        +isHighPriority(): Boolean
+        +compareTo(other: TerritoryPriority): Int
+    }
+    
+    ' Territory Aggregate Internal Relationships
+    Territory ||--|| LeadDensity : contains
+    Territory --> TerritoryId : identified by
+    Territory --> GeographicBoundary : bounded by
+    Territory --> TerritoryPriority : has
+    LeadDensity --> LeadDensityId : identified by
+    LeadDensity --> Percentage : calculates
+    LeadDensity --> TerritoryId : belongs to
+}
+
+' ===== SHARED VALUE OBJECTS =====
+package "💎 Shared Value Objects" {
+    
+    ' Business Identity Value Objects
+    class CompanyName <<valueobject>> {
+        +value: String
+        --
+        +isValid(): Boolean
+        +toString(): String
+        +length(): Int
+        +equals(other: Any?): Boolean
+        +hashCode(): Int
+    }
+    
+    class CNPJ <<valueobject>> {
+        +value: String
+        --
+        +isValid(): Boolean
+        +format(): String
+        +getDigits(): String
+        +equals(other: Any?): Boolean
+        +hashCode(): Int
+    }
+    
+    ' Contact Value Objects
+    class ContactInfo <<valueobject>> {
+        +email: Email?
+        +phone: Phone?
+        +website: Website?
+        +socialMedia: Map<SocialMediaType, String>
+        --
+        +hasEmail(): Boolean
+        +hasPhone(): Boolean
+        +isComplete(): Boolean
+        +getPrimaryContact(): String?
+        +equals(other: Any?): Boolean
+        +hashCode(): Int
+    }
+    
+    class Email <<valueobject>> {
+        +value: String
+        --
+        +isValid(): Boolean
+        +getDomain(): String
+        +getLocalPart(): String
+        +equals(other: Any?): Boolean
+        +hashCode(): Int
+    }
+    
+    class Phone <<valueobject>> {
+        +value: String
+        +countryCode: String
+        +areaCode: String?
+        --
+        +isValid(): Boolean
+        +format(): String
+        +isMobile(): Boolean
+        +equals(other: Any?): Boolean
+        +hashCode(): Int
+    }
+    
+    class Website <<valueobject>> {
+        +url: String
+        --
+        +isValid(): Boolean
+        +getDomain(): String
+        +isSecure(): Boolean
+        +equals(other: Any?): Boolean
+        +hashCode(): Int
+    }
+    
+    ' Geographic Value Objects
+    class Address <<valueobject>> {
+        +street: String?
+        +number: String?
+        +complement: String?
+        +neighborhood: String?
+        +city: String
+        +state: String
+        +postalCode: PostalCode?
+        +coordinates: Coordinates?
+        +country: String
+        --
+        +isComplete(): Boolean
+        +getCoordinates(): Coordinates?
+        +distanceTo(other: Address): Distance?
+        +getFullAddress(): String
+        +equals(other: Any?): Boolean
+        +hashCode(): Int
+    }
+    
+    class Coordinates <<valueobject>> {
+        +latitude: Double
+        +longitude: Double
+        --
+        +isValid(): Boolean
+        +distanceTo(other: Coordinates): Distance
+        +toString(): String
+        +equals(other: Any?): Boolean
+        +hashCode(): Int
+    }
+    
+    class PostalCode <<valueobject>> {
+        +value: String
+        --
+        +isValid(): Boolean
+        +format(): String
+        +getDigits(): String
+        +equals(other: Any?): Boolean
+        +hashCode(): Int
+    }
+    
+    class Distance <<valueobject>> {
+        +value: Double
+        +unit: DistanceUnit
+        --
+        +toKilometers(): Double
+        +toMiles(): Double
+        +compareTo(other: Distance): Int
+        +add(other: Distance): Distance
+        +equals(other: Any?): Boolean
+        +hashCode(): Int
+    }
+    
+    enum DistanceUnit <<valueobject>> {
+        KILOMETERS
+        MILES
+        --
+        +getConversionFactor(): Double
+        +getSymbol(): String
+    }
+    
+    enum SocialMediaType <<valueobject>> {
+        FACEBOOK
+        INSTAGRAM
+        LINKEDIN
+        TWITTER
+        WHATSAPP
+        --
+        +getBaseUrl(): String
+        +requiresHandle(): Boolean
+    }
+    
+    ' Shared Value Object Internal Relationships
+    ContactInfo --> Email : may have
+    ContactInfo --> Phone : may have
+    ContactInfo --> Website : may have
+    ContactInfo --> SocialMediaType : uses
+    Address --> PostalCode : may have
+    Address --> Coordinates : may have
+    Distance --> DistanceUnit : measured in
+}
+
+' ===== DOMAIN SERVICES =====
+package "🔧 Domain Services" {
+    
+    class LeadQualificationService <<domainservice>> {
+        --
+        +qualifyLead(lead: Lead, attempts: List<ContactAttempt>): Boolean
+        +calculateQualificationScore(lead: Lead): Int
+        +suggestNextAction(lead: Lead): String
+        +isReadyForConversion(lead: Lead): Boolean
+    }
+    
+    class ConversionService <<domainservice>> {
+        --
+        +canConvert(lead: Lead): Boolean
+        +convertLeadToClient(lead: Lead): Client
+        +calculateConversionProbability(lead: Lead): Percentage
+        +validateConversionRequirements(lead: Lead): List<String>
+    }
+    
+    class TerritoryAnalysisService <<domainservice>> {
+        --
+        +analyzeDensity(territory: Territory, leads: List<Lead>): LeadDensity
+        +findOptimalTerritories(leads: List<Lead>): List<Territory>
+        +calculateTerritoryPriority(territory: Territory): TerritoryPriority
+        +suggestTerritoryExpansion(territory: Territory): List<GeographicBoundary>
+    }
+    
+    class DistanceCalculationService <<domainservice>> {
+        --
+        +calculateDistance(from: Address, to: Address): Distance
+        +findNearbyLeads(center: Address, radius: Distance): List<Lead>
+        +optimizeRoute(addresses: List<Address>): List<Address>
+        +isWithinServiceArea(address: Address, serviceArea: GeographicBoundary): Boolean
+    }
+}
+
+' ===== CROSS-AGGREGATE RELATIONSHIPS =====
+
+' Aggregates use shared Value Objects
+Lead --> CompanyName : has
+Lead --> CNPJ : may have
+Lead --> ContactInfo : has
+Lead --> Address : located at
+
+Client --> CompanyName : has
+Client --> CNPJ : has
+Client --> ContactInfo : has
+Client --> Address : located at
+Client --> LeadId : originated from
+
+Territory --> GeographicBoundary : bounded by
+GeographicBoundary --> Coordinates : uses
+
+' Domain Services operate on Aggregates
+LeadQualificationService ..> Lead : qualifies
+LeadQualificationService ..> ContactAttempt : analyzes
+ConversionService ..> Lead : converts
+ConversionService ..> Client : creates
+TerritoryAnalysisService ..> Territory : analyzes
+TerritoryAnalysisService ..> LeadDensity : calculates
+DistanceCalculationService ..> Address : calculates
+DistanceCalculationService ..> Distance : returns
+
+' ===== IMPLEMENTATION NOTES =====
+note top of Lead : 🎯 **AGGREGATE ROOT**\n• Consistency boundary for lead management\n• Contains ContactAttempts as entities\n• Enforces lead lifecycle rules\n• Publishes domain events
+
+note right of ContactAttempt : 🏢 **ENTITY**\n• Has identity within Lead aggregate\n• Lifecycle managed by Lead\n• Cannot exist without Lead\n• Tracks contact history
+
+note bottom of Address : 💎 **SHARED VALUE OBJECT**\n• Immutable location data\n• No identity - equality by value\n• Shared across Lead and Client\n• Contains geographic information
+
+note left of LeadQualificationService : 🔧 **DOMAIN SERVICE**\n• Stateless business logic\n• Cross-aggregate operations\n• Domain expertise for qualification\n• Used by application services
+
+' ===== LEGEND =====
+legend bottom right
+    |= Type |= Color |= Characteristics |= Location |
+    | <back:#87CEEB>Aggregate Root</back> | Blue | Consistency boundary, manages entities | Own package |
+    | <back:#98FB98>Entity</back> | Green | Has identity, mutable, lifecycle | Within aggregate |
+    | <back:#F0E68C>Value Object</back> | Yellow | Immutable, no identity, equality by value | Aggregate-specific or shared |
+    | <back:#FFB6C1>Domain Service</back> | Pink | Stateless, domain logic, cross-aggregate | Separate package |
+    | <back:#90EE90>Implemented</back> | Dark Green | Already exists in codebase | Foundation |
+    
+    **Key DDD Principles Applied:**
+    • **Aggregate boundaries** enforce consistency
+    • **Entities** have identity and belong to aggregates
+    • **Value Objects** are immutable and shareable
+    • **Domain Services** contain cross-aggregate logic
+    • **Rich domain model** with behavior, not anemic
+    • **Ubiquitous language** reflected in code
+endlegend
+
+@enduml

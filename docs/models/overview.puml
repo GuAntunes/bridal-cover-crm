@@ -1,0 +1,124 @@
+@startuml BridalCover CRM - Detailed Overview
+
+!theme plain
+title 🏢 BridalCover CRM - Detailed Project Overview
+
+skinparam rectangle {
+    BackgroundColor<<done>> #90EE90
+    BackgroundColor<<next>> #87CEEB
+    BackgroundColor<<future>> #F0E68C
+    BorderColor<<done>> #228B22
+    BorderColor<<next>> #4682B4
+    BorderColor<<future>> #DAA520
+}
+
+left to right direction
+
+rectangle "✅ **FOUNDATION COMPLETE**" <<done>> {
+    package "🏗️ **DDD Architecture**" {
+        [DomainEvent] <<done>>
+        [AggregateRoot] <<done>>
+        [DomainObject] <<done>>
+        note right : Event-driven foundation\nMetadata support\nImmutable events
+    }
+    
+    package "📦 **Project Structure**" {
+        [Hexagonal Architecture] <<done>>
+        [Package Organization] <<done>>
+        [ArchUnit Tests] <<done>>
+        note right : Clean architecture\nDependency rules\nAutomated validation
+    }
+    
+    package "📚 **Documentation**" {
+        [Domain Events Guide] <<done>>
+        [Architecture Diagrams] <<done>>
+        [Maintenance Guide] <<done>>
+        note right : Complete documentation\nVisual diagrams\nMaintenance process
+    }
+}
+
+rectangle "🚧 **PHASE 1 - CORE DOMAIN**" <<next>> {
+    package "🎯 **Domain Model**" {
+        [Lead Aggregate] <<next>>
+        [Client Aggregate] <<next>>
+        [Address Value Object] <<next>>
+        [LeadStatus Enum] <<next>>
+        note right : Core business entities\nRich domain model\nBusiness rules
+    }
+    
+    package "⚡ **Domain Events**" {
+        [LeadCreatedEvent] <<next>>
+        [LeadConvertedEvent] <<next>>
+        [LeadStatusChangedEvent] <<next>>
+        note right : Event-driven communication\nDecoupled components\nAudit trail
+    }
+    
+    package "🧪 **Testing**" {
+        [Unit Tests] <<next>>
+        [Domain Tests] <<next>>
+        [Event Tests] <<next>>
+        note right : TDD approach\nBehavior verification\nEvent validation
+    }
+}
+
+rectangle "🔮 **PHASE 2 - APPLICATION LAYER**" <<future>> {
+    package "🌐 **REST API**" {
+        [Lead Controllers] <<future>>
+        [Client Controllers] <<future>>
+        [DTOs & Validation] <<future>>
+        note right : RESTful endpoints\nInput validation\nError handling
+    }
+    
+    package "💾 **Data Persistence**" {
+        [JPA Repositories] <<future>>
+        [Database Schema] <<future>>
+        [Migrations] <<future>>
+        note right : PostgreSQL database\nEntity mapping\nSchema evolution
+    }
+    
+    package "🖥️ **Basic UI**" {
+        [React Frontend] <<future>>
+        [Lead Management UI] <<future>>
+        [Client Dashboard] <<future>>
+        note right : Modern web interface\nResponsive design\nUser-friendly forms
+    }
+}
+
+rectangle "🗺️ **PHASE 3 - ADVANCED FEATURES**" <<future>> {
+    package "📍 **Geographic Integration**" {
+        [Google Places API] <<future>>
+        [Maps Visualization] <<future>>
+        [Territory Analysis] <<future>>
+        note right : Lead discovery\nHeatmap visualization\nGeographic insights
+    }
+    
+    package "📱 **Mobile & Real-time**" {
+        [Mobile App] <<future>>
+        [Push Notifications] <<future>>
+        [Real-time Updates] <<future>>
+        note right : Cross-platform app\nInstant notifications\nLive data sync
+    }
+    
+    package "📊 **Analytics & Reports**" {
+        [Performance Dashboard] <<future>>
+        [Conversion Analytics] <<future>>
+        [Territory Reports] <<future>>
+        note right : Business intelligence\nKPI tracking\nData-driven insights
+    }
+}
+
+' Connections with detailed timelines
+"✅ **FOUNDATION COMPLETE**" --> "🚧 **PHASE 1 - CORE DOMAIN**" : **2-4 weeks**\nValue objects first\nThen aggregates\nFinally events
+
+"🚧 **PHASE 1 - CORE DOMAIN**" --> "🔮 **PHASE 2 - APPLICATION LAYER**" : **4-6 weeks**\nAPI endpoints\nDatabase integration\nBasic frontend
+
+"🔮 **PHASE 2 - APPLICATION LAYER**" --> "🗺️ **PHASE 3 - ADVANCED FEATURES**" : **6-10 weeks**\nGoogle integration\nMobile development\nAdvanced analytics
+
+' Status indicators
+note top of "✅ **FOUNDATION COMPLETE**" : 🎉 **100% Complete**\nSolid foundation ready\nAll DDD patterns implemented
+
+note top of "🚧 **PHASE 1 - CORE DOMAIN**" : 🎯 **Next Priority**\nStart with LeadId & Address\nThen Lead aggregate\nFinish with events
+
+note bottom : 🏢 **Business Focus:** Lead generation for bridal & tuxedo rental shops\n🎯 **Current Status:** Foundation complete, ready for core domain\n💡 **Next Action:** Implement Address value object and LeadStatus enum\n📈 **Success Metrics:** Working Lead management by end of Phase 1
+
+@enduml

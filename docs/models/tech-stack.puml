@@ -1,0 +1,210 @@
+@startuml Technology Stack
+
+!theme plain
+title 🛠️ BridalCover CRM - Technology Stack & Recommendations
+
+skinparam rectangle {
+    BackgroundColor<<core>> #87CEEB
+    BackgroundColor<<database>> #98FB98
+    BackgroundColor<<frontend>> #F0E68C
+    BackgroundColor<<devops>> #FFB6C1
+    BackgroundColor<<external>> #DDA0DD
+    BackgroundColor<<monitoring>> #FFA07A
+    BorderColor<<core>> #4682B4
+    BorderColor<<database>> #32CD32
+    BorderColor<<frontend>> #DAA520
+    BorderColor<<devops>> #DC143C
+    BorderColor<<external>> #9370DB
+    BorderColor<<monitoring>> #FF6347
+}
+
+left to right direction
+
+rectangle "☕ **BACKEND CORE**" <<core>> {
+    package "🏗️ **Framework & Language**" {
+        [Kotlin 1.9+] <<core>>
+        [Spring Boot 3.2+] <<core>>
+        [Spring Data JPA] <<core>>
+        [Spring Security] <<core>>
+        [Spring Validation] <<core>>
+        note bottom : Modern JVM stack\nReactive programming\nDependency injection\nSecurity built-in
+    }
+    
+    package "🧪 **Testing**" {
+        [JUnit 5] <<core>>
+        [Mockk] <<core>>
+        [Testcontainers] <<core>>
+        [ArchUnit] <<core>>
+        [WireMock] <<core>>
+        note bottom : Comprehensive testing\nMocking framework\nIntegration tests\nArchitecture validation
+    }
+    
+    package "📋 **API & Documentation**" {
+        [OpenAPI 3] <<core>>
+        [Swagger UI] <<core>>
+        [Jackson] <<core>>
+        [Bean Validation] <<core>>
+        note bottom : API-first design\nInteractive documentation\nJSON processing\nInput validation
+    }
+}
+
+rectangle "💾 **DATA LAYER**" <<database>> {
+    package "🗄️ **Primary Database**" {
+        [PostgreSQL 15+] <<database>>
+        [HikariCP] <<database>>
+        [Flyway] <<database>>
+        note bottom : ACID compliance\nJSON support\nConnection pooling\nSchema migrations
+    }
+    
+    package "⚡ **Caching & Performance**" {
+        [Redis 7+] <<database>>
+        [Spring Cache] <<database>>
+        [Caffeine] <<database>>
+        note bottom : In-memory caching\nSession storage\nLocal cache\nPerformance optimization
+    }
+    
+    package "📊 **Analytics & Search**" {
+        [Elasticsearch] <<database>>
+        [Apache Kafka] <<database>>
+        [InfluxDB] <<database>>
+        note bottom : Full-text search\nEvent streaming\nTime-series data\nReal-time analytics
+    }
+}
+
+rectangle "🌐 **FRONTEND**" <<frontend>> {
+    package "⚛️ **Web Application**" {
+        [React 18+] <<frontend>>
+        [TypeScript] <<frontend>>
+        [Vite] <<frontend>>
+        [React Router] <<frontend>>
+        [React Query] <<frontend>>
+        note bottom : Modern UI framework\nType safety\nFast build tool\nClient-side routing\nServer state management
+    }
+    
+    package "🎨 **UI & Styling**" {
+        [Tailwind CSS] <<frontend>>
+        [Headless UI] <<frontend>>
+        [React Hook Form] <<frontend>>
+        [Framer Motion] <<frontend>>
+        note bottom : Utility-first CSS\nAccessible components\nForm management\nAnimations
+    }
+    
+    package "📱 **Mobile (Future)**" {
+        [React Native] <<frontend>>
+        [Expo] <<frontend>>
+        [React Navigation] <<frontend>>
+        note bottom : Cross-platform mobile\nDevelopment tools\nNavigation system
+    }
+}
+
+rectangle "🗺️ **EXTERNAL SERVICES**" <<external>> {
+    package "📍 **Geographic Services**" {
+        [Google Places API] <<external>>
+        [Google Maps API] <<external>>
+        [Google Geocoding API] <<external>>
+        note bottom : Business discovery\nMap visualization\nAddress validation
+    }
+    
+    package "📧 **Communication**" {
+        [SendGrid] <<external>>
+        [Twilio] <<external>>
+        [WhatsApp Business API] <<external>>
+        note bottom : Email delivery\nSMS notifications\nWhatsApp integration
+    }
+    
+    package "🔐 **Authentication & Security**" {
+        [Auth0] <<external>>
+        [OAuth 2.0] <<external>>
+        [JWT] <<external>>
+        note bottom : Identity management\nSocial login\nToken-based auth
+    }
+}
+
+rectangle "🚀 **DEVOPS & DEPLOYMENT**" <<devops>> {
+    package "🐳 **Containerization**" {
+        [Docker] <<devops>>
+        [Docker Compose] <<devops>>
+        [Kubernetes] <<devops>>
+        note bottom : Container platform\nLocal development\nOrchestration
+    }
+    
+    package "☁️ **Cloud Platform**" {
+        [AWS / Azure / GCP] <<devops>>
+        [Terraform] <<devops>>
+        [GitHub Actions] <<devops>>
+        note bottom : Cloud infrastructure\nInfrastructure as Code\nCI/CD pipeline
+    }
+    
+    package "📦 **Build & Package**" {
+        [Gradle] <<devops>>
+        [Maven] <<devops>>
+        [npm/yarn] <<devops>>
+        note bottom : Build automation\nDependency management\nPackage management
+    }
+}
+
+rectangle "📊 **MONITORING & OBSERVABILITY**" <<monitoring>> {
+    package "📈 **Application Monitoring**" {
+        [Micrometer] <<monitoring>>
+        [Prometheus] <<monitoring>>
+        [Grafana] <<monitoring>>
+        [Jaeger] <<monitoring>>
+        note bottom : Metrics collection\nTime-series database\nVisualization\nDistributed tracing
+    }
+    
+    package "📝 **Logging & Alerting**" {
+        [Logback] <<monitoring>>
+        [ELK Stack] <<monitoring>>
+        [PagerDuty] <<monitoring>>
+        note bottom : Structured logging\nLog aggregation\nIncident management
+    }
+    
+    package "🔍 **Error Tracking**" {
+        [Sentry] <<monitoring>>
+        [Rollbar] <<monitoring>>
+        note bottom : Error monitoring\nPerformance tracking
+    }
+}
+
+' Technology relationships and data flow
+"☕ **BACKEND CORE**" --> "💾 **DATA LAYER**" : JPA/JDBC
+"☕ **BACKEND CORE**" --> "🗺️ **EXTERNAL SERVICES**" : REST/HTTP
+"🌐 **FRONTEND**" --> "☕ **BACKEND CORE**" : REST API
+"🚀 **DEVOPS & DEPLOYMENT**" --> "☕ **BACKEND CORE**" : Deploy & Scale
+"📊 **MONITORING & OBSERVABILITY**" --> "☕ **BACKEND CORE**" : Metrics & Logs
+
+' Implementation phases
+note top of "☕ **BACKEND CORE**" : 🚧 **PHASE 1**\nCore framework setup\nDomain implementation\nBasic API endpoints
+
+note top of "💾 **DATA LAYER**" : 📋 **PHASE 2**\nPostgreSQL integration\nRedis for caching\nData persistence
+
+note top of "🌐 **FRONTEND**" : 📋 **PHASE 2**\nReact application\nBasic UI components\nAPI integration
+
+note top of "🗺️ **EXTERNAL SERVICES**" : 🗺️ **PHASE 3**\nGoogle APIs\nCommunication services\nAdvanced integrations
+
+note bottom of "🚀 **DEVOPS & DEPLOYMENT**" : 🔄 **CONTINUOUS**\nDocker from start\nCI/CD pipeline\nCloud deployment
+
+note bottom of "📊 **MONITORING & OBSERVABILITY**" : 🔄 **CONTINUOUS**\nBasic logging first\nMetrics in Phase 2\nAdvanced monitoring Phase 3
+
+' Technology alternatives and recommendations
+legend bottom right
+    |= Category |= Primary Choice |= Alternative |= Why Primary? |
+    | **Language** | Kotlin | Java | Better syntax, null safety |
+    | **Framework** | Spring Boot | Quarkus | Mature ecosystem, documentation |
+    | **Database** | PostgreSQL | MySQL | JSON support, advanced features |
+    | **Cache** | Redis | Hazelcast | Industry standard, rich features |
+    | **Frontend** | React | Vue.js | Large ecosystem, job market |
+    | **Mobile** | React Native | Flutter | Code sharing with web |
+    | **Cloud** | AWS | Azure/GCP | Market leader, extensive services |
+    | **Monitoring** | Prometheus | DataDog | Open source, Kubernetes native |
+    
+    **💡 Decision Criteria:**
+    • Community support & documentation
+    • Learning curve & team expertise
+    • Long-term maintenance
+    • Integration capabilities
+    • Cost considerations
+endlegend
+
+@enduml
+
