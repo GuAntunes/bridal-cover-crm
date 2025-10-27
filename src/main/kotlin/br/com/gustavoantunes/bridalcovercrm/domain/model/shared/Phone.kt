@@ -1,4 +1,4 @@
-package br.com.gustavoantunes.bridalcovercrm.domain.`model-example`.shared
+package br.com.gustavoantunes.bridalcovercrm.domain.model.shared
 
 /**
  * Value Object that represents a phone number.

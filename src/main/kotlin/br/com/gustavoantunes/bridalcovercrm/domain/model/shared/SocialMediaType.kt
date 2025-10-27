@@ -1,4 +1,4 @@
-package br.com.gustavoantunes.bridalcovercrm.domain.`model-example`.shared
+package br.com.gustavoantunes.bridalcovercrm.domain.model.shared
 
 /**
  * Enum that represents the types of social media supported by the system.

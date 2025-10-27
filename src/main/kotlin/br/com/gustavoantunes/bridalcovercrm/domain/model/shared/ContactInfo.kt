@@ -1,9 +1,5 @@
 package br.com.gustavoantunes.bridalcovercrm.domain.model.shared
 
-import br.com.gustavoantunes.bridalcovercrm.domain.`model-example`.shared.Email
-import br.com.gustavoantunes.bridalcovercrm.domain.`model-example`.shared.Phone
-import br.com.gustavoantunes.bridalcovercrm.domain.`model-example`.shared.SocialMediaType
-
 /**
  * Value Object that represents the contact information of a company.
  *

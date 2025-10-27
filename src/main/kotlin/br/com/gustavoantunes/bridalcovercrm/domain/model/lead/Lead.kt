@@ -15,4 +15,12 @@ class Lead(
     val source: LeadSource,
     val createdAt: LocalDateTime = LocalDateTime.now(),
     var updatedAt: LocalDateTime = LocalDateTime.now()
-) : AggregateRootWithId<LeadId>()
+) : AggregateRootWithId<LeadId>() {
+
+    init {
+        require(!createdAt.isAfter(LocalDateTime.now().plusMinutes(1))) { "Creation date cannot be in the future" }
+        require(!updatedAt.isBefore(createdAt)) { "Update date cannot be before creation date" }
+        require(!(source == LeadSource.WEBSITE && !contactInfo.hasEmail())) { "Leads from website must have email" }
+        require(!(source == LeadSource.COLD_CALL && !contactInfo.hasPhone())) { "Leads from cold call must have phone" }
+    }
+}
