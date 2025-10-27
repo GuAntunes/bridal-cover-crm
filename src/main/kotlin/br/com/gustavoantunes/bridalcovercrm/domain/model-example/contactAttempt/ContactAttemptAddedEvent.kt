@@ -1,7 +1,7 @@
 package br.com.gustavoantunes.bridalcovercrm.domain.`model-example`.contactAttempt
 
 import br.com.gustavoantunes.bridalcovercrm.domain.model.common.DomainEvent
-import br.com.gustavoantunes.bridalcovercrm.domain.`model-example`.lead.LeadId
+import br.com.gustavoantunes.bridalcovercrm.domain.model.lead.LeadId
 
 /**
  * Evento de domínio disparado quando uma nova tentativa de contato é adicionada a um Lead.

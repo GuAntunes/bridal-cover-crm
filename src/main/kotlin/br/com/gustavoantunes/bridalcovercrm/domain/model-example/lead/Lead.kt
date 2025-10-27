@@ -1,4 +1,4 @@
-package br.com.gustavoantunes.bridalcovercrm.domain.`model-example`.lead
+/*package br.com.gustavoantunes.bridalcovercrm.domain.`model-example`.lead
 
 import br.com.gustavoantunes.bridalcovercrm.domain.model.common.AggregateRootWithId
 import br.com.gustavoantunes.bridalcovercrm.domain.`model-example`.contactAttempt.ContactAttempt
@@ -13,6 +13,9 @@ import br.com.gustavoantunes.bridalcovercrm.domain.`model-example`.lead.event.Le
 import br.com.gustavoantunes.bridalcovercrm.domain.`model-example`.shared.CNPJ
 import br.com.gustavoantunes.bridalcovercrm.domain.`model-example`.shared.CompanyName
 import br.com.gustavoantunes.bridalcovercrm.domain.`model-example`.shared.ContactInfo
+import br.com.gustavoantunes.bridalcovercrm.domain.model.lead.LeadId
+import br.com.gustavoantunes.bridalcovercrm.domain.model.lead.LeadSource
+import br.com.gustavoantunes.bridalcovercrm.domain.model.lead.LeadStatus
 import java.time.LocalDateTime
 
 /**
@@ -143,8 +146,8 @@ class Lead(
      * Verifica se o Lead está qualificado
      */
     fun isQualified(): Boolean {
-        return status == LeadStatus.QUALIFIED || 
-               status == LeadStatus.PROPOSAL_SENT || 
+        return status == LeadStatus.QUALIFIED ||
+               status == LeadStatus.PROPOSAL_SENT ||
                status == LeadStatus.NEGOTIATING
     }
     
@@ -152,7 +155,7 @@ class Lead(
      * Verifica se o Lead pode ser convertido em cliente
      */
     fun canBeConverted(): Boolean {
-        return status.canTransitionTo(LeadStatus.CONVERTED) && 
+        return status.canTransitionTo(LeadStatus.CONVERTED) &&
                hasSuccessfulContacts() && 
                contactInfo.isComplete()
     }
@@ -181,7 +184,7 @@ class Lead(
      * Marca o Lead como perdido
      */
     fun markAsLost(reason: String? = null, userId: String? = null) {
-        require(status.canTransitionTo(LeadStatus.LOST)) { 
+        require(status.canTransitionTo(LeadStatus.LOST)) {
             "Lead não pode ser marcado como perdido no status atual" 
         }
         
@@ -293,3 +296,4 @@ class Lead(
         )
     }
 }
+*/

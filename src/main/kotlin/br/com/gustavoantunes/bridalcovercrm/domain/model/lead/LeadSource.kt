@@ -1,30 +1,30 @@
-package br.com.gustavoantunes.bridalcovercrm.domain.`model-example`.lead
+package br.com.gustavoantunes.bridalcovercrm.domain.model.lead
 
 /**
  * Enum that represents the possible sources of a Lead.
- * 
+ *
  * The Lead source is important for marketing channel ROI analysis
  * and to understand which sources generate the best leads.
  */
 enum class LeadSource {
     /** Lead manually entered into the system */
     MANUAL_ENTRY,
-    
+
     /** Lead obtained through Google Places/Maps */
     GOOGLE_PLACES,
-    
+
     /** Lead obtained through referral */
     REFERRAL,
-    
+
     /** Lead that came through the website */
     WEBSITE,
-    
+
     /** Lead obtained through cold calling */
     COLD_CALL,
-    
+
     /** Lead obtained through social media */
     SOCIAL_MEDIA;
-    
+
     /**
      * Checks if the source is automated (does not require manual intervention)
      */
@@ -34,7 +34,7 @@ enum class LeadSource {
             MANUAL_ENTRY, REFERRAL, COLD_CALL -> false
         }
     }
-    
+
     /**
      * Checks if the source requires additional data verification
      */
@@ -44,7 +44,7 @@ enum class LeadSource {
             MANUAL_ENTRY, REFERRAL, WEBSITE, SOCIAL_MEDIA -> false
         }
     }
-    
+
     /**
      * Returns the user-friendly description of the source
      */
@@ -58,7 +58,7 @@ enum class LeadSource {
             SOCIAL_MEDIA -> "Social Media"
         }
     }
-    
+
     /**
      * Returns the source priority (higher value = higher priority)
      */
@@ -73,4 +73,3 @@ enum class LeadSource {
         }
     }
 }
-

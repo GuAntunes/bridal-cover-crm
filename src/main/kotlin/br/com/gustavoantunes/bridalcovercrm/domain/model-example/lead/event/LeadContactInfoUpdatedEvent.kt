@@ -1,7 +1,7 @@
 package br.com.gustavoantunes.bridalcovercrm.domain.`model-example`.lead.event
 
 import br.com.gustavoantunes.bridalcovercrm.domain.model.common.DomainEvent
-import br.com.gustavoantunes.bridalcovercrm.domain.`model-example`.lead.LeadId
+import br.com.gustavoantunes.bridalcovercrm.domain.model.lead.LeadId
 import br.com.gustavoantunes.bridalcovercrm.domain.`model-example`.shared.ContactInfo
 
 /**

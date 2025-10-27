@@ -1,6 +1,7 @@
-package br.com.gustavoantunes.bridalcovercrm.domain.`model-example`.lead
+package br.com.gustavoantunes.bridalcovercrm.domain.model.lead
 
 import br.com.gustavoantunes.bridalcovercrm.domain.model.common.AggregateId
+import java.util.UUID
 
 /**
  * Value Object representing a Lead's unique identifier.
@@ -12,7 +13,7 @@ import br.com.gustavoantunes.bridalcovercrm.domain.model.common.AggregateId
  * handle UUID-based identifiers.
  */
 class LeadId private constructor(value: String) : AggregateId(value) {
-    
+
     companion object {
         /**
          * Generates a new LeadId with a random UUID
@@ -27,6 +28,6 @@ class LeadId private constructor(value: String) : AggregateId(value) {
         /**
          * Creates a LeadId from a UUID
          */
-        fun fromUUID(uuid: java.util.UUID): LeadId = LeadId(uuid.toString())
+        fun fromUUID(uuid: UUID): LeadId = LeadId(uuid.toString())
     }
 }

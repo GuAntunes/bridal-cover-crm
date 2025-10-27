@@ -1,8 +1,8 @@
 package br.com.gustavoantunes.bridalcovercrm.domain.`model-example`.lead.event
 
 import br.com.gustavoantunes.bridalcovercrm.domain.model.common.DomainEvent
-import br.com.gustavoantunes.bridalcovercrm.domain.`model-example`.lead.LeadId
-import br.com.gustavoantunes.bridalcovercrm.domain.`model-example`.lead.LeadSource
+import br.com.gustavoantunes.bridalcovercrm.domain.model.lead.LeadId
+import br.com.gustavoantunes.bridalcovercrm.domain.model.lead.LeadSource
 import br.com.gustavoantunes.bridalcovercrm.domain.`model-example`.shared.CompanyName
 import br.com.gustavoantunes.bridalcovercrm.domain.`model-example`.shared.ContactInfo
 import java.time.LocalDateTime

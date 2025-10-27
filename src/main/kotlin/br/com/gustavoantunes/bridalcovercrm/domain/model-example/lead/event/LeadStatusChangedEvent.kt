@@ -1,8 +1,8 @@
 package br.com.gustavoantunes.bridalcovercrm.domain.`model-example`.lead.event
 
 import br.com.gustavoantunes.bridalcovercrm.domain.model.common.DomainEvent
-import br.com.gustavoantunes.bridalcovercrm.domain.`model-example`.lead.LeadId
-import br.com.gustavoantunes.bridalcovercrm.domain.`model-example`.lead.LeadStatus
+import br.com.gustavoantunes.bridalcovercrm.domain.model.lead.LeadId
+import br.com.gustavoantunes.bridalcovercrm.domain.model.lead.LeadStatus
 
 /**
  * Evento de domínio disparado quando o status de um Lead é alterado.

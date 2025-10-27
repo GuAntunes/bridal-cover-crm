@@ -1,7 +1,7 @@
 package br.com.gustavoantunes.bridalcovercrm.domain.`model-example`.contactAttempt
 
 import br.com.gustavoantunes.bridalcovercrm.domain.model.common.DomainObject
-import br.com.gustavoantunes.bridalcovercrm.domain.`model-example`.lead.LeadId
+import br.com.gustavoantunes.bridalcovercrm.domain.model.lead.LeadId
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
