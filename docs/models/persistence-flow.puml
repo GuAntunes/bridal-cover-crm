@@ -1,0 +1,194 @@
+@startuml persistence-flow
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam linetype ortho
+
+title Fluxo de Persistência - Ports & Adapters\n(Lead Aggregate)
+
+' ===== PACKAGES =====
+package "🎯 Application Layer" as app {
+    interface "RegisterLeadUseCase" as usecase <<port-in>> {
+        + execute(command): Lead
+    }
+    
+    class "RegisterLeadService" as service <<service>> {
+        - leadRepository: LeadRepository
+        --
+        + execute(command): Lead
+    }
+    
+    interface "LeadRepository" as port <<port-out>> {
+        + save(lead: Lead): Lead
+        + findById(id: LeadId): Lead?
+    }
+}
+
+package "⚡ Domain Layer" as domain {
+    class "Lead" as lead <<aggregate>> {
+        + id: LeadId
+        + name: CompanyName
+        + cnpj: CNPJ?
+        + contactInfo: ContactInfo
+        + status: LeadStatus
+        + source: LeadSource
+        + createdAt: LocalDateTime
+        + updatedAt: LocalDateTime
+        --
+        Validações e invariantes
+    }
+    
+    class "LeadId" as leadId <<value-object>> {
+        + value: String
+    }
+    
+    class "CompanyName" as companyName <<value-object>> {
+        + value: String
+    }
+    
+    class "CNPJ" as cnpj <<value-object>> {
+        + value: String
+        --
+        + getDigits(): String
+    }
+    
+    class "ContactInfo" as contactInfo <<value-object>> {
+        + email: Email?
+        + phone: Phone?
+        + website: String?
+        + socialMedia: Map
+    }
+}
+
+package "🔧 Infrastructure - Persistence" as infra {
+    class "LeadRepositoryAdapter" as adapter <<adapter>> {
+        - dataRepository: LeadDataJdbcRepository
+        --
+        + save(lead: Lead): Lead
+        + findById(id: LeadId): Lead?
+    }
+    
+    class "LeadMapper" as mapper <<mapper>> {
+        + toEntity(lead: Lead): LeadEntity
+        + toDomain(entity: LeadEntity): Lead
+    }
+    
+    class "ContactInfoJsonMapper" as jsonMapper <<mapper>> {
+        + toJson(contactInfo: ContactInfo): String
+        + fromJson(json: String): ContactInfo
+    }
+    
+    interface "LeadDataJdbcRepository" as springRepo <<spring-data>> {
+        + save(entity: LeadEntity): LeadEntity
+        + findById(id: String): Optional<LeadEntity>
+    }
+    
+    class "LeadEntity" as entity <<entity>> {
+        + id: String
+        + companyName: String
+        + cnpj: String?
+        + contactInfo: String
+        + status: String
+        + source: String
+        + createdAt: LocalDateTime
+        + updatedAt: LocalDateTime
+    }
+}
+
+database "PostgreSQL" as db {
+    frame "leads table" as table {
+        [id (PK)]
+        [company_name]
+        [cnpj]
+        [contact_info (JSONB)]
+        [status]
+        [source]
+        [created_at]
+        [updated_at]
+    }
+}
+
+' ===== RELATIONSHIPS =====
+' Application Layer
+service .up.|> usecase : implements
+service ..> port : usa
+service --> lead : cria/manipula
+
+' Domain
+lead --> leadId : tem
+lead --> companyName : tem
+lead --> cnpj : tem
+lead --> contactInfo : tem
+
+' Infrastructure
+adapter .up.|> port : implements
+adapter --> springRepo : usa
+adapter --> mapper : usa
+springRepo --> entity : persiste
+mapper --> lead : converte de/para
+mapper --> entity : converte de/para
+mapper --> jsonMapper : usa
+jsonMapper --> contactInfo : converte
+entity --> table : mapeia
+
+' ===== FLOW ANNOTATIONS =====
+note right of service
+  **1. Service recebe comando**
+  Valida e cria Lead (Domain)
+end note
+
+note right of port
+  **PORT = Interface**
+  Define contrato em
+  termos de domínio
+  (Lead, LeadId)
+end note
+
+note right of adapter
+  **2. Adapter implementa Port**
+  - Recebe Lead (domínio)
+  - Converte para Entity
+  - Salva usando Spring Data
+  - Converte de volta para Lead
+end note
+
+note right of mapper
+  **3. Mapper traduz**
+  Lead ↔ LeadEntity
+  
+  CompanyName → String
+  CNPJ → String (digits)
+  ContactInfo → JSON
+  LeadStatus → String
+end note
+
+note bottom of entity
+  **Entity = Estrutura de dados**
+  - Tipos primitivos
+  - Anotações Spring Data
+  - Sem lógica de negócio
+  - Anêmico
+end note
+
+note bottom of springRepo
+  **Spring Data**
+  Gera queries
+  automaticamente
+end note
+
+' ===== LEGEND =====
+legend right
+  |= Símbolo |= Significado |
+  | <<port-in>> | Porta de Entrada (Use Case) |
+  | <<port-out>> | Porta de Saída (SPI) |
+  | <<service>> | Implementação de Use Case |
+  | <<adapter>> | Adaptador (implementa port) |
+  | <<mapper>> | Conversor Domain ↔ Entity |
+  | <<aggregate>> | Aggregate Root (DDD) |
+  | <<value-object>> | Value Object (DDD) |
+  | <<entity>> | Modelo de dados (tabela) |
+  | <<spring-data>> | Repository do Spring |
+endlegend
+
+@enduml
+

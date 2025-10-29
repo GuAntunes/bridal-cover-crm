@@ -1,0 +1,163 @@
+@startuml persistence-sequence
+!theme plain
+skinparam shadowing false
+
+title Sequência de Persistência - Salvar Lead\n(Ports & Adapters Pattern)
+
+actor "Controller" as controller
+participant "RegisterLeadService" as service <<Application>>
+participant "Lead" as lead <<Domain>>
+participant "LeadRepository" as port <<Port-Out>>
+participant "LeadRepositoryAdapter" as adapter <<Infrastructure>>
+participant "LeadMapper" as mapper <<Infrastructure>>
+participant "ContactInfoJsonMapper" as jsonMapper <<Infrastructure>>
+participant "LeadDataJdbcRepository" as springRepo <<Spring Data>>
+participant "LeadEntity" as entity <<Infrastructure>>
+database "PostgreSQL" as db
+
+== 1. Application Layer - Lógica de Negócio ==
+
+controller -> service: execute(command)
+activate service
+
+service -> lead: **new Lead**(\n  id = LeadId.generate(),\n  name = CompanyName(cmd.name),\n  cnpj = CNPJ.fromString(cmd.cnpj),\n  contactInfo = ContactInfo(...),\n  ...)
+activate lead
+note right
+  **Domain Model criado**
+  Com todas as validações
+  e invariantes aplicadas
+end note
+
+lead --> service: lead
+deactivate lead
+
+== 2. Port Interface - Contrato ==
+
+service -> port: save(lead)
+note right of port
+  **Interface (Port)**
+  Usa tipos de DOMÍNIO:
+  - Lead (aggregate)
+  - LeadId (value object)
+  
+  Sem detalhes de infra!
+end note
+
+== 3. Infrastructure - Adapter ==
+
+port -> adapter: save(lead)
+activate adapter
+note right of adapter
+  **Adapter implementa Port**
+  Traduz domínio para infra
+end note
+
+== 4. Conversion - Domain to Entity ==
+
+adapter -> mapper: toEntity(lead)
+activate mapper
+
+mapper -> lead: id.value
+lead --> mapper: String
+
+mapper -> lead: name.value
+lead --> mapper: String
+
+mapper -> lead: cnpj?.getDigits()
+lead --> mapper: String?
+
+mapper -> jsonMapper: toJson(contactInfo)
+activate jsonMapper
+jsonMapper -> lead: contactInfo
+lead --> jsonMapper: ContactInfo
+jsonMapper --> mapper: "{ email: '...', phone: {...}, ... }"
+deactivate jsonMapper
+
+mapper -> lead: status.name
+lead --> mapper: String
+
+mapper -> lead: source.name
+lead --> mapper: String
+
+mapper -> entity: **new LeadEntity**(\n  id = "uuid-string",\n  companyName = "string",\n  cnpj = "14-digits",\n  contactInfo = "json-string",\n  status = "NEW",\n  source = "WEBSITE",\n  ...)
+activate entity
+note right of entity
+  **Entity (Anêmica)**
+  Tipos primitivos
+  Sem validações
+  Pronta para persistência
+end note
+entity --> mapper: entity
+deactivate entity
+
+mapper --> adapter: LeadEntity
+deactivate mapper
+
+== 5. Persistence - Spring Data ==
+
+adapter -> springRepo: save(entity)
+activate springRepo
+note right of springRepo
+  **Spring Data JDBC**
+  Gera SQL automaticamente
+end note
+
+springRepo -> db: INSERT INTO leads\n(id, company_name, cnpj,\n contact_info, status, source,\n created_at, updated_at)\nVALUES (...)
+activate db
+db --> springRepo: 1 row inserted
+deactivate db
+
+springRepo --> adapter: savedEntity
+deactivate springRepo
+
+== 6. Conversion - Entity to Domain ==
+
+adapter -> mapper: toDomain(savedEntity)
+activate mapper
+
+mapper -> entity: id
+entity --> mapper: String
+
+mapper -> lead: **new Lead**(\n  id = LeadId.fromString(...),\n  name = CompanyName(...),\n  cnpj = CNPJ.fromString(...),\n  contactInfo = fromJson(...),\n  status = LeadStatus.valueOf(...),\n  source = LeadSource.valueOf(...),\n  ...)
+activate lead
+note right
+  **Domain Model reconstruído**
+  Com validações aplicadas
+end note
+lead --> mapper: lead
+deactivate lead
+
+mapper --> adapter: Lead
+deactivate mapper
+
+== 7. Return to Application ==
+
+adapter --> port: Lead
+deactivate adapter
+
+port --> service: Lead
+service --> controller: Lead
+
+deactivate service
+
+note over controller, db
+  ✅ **Resumo do Fluxo:**
+  
+  1. **Controller → Service**: Comando com dados primitivos
+  2. **Service**: Cria aggregate Lead (rich domain)
+  3. **Service → Port**: Usa interface com tipos de domínio
+  4. **Adapter**: Implementa port e coordena conversão
+  5. **Mapper**: Lead → LeadEntity (domain → data)
+  6. **Spring Data**: LeadEntity → Database
+  7. **Mapper**: LeadEntity → Lead (data → domain)
+  8. **Adapter → Service**: Retorna Lead enriquecido
+  
+  **Benefícios:**
+  - 🔒 Domínio isolado de infra
+  - 🔄 Fácil trocar tecnologia
+  - ✅ Testável sem banco
+  - 📦 Baixo acoplamento
+end note
+
+@enduml
+

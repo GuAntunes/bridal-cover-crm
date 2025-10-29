@@ -37,8 +37,10 @@ class ArchitectureTest {
         @JvmField
         val useCasesShouldEndWithUseCase: ArchRule = classes()
             .that().resideInAPackage("..application.port.in..")
+            .and().areTopLevelClasses()
             .should().beInterfaces()
             .andShould().haveSimpleNameEndingWith("UseCase")
+            .because("Top-level use case interfaces should end with 'UseCase'")
             .allowEmptyShould(true)
 
         @ArchTest
@@ -55,7 +57,9 @@ class ArchitectureTest {
         @JvmField
         val repositoriesShouldEndWithRepository: ArchRule = classes()
             .that().resideInAPackage("..infrastructure.repository..")
+            .or().resideInAPackage("..infrastructure.persistence.repository..")
             .should().haveSimpleNameEndingWith("Repository")
+            .because("Repository implementations should end with 'Repository'")
             .allowEmptyShould(true)
 
         @ArchTest
@@ -85,24 +89,28 @@ class ArchitectureTest {
         // Spring Annotations Rules
         @ArchTest
         @JvmField
-        val springControllersOnlyInInfrastructure: ArchRule = noClasses()
+        val springControllersOnlyInInfrastructure: ArchRule = classes()
             .that().areAnnotatedWith("org.springframework.web.bind.annotation.RestController")
             .or().areAnnotatedWith("org.springframework.stereotype.Controller")
-            .should().resideOutsideOfPackage("..infrastructure.controller..")
+            .should().resideInAPackage("..infrastructure.controller..")
+            .because("Spring Controllers should only exist in infrastructure.controller package or its subpackages")
             .allowEmptyShould(true)
 
         @ArchTest
         @JvmField
-        val springServiceOnlyInApplicationService: ArchRule = noClasses()
+        val springServiceOnlyInApplicationService: ArchRule = classes()
             .that().areAnnotatedWith("org.springframework.stereotype.Service")
-            .should().resideOutsideOfPackage("..application.service..")
+            .should().resideInAPackage("..application.service..")
+            .because("Spring Services should only exist in application.service package or its subpackages")
             .allowEmptyShould(true)
 
         @ArchTest
         @JvmField
-        val springRepositoryOnlyInInfrastructure: ArchRule = noClasses()
+        val springRepositoryOnlyInInfrastructure: ArchRule = classes()
             .that().areAnnotatedWith("org.springframework.stereotype.Repository")
-            .should().resideOutsideOfPackage("..infrastructure.repository..")
+            .should().resideInAPackage("..infrastructure.repository..")
+            .orShould().resideInAPackage("..infrastructure.persistence.repository..")
+            .because("Spring Repositories should only exist in infrastructure.repository or infrastructure.persistence.repository packages or their subpackages")
             .allowEmptyShould(true)
 
         @ArchTest
@@ -118,8 +126,11 @@ class ArchitectureTest {
         val inputPortsAccessRule: ArchRule = classes()
             .that().resideInAPackage("..application.port.in..")
             .should().onlyBeAccessed().byClassesThat().resideInAnyPackage(
-                "..application.service..", "..infrastructure.controller.."
+                "..application.service..",
+                "..application.port.in..",
+                "..infrastructure.controller.."
             )
+            .because("Input ports can be accessed by services (in any subpackage) and controllers")
             .allowEmptyShould(true)
 
         @ArchTest
@@ -127,8 +138,12 @@ class ArchitectureTest {
         val outputPortsAccessRule: ArchRule = classes()
             .that().resideInAPackage("..application.port.out..")
             .should().onlyBeAccessed().byClassesThat().resideInAnyPackage(
-                "..application.service..", "..infrastructure.repository.."
+                "..application.service..",
+                "..application.port.out..",
+                "..infrastructure.repository..",
+                "..infrastructure.persistence.repository.."
             )
+            .because("Output ports can be accessed by services (in any subpackage) and repository implementations")
             .allowEmptyShould(true)
 
         // Interface Implementation Rules
@@ -143,11 +158,15 @@ class ArchitectureTest {
 
         @ArchTest
         @JvmField
-        val repositoriesShouldImplementPorts: ArchRule = classes()
+        val customRepositoriesShouldImplementPorts: ArchRule = classes()
             .that().resideInAPackage("..infrastructure.repository..")
+            .or().resideInAPackage("..infrastructure.persistence.repository..")
+            .and().areNotInterfaces()
+            .and().haveSimpleNameNotContaining("DataJdbc")
+            .and().haveSimpleNameNotContaining("Jpa")
             .should().dependOnClassesThat()
             .resideInAPackage("..application.port.out..")
-            .because("Repositories should implement interfaces from output ports")
+            .because("Custom repository implementations (not Spring Data repositories) should implement interfaces from output ports")
             .allowEmptyShould(true)
     }
 } 

@@ -19,12 +19,30 @@ repositories {
 }
 
 dependencies {
+	// Spring Boot Starters
 	implementation("org.springframework.boot:spring-boot-starter-web")
+	implementation("org.springframework.boot:spring-boot-starter-data-jdbc") // ← Spring Data JDBC
+	implementation("org.springframework.boot:spring-boot-starter-validation")
+	
+	// Database
+	implementation("org.postgresql:postgresql") // ← PostgreSQL Driver
+	implementation("org.flywaydb:flyway-core") // ← Database Migration
+	implementation("org.flywaydb:flyway-database-postgresql") // ← Flyway PostgreSQL Support
+	
+	// JSON Processing
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+	implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310") // ← LocalDateTime support
+	
+	// Kotlin
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
+	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+	
+	// Test Dependencies
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testImplementation("com.tngtech.archunit:archunit-junit5:1.4.0")
+	testImplementation("org.testcontainers:postgresql") // ← Integration tests with PostgreSQL
+	testImplementation("org.testcontainers:junit-jupiter")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
