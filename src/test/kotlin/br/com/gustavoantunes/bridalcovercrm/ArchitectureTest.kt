@@ -23,6 +23,9 @@ class ArchitectureTest {
         @JvmField
         val controllersShouldEndWithController: ArchRule = classes()
             .that().resideInAPackage("..infrastructure.adapter.in..")
+            .and().resideOutsideOfPackage("..dto..")
+            .and().areTopLevelClasses()
+            .and().areNotNestedClasses()
             .should().haveSimpleNameEndingWith("Controller")
             .allowEmptyShould(true)
 
