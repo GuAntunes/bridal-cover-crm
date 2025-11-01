@@ -1,7 +1,7 @@
-package br.com.gustavoantunes.bridalcovercrm.application.service.lead
+package br.com.gustavoantunes.bridalcovercrm.application.usecase.lead
 
-import br.com.gustavoantunes.bridalcovercrm.application.port.`in`.lead.GetLeadUseCase
-import br.com.gustavoantunes.bridalcovercrm.application.port.out.repository.LeadRepository
+import br.com.gustavoantunes.bridalcovercrm.domain.port.`in`.lead.GetLeadUseCase
+import br.com.gustavoantunes.bridalcovercrm.domain.port.out.repository.LeadRepository
 import br.com.gustavoantunes.bridalcovercrm.domain.model.lead.Lead
 import br.com.gustavoantunes.bridalcovercrm.domain.model.lead.LeadId
 import org.springframework.stereotype.Service
@@ -15,3 +15,5 @@ class GetLeadService(
         return leadRepository.findById(leadId)
     }
 }
+
+

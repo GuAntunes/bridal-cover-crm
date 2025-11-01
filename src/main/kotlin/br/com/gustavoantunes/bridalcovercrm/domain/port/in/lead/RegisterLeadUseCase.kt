@@ -1,4 +1,4 @@
-package br.com.gustavoantunes.bridalcovercrm.application.port.`in`.lead
+package br.com.gustavoantunes.bridalcovercrm.domain.port.`in`.lead
 
 import br.com.gustavoantunes.bridalcovercrm.domain.model.lead.Lead
 import br.com.gustavoantunes.bridalcovercrm.domain.model.lead.LeadSource
@@ -16,3 +16,5 @@ interface RegisterLeadUseCase {
         val source: LeadSource
     )
 }
+
+

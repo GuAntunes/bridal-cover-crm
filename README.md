@@ -89,59 +89,80 @@ Complete documentation is in the folder [`docs/`](docs/).
 
 ---
 
-# Hexagonal Architecture
+# 🏗️ Arquitetura Hexagonal (Ports and Adapters)
 
-**Hexagonal Architecture** aims to isolate the **domain** of the application from external dependencies (such as infrastructure, frameworks, and databases), allowing the system to be more flexible, testable, and maintainable with business logic independent of technologies.
+O projeto segue a **Arquitetura Hexagonal**, que isola o **domínio** da aplicação de dependências externas (infraestrutura, frameworks, bancos de dados), permitindo que o sistema seja mais flexível, testável e mantível, com a lógica de negócio independente de tecnologias.
 
-## Layer Structure
+## 📐 Estrutura de Camadas
 
-### 1. **Domain (`domain`)**
-- **Defines the ports (interfaces)** that external layers (such as application and infrastructure) should implement.
-- Contains **business rules** and domain models. It does not depend on any external technology.
-- **Types of Ports:**
-    - **Inbound Ports (Driving Ports):** Interfaces representing use cases.
-    - **Outbound Ports (Driven Ports):** Interfaces for interaction with external systems, such as repositories or external services.
+### 1. **Domain (`domain/`)**
+- **Define as portas (interfaces)** que as camadas externas devem implementar
+- Contém **regras de negócio** e modelos de domínio
+- **Não depende** de nenhuma tecnologia externa
+- **Tipos de Portas:**
+  - **domain/port/in/**: Interfaces que representam casos de uso (driving ports)
+  - **domain/port/out/**: Interfaces para interação com sistemas externos (driven ports)
+- **domain/model/**: Entidades, Value Objects e agregados
+- **domain/event/**: Eventos de domínio
 
-### 2. **Application Layer (`application`)**
-- **Interacts with the domain** via the **inbound ports** defined in the domain.
-- **Orchestrates the use cases** but does not contain business logic.
-- **Calls outbound ports** to interact with infrastructure, such as saving data or making calls to external services.
+### 2. **Application (`application/`)**
+- **Implementa os casos de uso** definidos em `domain/port/in/`
+- **Orquestra o fluxo de negócio** mas não contém lógica de domínio
+- **Usa as portas de saída** para interagir com infraestrutura
+- **application/usecase/**: Implementações dos casos de uso
+- **application/dto/**: Data Transfer Objects (Commands, Queries)
 
-### 3. **Infrastructure Layer (`infrastructure`)**
-- **Implements outbound ports** defined by the domain.
-- Contains the implementation of **adapters**, such as database repositories, external services, and other dependencies.
-- **Does not directly interact with the application layer**, ensuring business logic is independent of external technologies.
+### 3. **Infrastructure (`infrastructure/`)**
+- **Implementa as portas de saída** definidas pelo domínio
+- Contém adaptadores concretos (banco de dados, APIs externas, controllers)
+- **infrastructure/adapter/in/**: Adaptadores de entrada (Controllers, Listeners)
+- **infrastructure/adapter/out/**: Adaptadores de saída (Repositórios, Clients)
+- **infrastructure/config/**: Configuração de frameworks
 
-## Interaction Flow:
-1. The **Application Layer** calls an **inbound port** (use case).
-2. The **Domain** executes business logic and interacts with **outbound ports**.
-3. The **Infrastructure** layer implements the outbound ports and interacts with external systems (e.g., databases, APIs).
+## 🔄 Fluxo de Interação
 
-## Benefits:
-- **Decoupling**: The domain does not depend on external databases, frameworks, or libraries.
-- **Testability**: Business logic can be easily tested in isolation without dependencies on infrastructure.
-- **Flexibility**: External technologies (such as databases or frameworks) can be swapped without impacting the core business logic.
-
-# Packages Structure
 ```
-├── application   // Lógica de negócio (casos de uso)
-│   ├── port
-│   │   ├── in    // Interfaces para entrada (casos de uso)
-│   │   ├── out   // Interfaces para saída (repositórios, gateways)
-│   ├── service   // Implementação dos casos de uso
-│
-├── domain        // Entidades e regras de negócio puras
-│   ├── model     // Modelos de domínio
-│   ├── event     // Eventos de domínio (opcional)
-│
-├── infrastructure // Adapters (banco de dados, APIs externas, frameworks)
-│   ├── repository // Implementação das portas de saída
-│   ├── controller // Controladores (caso use REST)
-│   ├── config     // Configuração de Beans (caso use Spring)
-│   ├── client     // Comunicação com serviços externos
-│
-└── main          // Inicialização da aplicação
+Controller (in) 
+  → UseCase Interface (domain/port/in) 
+    → UseCase Implementation (application/usecase)
+      → Repository Interface (domain/port/out)
+        → Repository Adapter (infrastructure/adapter/out)
+          → Database
 ```
+
+## ✅ Benefícios
+
+- **Desacoplamento**: O domínio não depende de bancos de dados, frameworks ou bibliotecas externas
+- **Testabilidade**: Lógica de negócio pode ser testada isoladamente
+- **Flexibilidade**: Tecnologias externas podem ser trocadas sem impactar o core
+- **Domain-Driven Design**: Foco total nas regras de negócio
+
+## 📦 Estrutura de Pacotes
+
+```
+src/main/kotlin/br/com/gustavoantunes/bridalcovercrm/
+├── domain/                       # 🎯 CAMADA DE DOMÍNIO
+│   ├── port/                     # Interfaces (Portas)
+│   │   ├── in/                   # Portas de entrada (casos de uso)
+│   │   └── out/                  # Portas de saída (repositórios, gateways)
+│   ├── model/                    # Entidades e Value Objects
+│   └── event/                    # Eventos de domínio
+│
+├── application/                  # 🔄 CAMADA DE APLICAÇÃO
+│   ├── usecase/                  # Implementação dos casos de uso
+│   └── dto/                      # DTOs (Commands, Queries)
+│
+├── infrastructure/               # 🔧 CAMADA DE INFRAESTRUTURA
+│   ├── adapter/
+│   │   ├── in/                   # Adaptadores de entrada (Controllers)
+│   │   └── out/                  # Adaptadores de saída (Repositórios, Clients)
+│   ├── config/                   # Configuração de frameworks
+│   └── client/                   # Clientes de APIs externas
+│
+└── BridalCoverCrmApplication.kt  # Ponto de entrada
+```
+
+Para mais detalhes sobre a estrutura, veja: [`docs/architecture/hexagonal-structure.md`](docs/architecture/hexagonal-structure.md)
 ---
 
 ### **Run Locally** *TODO*

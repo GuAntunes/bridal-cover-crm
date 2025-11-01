@@ -1,10 +1,9 @@
-package br.com.gustavoantunes.bridalcovercrm.infrastructure.persistence.adapter
+package br.com.gustavoantunes.bridalcovercrm.infrastructure.adapter.out.persistence.repository
 
-import br.com.gustavoantunes.bridalcovercrm.application.port.out.repository.LeadRepository
+import br.com.gustavoantunes.bridalcovercrm.domain.port.out.repository.LeadRepository
 import br.com.gustavoantunes.bridalcovercrm.domain.model.lead.Lead
 import br.com.gustavoantunes.bridalcovercrm.domain.model.lead.LeadId
-import br.com.gustavoantunes.bridalcovercrm.infrastructure.persistence.mapper.LeadMapper
-import br.com.gustavoantunes.bridalcovercrm.infrastructure.persistence.repository.LeadDataJdbcRepository
+import br.com.gustavoantunes.bridalcovercrm.infrastructure.adapter.out.persistence.entity.LeadEntity
 import org.springframework.stereotype.Component
 
 /**
@@ -14,10 +13,10 @@ import org.springframework.stereotype.Component
  * and the infrastructure layer (using Spring Data JDBC and LeadEntity).
  * 
  * It follows the Hexagonal Architecture pattern, where:
- * - LeadRepository (port/out) is the interface defined by the application
+ * - LeadRepository (port/out) is the interface defined by the domain
  * - LeadRepositoryAdapter (adapter) is the implementation in the infrastructure
  * - LeadDataJdbcRepository is the Spring Data repository
- * - LeadMapper handles the conversion between domain and persistence models
+ * - LeadEntity handles the conversion between domain and persistence models via its own methods
  */
 @Component
 class LeadRepositoryAdapter(
@@ -31,9 +30,9 @@ class LeadRepositoryAdapter(
      * and converts back to domain model.
      */
     override fun save(lead: Lead): Lead {
-        val entity = LeadMapper.toEntity(lead)
+        val entity = LeadEntity.fromDomain(lead)
         val savedEntity = dataRepository.save(entity)
-        return LeadMapper.toDomain(savedEntity)
+        return savedEntity.toDomain()
     }
 
     /**
@@ -43,8 +42,9 @@ class LeadRepositoryAdapter(
      */
     override fun findById(id: LeadId): Lead? {
         return dataRepository.findById(id.value)
-            .map { LeadMapper.toDomain(it) }
+            .map { it.toDomain() }
             .orElse(null)
     }
 }
+
 

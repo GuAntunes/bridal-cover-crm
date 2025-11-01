@@ -9,6 +9,7 @@ Folder structure (this `docs/`):
 - `04-diagram-maintenance-guide.md` - guide how to maintain diagrams
 - `05-ubiquitous-language.md` - Ubiquitous language
 - `06-use-cases.md` - Use cases
+- `architecture/hexagonal-structure.md` - Hexagonal architecture structure and conventions
 
 ## Architecture Diagrams (`models/`)
 
