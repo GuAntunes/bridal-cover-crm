@@ -34,9 +34,28 @@ services:
     volumes:
       - pgadmin_data:/var/lib/pgadmin
 
+  jenkins:
+    image: jenkins/jenkins:lts-jdk17
+    container_name: bridal-cover-crm-jenkins
+    user: root
+    environment:
+      JAVA_OPTS: "-Djenkins.install.runSetupWizard=false"
+      JENKINS_OPTS: "--httpPort=8080"
+    ports:
+      - "9090:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_data:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./:/workspace
+    networks:
+      - bridal-network
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   pgadmin_data:
+  jenkins_data:
 
 networks:
   bridal-network:

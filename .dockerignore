@@ -1,0 +1,46 @@
+# Build artifacts
+build/
+target/
+bin/
+out/
+*.class
+
+# Gradle
+.gradle/
+gradle-app.setting
+!gradle-wrapper.jar
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+docs/
+*.md
+
+# Docker
+docker-compose.yml
+Dockerfile
+
+# Test
+**/test/
+
+# Environment
+.env
+.env.local
+

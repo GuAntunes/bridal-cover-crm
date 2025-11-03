@@ -47,7 +47,10 @@ Complete documentation is in the folder [`docs/`](docs/).
 | Component | Tech |
 |----------|------|
 | Backend | Kotlin + Spring Boot |
-| Database | PostgreSQL or MongoDB |
+| Database | PostgreSQL + Spring Data JDBC |
+| Migration | Flyway |
+| CI/CD | Jenkins |
+| Containerization | Docker + Docker Compose |
 | Caching (optional) | Redis |
 | Messaging (optional) | Kafka |
 | External API | Google Places API |
@@ -83,9 +86,10 @@ Complete documentation is in the folder [`docs/`](docs/).
 ### [ ] Step 8: Add Kafka for Async Events (Optional)
 - Contact attempted, lead updated, etc.
 
-### [ ] Step 9: Deploy and Monitor
-- Docker + CI/CD
-- Logs, Alerts, Usage metrics
+### [x] Step 9: Deploy and Monitor
+- ✅ Docker + Docker Compose configurado
+- ✅ Jenkins CI/CD configurado
+- [ ] Logs, Alerts, Usage metrics
 
 ---
 
@@ -165,17 +169,92 @@ src/main/kotlin/br/com/gustavoantunes/bridalcovercrm/
 Para mais detalhes sobre a estrutura, veja: [`docs/architecture/hexagonal-structure.md`](docs/architecture/hexagonal-structure.md)
 ---
 
-### **Run Locally** *TODO*
+## 🚀 Como Executar Localmente
+
+### Pré-requisitos
+- Docker e Docker Compose instalados
+- Java 17 ou superior (para desenvolvimento local)
+- Make (opcional, para usar comandos simplificados)
+
+### Início Rápido
+
 ```bash
-# Clone the repository
-git clone https://github.com/your-username/project-name.git
-cd project-name
+# Clone o repositório
+git clone https://github.com/your-username/bridal-cover-crm.git
+cd bridal-cover-crm
 
-# Configure the database in application.properties
+# Iniciar todos os serviços (Database + Jenkins)
+make start-all
 
-# Build and run the project
+# Ou use Docker Compose diretamente
+docker-compose up -d
+
+# Build da aplicação
+make build
+
+# Executar a aplicação
+make run
+```
+
+### Serviços Disponíveis
+
+Após executar `make start-all`, você terá acesso a:
+
+| Serviço | URL | Credenciais |
+|---------|-----|-------------|
+| PostgreSQL | `localhost:5432` | user: `postgres`, pass: `postgres` |
+| PgAdmin | http://localhost:8081 | email: `admin@bridalcrm.com`, pass: `admin123` |
+| Jenkins | http://localhost:9090 | Ver comando abaixo para obter senha |
+| API (quando rodando) | http://localhost:8080 | - |
+| Swagger UI | http://localhost:8080/swagger-ui.html | - |
+
+### Comandos Úteis
+
+```bash
+# Ver todos os comandos disponíveis
+make help
+
+# Apenas banco de dados
+make db-up
+make db-down
+
+# Apenas Jenkins
+make jenkins-up
+make jenkins-down
+make jenkins-password  # Obter senha inicial
+
+# Testes
+make test           # Todos os testes
+make arch-test      # Apenas testes de arquitetura
+
+# Build
+make build          # Build completo
+make clean          # Limpar artefatos
+```
+
+### Configuração do Jenkins
+
+Para configurar o Jenkins pela primeira vez:
+
+1. Inicie o Jenkins: `make jenkins-up`
+2. Obtenha a senha inicial: `make jenkins-password`
+3. Acesse http://localhost:9090
+4. Siga o guia completo em [`docs/jenkins-guide.md`](docs/jenkins-guide.md)
+
+### Estrutura do Projeto
 
 ```
+bridal-cover-crm/
+├── src/                      # Código fonte
+├── docs/                     # Documentação
+├── scripts/                  # Scripts auxiliares
+├── build.gradle.kts          # Configuração Gradle
+├── docker-compose.yml        # Serviços Docker
+├── Dockerfile                # Build da aplicação
+├── Jenkinsfile              # Pipeline CI/CD
+└── Makefile                  # Comandos simplificados
+```
+
 ---
 ## 📌 Final Notes
 

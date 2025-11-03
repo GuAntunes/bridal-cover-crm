@@ -152,6 +152,11 @@ Dockerfile.local
 docker-compose.override.yml
 .dockerignore.local
 
+# Jenkins
+.jenkins/
+jenkins_home/
+*.jenkins
+
 # Database migrations backup
 flyway.sql
 liquibase-*.sql

@@ -10,6 +10,12 @@ Folder structure (this `docs/`):
 - `05-ubiquitous-language.md` - Ubiquitous language
 - `06-use-cases.md` - Use cases
 - `architecture/hexagonal-structure.md` - Hexagonal architecture structure and conventions
+- `jenkins-guide.md` - Complete guide for Jenkins setup and CI/CD pipeline configuration
+- `technologies/` - Technical documentation
+  - `jenkins.md` - Jenkins CI/CD implementation and pipeline architecture
+  - `swagger.md` - API documentation with OpenAPI and API-First approach
+  - `arch-unit.md` - Architecture testing
+  - `persistence-*.md` - Database and persistence architecture
 
 ## Architecture Diagrams (`models/`)
 
