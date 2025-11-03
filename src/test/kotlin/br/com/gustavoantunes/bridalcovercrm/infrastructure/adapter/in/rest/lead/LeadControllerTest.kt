@@ -16,7 +16,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
-import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
@@ -28,6 +28,7 @@ import java.time.LocalDateTime
  * Unit tests for LeadController.
  * 
  * Uses MockMvc to test HTTP endpoints without starting the full application.
+ * Updated to use @MockitoBean instead of deprecated @MockBean.
  */
 @WebMvcTest(LeadController::class)
 class LeadControllerTest {
@@ -38,10 +39,10 @@ class LeadControllerTest {
     @Autowired
     private lateinit var objectMapper: ObjectMapper
 
-    @MockBean
+    @MockitoBean
     private lateinit var registerLeadUseCase: RegisterLeadUseCase
 
-    @MockBean
+    @MockitoBean
     private lateinit var getLeadUseCase: GetLeadUseCase
 
     @Test

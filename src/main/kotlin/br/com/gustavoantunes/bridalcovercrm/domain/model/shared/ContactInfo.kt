@@ -22,8 +22,11 @@ data class ContactInfo(
     }
 
     companion object {
+        // Regex pattern that supports multi-level domains (e.g., .com.br, .co.uk)
+        // Format: [protocol://][www.]domain.tld[.tld][/path]
+        // Examples: google.com, www.google.com, https://api.example.com, vestidoselegantes.com.br
         private val WEBSITE_PATTERN = Regex(
-            "^(https?://)?(www\\.)?[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\\.[a-zA-Z]{2,}(/.*)?$"
+            "^(https?://)?(www\\.)?[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]?(\\.[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]?)*\\.[a-zA-Z]{2,}(/.*)?$"
         )
 
         private fun isValidWebsite(website: String): Boolean {

@@ -1,8 +1,6 @@
 package br.com.gustavoantunes.bridalcovercrm.infrastructure.adapter.`in`.rest.dto.lead
 
 import br.com.gustavoantunes.bridalcovercrm.domain.model.lead.Lead
-import br.com.gustavoantunes.bridalcovercrm.domain.model.lead.LeadSource
-import br.com.gustavoantunes.bridalcovercrm.domain.model.lead.LeadStatus
 import com.fasterxml.jackson.annotation.JsonProperty
 import java.time.LocalDateTime
 
