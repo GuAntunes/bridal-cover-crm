@@ -41,7 +41,8 @@ class LeadRepositoryAdapter(
      * Returns null if no Lead is found with the given ID.
      */
     override fun findById(id: LeadId): Lead? {
-        return dataRepository.findById(id.value)
+        val uuid = java.util.UUID.fromString(id.value)
+        return dataRepository.findById(uuid)
             .map { it.toDomain() }
             .orElse(null)
     }

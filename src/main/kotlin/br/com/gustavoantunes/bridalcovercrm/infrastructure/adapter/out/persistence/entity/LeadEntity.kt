@@ -13,14 +13,18 @@ import br.com.gustavoantunes.bridalcovercrm.domain.model.shared.SocialMediaType
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.springframework.data.annotation.Id
+import org.springframework.data.annotation.Transient
+import org.springframework.data.domain.Persistable
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
 import java.time.LocalDateTime
+import java.util.UUID
 
 @Table("leads")
 data class LeadEntity(
     @Id
-    val id: String,
+    @get:JvmName("getIdValue")
+    val id: UUID,
     
     @Column("company_name")
     val companyName: String,
@@ -42,7 +46,18 @@ data class LeadEntity(
     
     @Column("updated_at")
     val updatedAt: LocalDateTime
-) {
+) : Persistable<UUID> {
+    
+    @Transient
+    private var _isNew: Boolean = false
+    
+    override fun getId(): UUID = id
+    override fun isNew(): Boolean = _isNew
+    
+    fun markAsNew(): LeadEntity {
+        _isNew = true
+        return this
+    }
     companion object {
         private val objectMapper = ObjectMapper()
         
@@ -51,7 +66,7 @@ data class LeadEntity(
          */
         fun fromDomain(lead: Lead): LeadEntity {
             return LeadEntity(
-                id = lead.id.value,
+                id = UUID.fromString(lead.id.value),
                 companyName = lead.name.value,
                 cnpj = lead.cnpj?.getDigits(),
                 contactInfo = serializeContactInfo(lead.contactInfo),
@@ -59,7 +74,7 @@ data class LeadEntity(
                 source = lead.source.name,
                 createdAt = lead.createdAt,
                 updatedAt = lead.updatedAt
-            )
+            ).markAsNew()
         }
         
         /**
@@ -90,7 +105,7 @@ data class LeadEntity(
      */
     fun toDomain(): Lead {
         return Lead(
-            id = LeadId.fromString(id),
+            id = LeadId.fromUUID(id),
             name = CompanyName(companyName),
             cnpj = cnpj?.let { CNPJ.fromString(it) },
             contactInfo = deserializeContactInfo(contactInfo),
