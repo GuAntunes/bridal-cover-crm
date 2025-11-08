@@ -46,6 +46,38 @@ class LeadRepositoryAdapter(
             .map { it.toDomain() }
             .orElse(null)
     }
+
+    /**
+     * Finds all Leads with pagination support.
+     * 
+     * @param page Page number (0-based)
+     * @param size Number of items per page
+     * @return List of Leads for the requested page
+     */
+    override fun findAll(page: Int, size: Int): List<Lead> {
+        val pageable = org.springframework.data.domain.PageRequest.of(page, size)
+        return dataRepository.findAllBy(pageable)
+            .map { it.toDomain() }
+    }
+
+    /**
+     * Counts the total number of Leads in the database.
+     * 
+     * @return Total number of Leads
+     */
+    override fun count(): Long {
+        return dataRepository.count()
+    }
+
+    /**
+     * Deletes a Lead by its ID.
+     * 
+     * @param id The LeadId to delete
+     */
+    override fun deleteById(id: LeadId) {
+        val uuid = java.util.UUID.fromString(id.value)
+        dataRepository.deleteById(uuid)
+    }
 }
 
 

@@ -8,8 +8,11 @@ import br.com.gustavoantunes.bridalcovercrm.domain.model.shared.CompanyName
 import br.com.gustavoantunes.bridalcovercrm.domain.model.shared.ContactInfo
 import br.com.gustavoantunes.bridalcovercrm.domain.model.shared.Email
 import br.com.gustavoantunes.bridalcovercrm.domain.model.shared.Phone
+import br.com.gustavoantunes.bridalcovercrm.domain.port.`in`.lead.DeleteLeadUseCase
 import br.com.gustavoantunes.bridalcovercrm.domain.port.`in`.lead.GetLeadUseCase
+import br.com.gustavoantunes.bridalcovercrm.domain.port.`in`.lead.ListLeadsUseCase
 import br.com.gustavoantunes.bridalcovercrm.domain.port.`in`.lead.RegisterLeadUseCase
+import br.com.gustavoantunes.bridalcovercrm.domain.port.`in`.lead.UpdateLeadUseCase
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
@@ -30,7 +33,7 @@ import java.time.LocalDateTime
  * Uses MockMvc to test HTTP endpoints without starting the full application.
  * Updated to use @MockitoBean instead of deprecated @MockBean.
  */
-@WebMvcTest(LeadController::class)
+@WebMvcTest(controllers = [LeadController::class, br.com.gustavoantunes.bridalcovercrm.infrastructure.adapter.`in`.rest.exception.GlobalExceptionHandler::class])
 class LeadControllerTest {
 
     @Autowired
@@ -44,6 +47,15 @@ class LeadControllerTest {
 
     @MockitoBean
     private lateinit var getLeadUseCase: GetLeadUseCase
+
+    @MockitoBean
+    private lateinit var updateLeadUseCase: UpdateLeadUseCase
+
+    @MockitoBean
+    private lateinit var deleteLeadUseCase: DeleteLeadUseCase
+
+    @MockitoBean
+    private lateinit var listLeadsUseCase: ListLeadsUseCase
 
     @Test
     fun `should register lead successfully`() {
@@ -65,7 +77,7 @@ class LeadControllerTest {
             updatedAt = now
         )
 
-        whenever(registerLeadUseCase.registerLead(any())).thenReturn(mockLead)
+        whenever(registerLeadUseCase.execute(any())).thenReturn(mockLead)
 
         val requestBody = """
             {
@@ -152,7 +164,7 @@ class LeadControllerTest {
             updatedAt = now
         )
 
-        whenever(getLeadUseCase.getLeadById(any())).thenReturn(mockLead)
+        whenever(getLeadUseCase.execute(any())).thenReturn(mockLead)
 
         // When & Then
         mockMvc.perform(
@@ -171,7 +183,7 @@ class LeadControllerTest {
     fun `should return not found when lead does not exist`() {
         // Given
         val leadId = LeadId.generate()
-        whenever(getLeadUseCase.getLeadById(any())).thenReturn(null)
+        whenever(getLeadUseCase.execute(any())).thenReturn(null)
 
         // When & Then
         mockMvc.perform(

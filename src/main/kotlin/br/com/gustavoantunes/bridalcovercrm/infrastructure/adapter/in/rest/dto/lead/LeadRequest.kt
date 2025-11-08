@@ -1,8 +1,8 @@
 package br.com.gustavoantunes.bridalcovercrm.infrastructure.adapter.`in`.rest.dto.lead
 
+import br.com.gustavoantunes.bridalcovercrm.application.dto.lead.RegisterLeadCommand
 import br.com.gustavoantunes.bridalcovercrm.domain.model.lead.LeadSource
 import br.com.gustavoantunes.bridalcovercrm.domain.model.shared.*
-import br.com.gustavoantunes.bridalcovercrm.domain.port.`in`.lead.RegisterLeadUseCase
 import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
@@ -40,7 +40,7 @@ data class LeadRequest(
      * This method performs validation and transformation of primitive types
      * into domain value objects.
      */
-    fun toCommand(): RegisterLeadUseCase.RegisterLeadCommand {
+    fun toCommand(): RegisterLeadCommand {
         val companyNameVO = CompanyName(companyName)
         
         val cnpjVO = cnpj?.let { CNPJ.fromString(it) }
@@ -67,7 +67,7 @@ data class LeadRequest(
             throw IllegalArgumentException("Invalid lead source: $source. Valid values are: ${LeadSource.entries.joinToString()}")
         }
         
-        return RegisterLeadUseCase.RegisterLeadCommand(
+        return RegisterLeadCommand(
             companyName = companyNameVO,
             cnpj = cnpjVO,
             contactInfo = contactInfo,

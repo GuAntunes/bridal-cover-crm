@@ -15,6 +15,8 @@ To intelligently prospect, manage, and visualize potential and current clients (
 ## 📖 Documentação
 Complete documentation is in the folder [`docs/`](docs/).
 
+Start with [`docs/README.md`](docs/README.md) for a complete guide.
+
 ---
 
 ## 💡 Core Features

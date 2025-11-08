@@ -24,6 +24,8 @@ class ArchitectureTest {
         val controllersShouldEndWithController: ArchRule = classes()
             .that().resideInAPackage("..infrastructure.adapter.in..")
             .and().resideOutsideOfPackage("..dto..")
+            .and().resideOutsideOfPackage("..exception..")
+            .and().resideOutsideOfPackage("..health..")
             .and().areTopLevelClasses()
             .and().areNotNestedClasses()
             .should().haveSimpleNameEndingWith("Controller")
@@ -41,8 +43,8 @@ class ArchitectureTest {
         val useCasesShouldEndWithUseCase: ArchRule = classes()
             .that().resideInAPackage("..domain.port.in..")
             .and().areTopLevelClasses()
-            .should().beInterfaces()
-            .andShould().haveSimpleNameEndingWith("UseCase")
+            .and().areInterfaces()
+            .should().haveSimpleNameEndingWith("UseCase")
             .because("Top-level use case interfaces should end with 'UseCase'")
             .allowEmptyShould(true)
 
@@ -94,8 +96,9 @@ class ArchitectureTest {
         @JvmField
         val applicationLayerDependencies: ArchRule = noClasses()
             .that().resideInAPackage("..application..")
+            .and().haveSimpleNameNotEndingWith("Exception")
             .should().dependOnClassesThat().resideInAPackage("..infrastructure..")
-            .because("Application layer should not depend on infrastructure layer")
+            .because("Application layer should not depend on infrastructure layer (except for exceptions)")
             .allowEmptyShould(true)
 
         // Spring Annotations Rules

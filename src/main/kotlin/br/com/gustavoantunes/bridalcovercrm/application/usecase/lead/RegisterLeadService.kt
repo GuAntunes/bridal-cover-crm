@@ -1,5 +1,6 @@
 package br.com.gustavoantunes.bridalcovercrm.application.usecase.lead
 
+import br.com.gustavoantunes.bridalcovercrm.application.dto.lead.RegisterLeadCommand
 import br.com.gustavoantunes.bridalcovercrm.domain.port.`in`.lead.RegisterLeadUseCase
 import br.com.gustavoantunes.bridalcovercrm.domain.port.out.repository.LeadRepository
 import br.com.gustavoantunes.bridalcovercrm.domain.model.lead.Lead
@@ -11,7 +12,7 @@ class RegisterLeadService(
     private val leadRepository: LeadRepository
 ) : RegisterLeadUseCase {
 
-    override fun registerLead(command: RegisterLeadUseCase.RegisterLeadCommand): Lead {
+    override fun execute(command: RegisterLeadCommand): Lead {
         val lead = Lead(
             id = LeadId.generate(),
             name = command.companyName,

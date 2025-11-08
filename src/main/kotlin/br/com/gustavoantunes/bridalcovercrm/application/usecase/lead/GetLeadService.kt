@@ -1,9 +1,9 @@
 package br.com.gustavoantunes.bridalcovercrm.application.usecase.lead
 
+import br.com.gustavoantunes.bridalcovercrm.application.dto.lead.GetLeadQuery
 import br.com.gustavoantunes.bridalcovercrm.domain.port.`in`.lead.GetLeadUseCase
 import br.com.gustavoantunes.bridalcovercrm.domain.port.out.repository.LeadRepository
 import br.com.gustavoantunes.bridalcovercrm.domain.model.lead.Lead
-import br.com.gustavoantunes.bridalcovercrm.domain.model.lead.LeadId
 import org.springframework.stereotype.Service
 
 @Service
@@ -11,8 +11,8 @@ class GetLeadService(
     private val leadRepository: LeadRepository
 ) : GetLeadUseCase {
 
-    override fun getLeadById(leadId: LeadId): Lead? {
-        return leadRepository.findById(leadId)
+    override fun execute(query: GetLeadQuery): Lead? {
+        return leadRepository.findById(query.leadId)
     }
 }
 
