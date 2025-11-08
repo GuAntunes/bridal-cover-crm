@@ -357,7 +357,8 @@ kubectl get nodes
 ```
 
 **Importante:** Salve o comando `kubeadm join` que aparece no final da inicialização. Você precisará dele para adicionar worker nodes.
-
+kubeadm join 192.168.15.7:6443 --token 2pzpct.vxq3069uwlehx6kx \
+--discovery-token-ca-cert-hash sha256:86892c23aec7ea1f07865ba175dc0f878d0f2e7970cb7b5504b99a36314ba8f8
 ### Passo 5: Instalar Plugin de Rede (CNI)
 
 Execute **no control plane**:
