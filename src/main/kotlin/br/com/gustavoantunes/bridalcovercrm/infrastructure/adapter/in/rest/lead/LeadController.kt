@@ -10,6 +10,7 @@ import br.com.gustavoantunes.bridalcovercrm.domain.port.`in`.lead.UpdateLeadUseC
 import br.com.gustavoantunes.bridalcovercrm.infrastructure.adapter.`in`.rest.dto.lead.LeadRequest
 import br.com.gustavoantunes.bridalcovercrm.infrastructure.adapter.`in`.rest.dto.lead.LeadResponse
 import br.com.gustavoantunes.bridalcovercrm.infrastructure.adapter.`in`.rest.dto.lead.UpdateLeadRequest
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -38,7 +39,7 @@ class LeadController(
      * @return The registered lead with HTTP status 201 (Created)
      */
     @PostMapping
-    fun registerLead(@RequestBody request: LeadRequest): ResponseEntity<LeadResponse> {
+    fun registerLead(@Valid @RequestBody request: LeadRequest): ResponseEntity<LeadResponse> {
         try {
             val command = request.toCommand()
             val lead = registerLeadUseCase.execute(command)
@@ -150,7 +151,7 @@ class LeadController(
     @PutMapping("/{id}")
     fun updateLead(
         @PathVariable id: String,
-        @RequestBody request: UpdateLeadRequest
+        @Valid @RequestBody request: UpdateLeadRequest
     ): ResponseEntity<LeadResponse> {
         try {
             val command = UpdateLeadCommand(

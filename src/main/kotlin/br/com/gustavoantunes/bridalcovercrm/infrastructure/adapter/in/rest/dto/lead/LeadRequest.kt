@@ -4,6 +4,8 @@ import br.com.gustavoantunes.bridalcovercrm.application.dto.lead.RegisterLeadCom
 import br.com.gustavoantunes.bridalcovercrm.domain.model.lead.LeadSource
 import br.com.gustavoantunes.bridalcovercrm.domain.model.shared.*
 import com.fasterxml.jackson.annotation.JsonProperty
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Size
 
 /**
  * Request DTO for registering a new lead.
@@ -13,6 +15,8 @@ import com.fasterxml.jackson.annotation.JsonProperty
  */
 data class LeadRequest(
     @JsonProperty("companyName")
+    @field:NotBlank(message = "Company name is required")
+    @field:Size(min = 2, max = 200, message = "Company name must be between 2 and 200 characters")
     val companyName: String,
     
     @JsonProperty("cnpj")
@@ -31,6 +35,7 @@ data class LeadRequest(
     val socialMedia: Map<String, String>? = null,
     
     @JsonProperty("source")
+    @field:NotBlank(message = "Source is required")
     val source: String
 ) {
 
@@ -42,8 +47,8 @@ data class LeadRequest(
      */
     fun toCommand(): RegisterLeadCommand {
         val companyNameVO = CompanyName(companyName)
-        
-        val cnpjVO = cnpj?.let { CNPJ.fromString(it) }
+
+        val cnpjVO = cnpj?.takeIf { it.isNotBlank() }?.let { CNPJ.fromString(it) }
         
         val emailVO = email?.takeIf { it.isNotBlank() }?.let { Email(it) }
         val phoneVO = phone?.takeIf { it.isNotBlank() }?.let { Phone.fromBrazilianNumber(it) }
