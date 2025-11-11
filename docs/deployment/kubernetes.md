@@ -101,9 +101,107 @@ Este documento fornece uma visão abrangente sobre Kubernetes (K8s), incluindo s
 - Containers em um pod compartilham o mesmo IP e namespace
 
 ### Service
+
 - Abstração que define um conjunto lógico de pods
 - Política de acesso aos pods (load balancing)
-- Tipos: ClusterIP, NodePort, LoadBalancer, ExternalName
+- Fornece um endpoint estável (IP/DNS) mesmo quando pods são recriados
+
+#### Tipos de Service
+
+**1. ClusterIP (Padrão)**
+- Expõe o serviço **apenas dentro do cluster**
+- Acessível por outros pods via DNS interno (`service-name.namespace.svc.cluster.local`)
+- Não é acessível de fora do cluster
+- **Casos de uso:**
+  - Comunicação entre microserviços
+  - Bancos de dados internos (PostgreSQL, Redis)
+  - APIs backend que não precisam ser públicas
+
+**2. NodePort**
+- Expõe o serviço em uma **porta estática em cada Node** do cluster
+- Acessível externamente via `<NodeIP>:<NodePort>`
+- Porta range: **30000-32767**
+- Automaticamente cria um ClusterIP
+- **Casos de uso:**
+  - Ambiente de desenvolvimento e testes
+  - Clusters on-premises sem LoadBalancer
+  - Acesso temporário para debugging
+
+**3. LoadBalancer**
+- Cria um **load balancer externo** (suportado por cloud providers)
+- Fornece um **IP público único** para o serviço
+- Roteia tráfego automaticamente para os NodePorts
+- Automaticamente cria NodePort e ClusterIP
+- **Casos de uso:**
+  - Produção em cloud (AWS, GCP, Azure)
+  - Expor aplicações web publicamente
+  - APIs públicas que precisam de alta disponibilidade
+
+**4. ExternalName**
+- Mapeia o serviço para um **nome DNS externo**
+- Retorna um registro CNAME para o DNS especificado
+- Não há proxying ou encaminhamento de portas
+- Não possui selector de pods
+- **Casos de uso:**
+  - Integração com serviços externos ao cluster
+  - Migração gradual de serviços para Kubernetes
+  - Acesso a bancos de dados gerenciados (RDS, Cloud SQL)
+
+#### Exemplo Comparativo
+
+```yaml
+# ClusterIP - Interno apenas
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+spec:
+  type: ClusterIP
+  selector:
+    app: backend
+  ports:
+  - port: 8080
+    targetPort: 8080
+
+---
+# NodePort - Acesso externo via Node
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-nodeport
+spec:
+  type: NodePort
+  selector:
+    app: backend
+  ports:
+  - port: 8080
+    targetPort: 8080
+    nodePort: 30080  # Opcional, se omitido será alocado automaticamente
+
+---
+# LoadBalancer - IP público
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-lb
+spec:
+  type: LoadBalancer
+  selector:
+    app: frontend
+  ports:
+  - port: 80
+    targetPort: 3000
+
+---
+# ExternalName - DNS externo
+apiVersion: v1
+kind: Service
+metadata:
+  name: external-database
+spec:
+  type: ExternalName
+  externalName: database.external-service.com
+```
 
 ### Deployment
 - Fornece atualizações declarativas para pods e ReplicaSets
@@ -1118,6 +1216,24 @@ kubectl -n kubernetes-dashboard create token admin-user
 # Acessar dashboard
 kubectl proxy
 # Abra: http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
+```
+
+#### Expor Dashboard via NodePort
+
+Para acessar o Dashboard diretamente via navegador (sem `kubectl proxy`):
+
+```bash
+# Expor Dashboard via NodePort
+kubectl expose deployment kubernetes-dashboard \
+  --name=kubernetes-dashboard-nodeport \
+  --target-port=8443 \
+  --type=NodePort \
+  -n kubernetes-dashboard
+
+# Verificar porta alocada
+kubectl get service kubernetes-dashboard-nodeport -n kubernetes-dashboard
+
+# Acessar via: https://<NODE_IP>:<NODE_PORT>
 ```
 
 ### 3. Instalar Helm (Gerenciador de Pacotes)
