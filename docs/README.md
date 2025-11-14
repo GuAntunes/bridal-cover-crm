@@ -50,12 +50,22 @@ Tecnologias em uso:
 Como deployar:
 
 - **[deployment-guide.md](deployment/deployment-guide.md)** — Deploy local e CI/CD
-- **[jenkins-guide.md](jenkins-guide.md)** — Setup do Jenkins
+- **[kubernetes/](kubernetes/README.md)** ⭐ — Documentação completa de Kubernetes
+  - Instalação (Ubuntu, macOS, Windows)
+  - Conceitos fundamentais
+  - Dashboard com NodePort
+  - Comandos essenciais e boas práticas
 
-### 6️⃣ **Future Plans** 🔮
+### 6️⃣ **Technologies & Infrastructure**
+DevOps e infraestrutura:
+
+- **[jenkins.md](technologies/jenkins.md)** — Setup do Jenkins
+- **[Kubernetes Docs](kubernetes/)** — Orquestração de containers
+
+### 7️⃣ **Future Plans** 🔮
 Documentação para o futuro:
 
-- **[future/](future/)** — Tecnologias avançadas (Kubernetes, ArgoCD, Domain Events, etc.)
+- **[future/](future/)** — Tecnologias avançadas (ArgoCD, Domain Events, etc.)
   - Estas tecnologias serão implementadas quando o projeto estiver mais maduro
 
 ---

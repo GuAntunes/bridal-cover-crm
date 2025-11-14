@@ -4,9 +4,10 @@ Esta pasta contém documentação sobre tecnologias e conceitos que serão imple
 
 ## 📋 Conteúdo
 
-### **kubernetes.md**
-- Orquestração de containers para produção
-- **Quando implementar:** Quando precisar de alta disponibilidade, auto-scaling e deployment em múltiplos ambientes
+### **[Kubernetes](../kubernetes/README.md)** ✅
+- Documentação completa movida para [`docs/kubernetes/`](../kubernetes/)
+- Inclui: Instalação, conceitos, dashboard, comandos e boas práticas
+- **Status:** Documentação disponível para consulta e aprendizado
 
 ### **argocd.md**
 - GitOps para deploy contínuo

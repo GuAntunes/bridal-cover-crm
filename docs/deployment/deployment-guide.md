@@ -286,10 +286,13 @@ Quando implementado:
 ## 📚 Referências
 
 - [Docker Documentation](https://docs.docker.com/)
-- [Jenkins Documentation](../jenkins-guide.md)
+- [Jenkins Documentation](../technologies/jenkins.md)
 - [Getting Started Guide](../development/getting-started.md)
+- [Kubernetes Documentation](../kubernetes/README.md) - Documentação completa de Kubernetes
 
-**Para deployment em Kubernetes e ArgoCD**, veja: [`docs/future/`](../future/)
+**Para deployment em Kubernetes e ArgoCD**, veja:
+- [Kubernetes Docs](../kubernetes/) - Instalação, conceitos e dashboard
+- [ArgoCD (Future)](../future/argocd.md) - GitOps automation
 
 ---
 
