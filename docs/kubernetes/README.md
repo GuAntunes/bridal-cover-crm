@@ -24,6 +24,7 @@ Esta é a documentação completa sobre Kubernetes para o projeto Bridal Cover C
 
 ### 5. Ferramentas Avançadas
 - **[Kustomize Guide](12-kustomize-guide.md)** - Guia completo sobre Kustomize para gerenciar manifestos
+- **[PostgreSQL External Access](13-postgresql-external-access.md)** - Como conectar no PostgreSQL de outras máquinas
 
 ### 6. Referências
 - **[Referências e Recursos](11-references.md)** - Links úteis, ferramentas e comunidade
@@ -49,6 +50,9 @@ Esta é a documentação completa sobre Kubernetes para o projeto Bridal Cover C
 
 **Precisa gerenciar múltiplos ambientes?**
 → Aprenda sobre [Kustomize](12-kustomize-guide.md)
+
+**Quer conectar no PostgreSQL de outra máquina?**
+→ Veja [PostgreSQL External Access](13-postgresql-external-access.md)
 
 ---
 
