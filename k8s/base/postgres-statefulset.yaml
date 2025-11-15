@@ -21,6 +21,24 @@ spec:
     app: postgres
 
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-nodeport
+  labels:
+    app: postgres
+spec:
+  type: NodePort
+  selector:
+    app: postgres
+  ports:
+  - port: 5432
+    targetPort: 5432
+    nodePort: 30432  # Porta exposta no node (30000-32767)
+    protocol: TCP
+    name: postgres
+
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
