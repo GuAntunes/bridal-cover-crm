@@ -1,0 +1,101 @@
+# =============================================================================
+# pgAdmin 4 - PostgreSQL Administration Tool
+# =============================================================================
+# Interface web para gerenciar o PostgreSQL
+# Acesso: http://<NODE_IP>:30081 ou via Ingress
+# =============================================================================
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pgadmin
+  labels:
+    app: pgadmin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pgadmin
+  template:
+    metadata:
+      labels:
+        app: pgadmin
+    spec:
+      containers:
+      - name: pgadmin
+        image: dpage/pgadmin4:latest
+        ports:
+        - containerPort: 80
+          name: http
+        env:
+        # Credenciais de login do pgAdmin (não é a senha do banco!)
+        - name: PGADMIN_DEFAULT_EMAIL
+          value: admin@bridalcrm.com
+        - name: PGADMIN_DEFAULT_PASSWORD
+          value: admin123
+        # Desabilita modo de autenticação para desenvolvimento
+        - name: PGADMIN_CONFIG_SERVER_MODE
+          value: "False"
+        - name: PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED
+          value: "False"
+        # Configurações de performance
+        - name: PGADMIN_LISTEN_PORT
+          value: "80"
+        volumeMounts:
+        - name: pgadmin-data
+          mountPath: /var/lib/pgadmin
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+        livenessProbe:
+          httpGet:
+            path: /misc/ping
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /misc/ping
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 5
+      volumes:
+      - name: pgadmin-data
+        persistentVolumeClaim:
+          claimName: pgadmin-pvc
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pgadmin-pvc
+  labels:
+    app: pgadmin
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pgadmin
+  labels:
+    app: pgadmin
+spec:
+  type: NodePort
+  selector:
+    app: pgadmin
+  ports:
+  - port: 80
+    targetPort: 80
+    nodePort: 30081
+    name: http
+

@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  labels:
+    app: bridal-cover-crm
+data:
+  # Database connection URL
+  # Usa o nome do Service do PostgreSQL como hostname
+  database-url: "jdbc:postgresql://postgres-service:5432/bridal_cover_crm_dev"
+  
+  # Application log level
+  app-log-level: "INFO"
+  
+  # SQL log level
+  sql-log-level: "WARN"
+  
+  # Timezone
+  timezone: "America/Sao_Paulo"
+

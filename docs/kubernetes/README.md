@@ -22,7 +22,10 @@ Esta é a documentação completa sobre Kubernetes para o projeto Bridal Cover C
 ### 4. Boas Práticas
 - **[Boas Práticas](09-best-practices.md)** - Organização, segurança, recursos e deployment
 
-### 5. Referências
+### 5. Ferramentas Avançadas
+- **[Kustomize Guide](12-kustomize-guide.md)** - Guia completo sobre Kustomize para gerenciar manifestos
+
+### 6. Referências
 - **[Referências e Recursos](11-references.md)** - Links úteis, ferramentas e comunidade
 
 ---
@@ -43,6 +46,9 @@ Esta é a documentação completa sobre Kubernetes para o projeto Bridal Cover C
 
 **Quer melhorar suas práticas?**
 → Consulte [Boas Práticas](09-best-practices.md)
+
+**Precisa gerenciar múltiplos ambientes?**
+→ Aprenda sobre [Kustomize](12-kustomize-guide.md)
 
 ---
 
