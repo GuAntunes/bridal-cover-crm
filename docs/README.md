@@ -50,6 +50,7 @@ Tecnologias em uso:
 Como deployar:
 
 - **[deployment-guide.md](deployment/deployment-guide.md)** — Deploy local e CI/CD
+- **[docker-hub-guide.md](deployment/docker-hub-guide.md)** ⭐ — Docker Hub: Build, Push e Deploy
 - **[kubernetes/](kubernetes/README.md)** ⭐ — Documentação completa de Kubernetes
   - Instalação (Ubuntu, macOS, Windows)
   - Conceitos fundamentais
@@ -139,7 +140,7 @@ Documentação para o futuro:
 
 ### Para DevOps
 ```
-🚀 Deployment Guide → 🔧 Jenkins Guide → 📦 Docker Compose
+🚀 Deployment Guide → 🐳 Docker Hub Guide → 🔧 Jenkins Guide → ☸️ Kubernetes
 ```
 
 ---

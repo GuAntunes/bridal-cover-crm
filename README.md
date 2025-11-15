@@ -53,6 +53,8 @@ Start with [`docs/README.md`](docs/README.md) for a complete guide.
 | Migration | Flyway |
 | CI/CD | Jenkins |
 | Containerization | Docker + Docker Compose |
+| Container Registry | Docker Hub |
+| Orchestration | Kubernetes |
 | Caching (optional) | Redis |
 | Messaging (optional) | Kafka |
 | External API | Google Places API |
@@ -91,6 +93,8 @@ Start with [`docs/README.md`](docs/README.md) for a complete guide.
 ### [x] Step 9: Deploy and Monitor
 - ✅ Docker + Docker Compose configurado
 - ✅ Jenkins CI/CD configurado
+- ✅ Docker Hub para registry de imagens
+- ✅ Kubernetes documentado e configurado
 - [ ] Logs, Alerts, Usage metrics
 
 ---
@@ -256,6 +260,30 @@ bridal-cover-crm/
 ├── Jenkinsfile              # Pipeline CI/CD
 └── Makefile                  # Comandos simplificados
 ```
+
+---
+## 🚀 Deploy para Produção
+
+### Deploy com Docker Hub + Kubernetes
+
+Para fazer deploy em ambiente de produção (cluster Kubernetes):
+
+```bash
+# 1. Build e push da imagem para Docker Hub
+make docker-release
+
+# 2. Deploy no Kubernetes
+make k8s-deploy
+
+# 3. Verificar status
+make k8s-status
+make k8s-logs
+```
+
+**📚 Documentação Completa:**
+- 🐳 [Docker Hub Quick Start](docs/deployment/DOCKER-HUB-QUICKSTART.md) - Setup em 5 minutos
+- 🐳 [Docker Hub Guide Completo](docs/deployment/docker-hub-guide.md) - Guia detalhado
+- ☸️ [Kubernetes Documentation](docs/kubernetes/README.md) - Setup completo do K8s
 
 ---
 ## 📌 Final Notes
