@@ -266,24 +266,41 @@ bridal-cover-crm/
 
 ### Deploy com Docker Hub + Kubernetes
 
-Para fazer deploy em ambiente de produção (cluster Kubernetes):
-
 ```bash
-# 1. Build e push da imagem para Docker Hub
+# 1. Build e push da imagem multi-plataforma (AMD64 + ARM64)
 make docker-release
 
-# 2. Deploy no Kubernetes
+# 2. No servidor - Deploy inicial no Kubernetes
 make k8s-deploy
 
 # 3. Verificar status
 make k8s-status
 make k8s-logs
+
+# 4. Para atualizações posteriores
+make k8s-update
 ```
 
-**📚 Documentação Completa:**
-- 🐳 [Docker Hub Quick Start](docs/deployment/DOCKER-HUB-QUICKSTART.md) - Setup em 5 minutos
-- 🐳 [Docker Hub Guide Completo](docs/deployment/docker-hub-guide.md) - Guia detalhado
-- ☸️ [Kubernetes Documentation](docs/kubernetes/README.md) - Setup completo do K8s
+### Comandos Disponíveis
+
+```bash
+# Docker
+make docker-build        # Build local (apenas sua arquitetura)
+make docker-release      # Build multi-plataforma + push (AMD64 + ARM64)
+make docker-test         # Testar imagem localmente
+
+# Kubernetes
+make k8s-deploy          # Deploy inicial
+make k8s-update          # Atualizar deployment
+make k8s-status          # Ver status dos pods/services
+make k8s-logs            # Ver logs em tempo real
+make k8s-port-forward    # Port-forward para localhost:8082
+make k8s-delete          # Remover todos os recursos
+```
+
+**📚 Documentação:**
+- 🐳 [Docker Hub Guide](docs/deployment/docker-hub-guide.md)
+- ☸️ [Kubernetes Documentation](docs/kubernetes/README.md)
 
 ---
 ## 📌 Final Notes

@@ -38,9 +38,9 @@ IMAGE_BASE := $(DOCKER_USER)/$(APP_NAME)
 
 # ==================== Docker Build Commands ====================
 
-# Build da imagem Docker
+# Build da imagem Docker (local - arquitetura atual)
 docker-build:
-	@echo "Building Docker image..."
+	@echo "Building Docker image for current platform..."
 	docker build -t $(IMAGE_BASE):latest \
 		-t $(IMAGE_BASE):$(VERSION) \
 		-t $(IMAGE_BASE):$(BUILD_DATE) \
@@ -48,7 +48,7 @@ docker-build:
 		.
 	@echo "✅ Image built successfully!"
 
-# Push para Docker Hub
+# Push para Docker Hub (apenas se já construiu localmente)
 docker-push: docker-build
 	@echo "Pushing to Docker Hub..."
 	docker push $(IMAGE_BASE):latest
@@ -56,13 +56,21 @@ docker-push: docker-build
 	docker push $(IMAGE_BASE):$(BUILD_DATE)
 	docker push $(IMAGE_BASE):$(GIT_HASH)
 	@echo "✅ Images pushed successfully!"
-	@echo "Available at: https://hub.docker.com/r/$(DOCKER_USER)/$(APP_NAME)"
 
-# Build + Push (comando único)
-docker-release: docker-push
-	@echo "🚀 Release $(VERSION) completed!"
-	@echo "Latest commit: $(GIT_HASH)"
-	@echo "Build date: $(BUILD_DATE)"
+# Build + Push multi-plataforma (AMD64 + ARM64) - Resolve erro "no match for platform"
+docker-release:
+	@echo "Building multi-platform Docker image (AMD64 + ARM64)..."
+	@docker buildx create --use --name multiarch-builder 2>/dev/null || docker buildx use multiarch-builder
+	docker buildx build \
+		--platform linux/amd64,linux/arm64 \
+		-t $(IMAGE_BASE):latest \
+		-t $(IMAGE_BASE):$(VERSION) \
+		-t $(IMAGE_BASE):$(BUILD_DATE) \
+		-t $(IMAGE_BASE):$(GIT_HASH) \
+		--push \
+		.
+	@echo "✅ Release $(VERSION) completed!"
+	@echo "Platforms: linux/amd64, linux/arm64"
 
 # Limpar imagens locais antigas
 docker-clean:
