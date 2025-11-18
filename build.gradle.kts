@@ -23,6 +23,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-data-jdbc") // ← Spring Data JDBC
 	implementation("org.springframework.boot:spring-boot-starter-validation")
+	implementation("org.springframework.boot:spring-boot-starter-actuator") // ← Health checks e métricas
 	
 	// Database
 	implementation("org.postgresql:postgresql") // ← PostgreSQL Driver

@@ -39,6 +39,24 @@ springdoc:
     path: /swagger-ui.html
     enabled: true
     url: /openapi.yaml
+
+# Spring Boot Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+      base-path: /actuator
+  endpoint:
+    health:
+      probes:
+        enabled: true  # Habilita endpoints /actuator/health/liveness e /readiness
+      show-details: when-authorized
+  health:
+    livenessState:
+      enabled: true
+    readinessState:
+      enabled: true
     
 # Logging Configuration
 logging:
