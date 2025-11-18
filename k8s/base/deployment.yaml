@@ -20,7 +20,7 @@ spec:
           image: gustavoantunes/bridal-cover-crm:latest
           imagePullPolicy: Always  # Sempre baixa a versão mais recente
           ports:
-            - containerPort: 8082
+            - containerPort: 8080
               name: http
           env:
             - name: SPRING_PROFILES_ACTIVE
@@ -52,7 +52,7 @@ spec:
           startupProbe:
             httpGet:
               path: /actuator/health
-              port: 8082
+              port: 8080
             initialDelaySeconds: 10
             periodSeconds: 10
             timeoutSeconds: 5
@@ -62,7 +62,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
-              port: 8082
+              port: 8080
             initialDelaySeconds: 0
             periodSeconds: 10
             timeoutSeconds: 5
@@ -72,7 +72,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
-              port: 8082
+              port: 8080
             initialDelaySeconds: 0
             periodSeconds: 10
             timeoutSeconds: 5
