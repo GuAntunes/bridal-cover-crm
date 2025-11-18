@@ -372,6 +372,28 @@ kubectl create clusterrolebinding admin-user \
   --serviceaccount=kubernetes-dashboard:admin-user
 ```
 
+### Pods Ficam em Estado Pending
+
+**Causa:** Comumente acontece em clusters single-node onde o master tem taints.
+
+**Solução:**
+```bash
+# 1. Verificar status dos pods
+kubectl get pods -n kubernetes-dashboard
+
+# 2. Ver detalhes (mostra o motivo do pending)
+kubectl describe pods -n kubernetes-dashboard
+
+# 3. Se o motivo for taint do master, remova-o:
+kubectl taint nodes --all node-role.kubernetes.io/control-plane:NoSchedule-
+kubectl taint nodes --all node-role.kubernetes.io/master:NoSchedule-
+
+# Verificar se pods estão Running agora
+kubectl get pods -n kubernetes-dashboard -w
+```
+
+**Para mais detalhes:** Consulte o guia completo [Configurar Taints no Master Node](14-master-node-taints.md)
+
 ### Não Consigo Acessar via Navegador
 
 **Verificações:**

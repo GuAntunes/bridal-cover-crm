@@ -18,6 +18,7 @@ Esta é a documentação completa sobre Kubernetes para o projeto Bridal Cover C
 - **[Configuração Pós-Instalação](07-post-installation.md)** - Autocompletion, Helm, Ingress, Storage
 - **[Comandos Essenciais](08-essential-commands.md)** - Referência rápida de comandos kubectl
 - **[Kubernetes Dashboard](10-dashboard-setup.md)** - Instalação e acesso via NodePort
+- **[Configurar Taints no Master Node](14-master-node-taints.md)** - Permitir pods no nó master (single-node clusters)
 
 ### 4. Boas Práticas
 - **[Boas Práticas](09-best-practices.md)** - Organização, segurança, recursos e deployment
@@ -53,6 +54,9 @@ Esta é a documentação completa sobre Kubernetes para o projeto Bridal Cover C
 
 **Quer conectar no PostgreSQL de outra máquina?**
 → Veja [PostgreSQL External Access](13-postgresql-external-access.md)
+
+**Pods ficando Pending no single-node cluster?**
+→ Configure [Taints no Master Node](14-master-node-taints.md)
 
 ---
 
