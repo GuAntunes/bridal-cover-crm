@@ -1,0 +1,33 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: bridal-cover-crm-staging
+
+namespace: bridal-cover-crm-staging
+
+# Referencia a configuração base
+bases:
+  - ../../base
+
+# Prefixo para todos os recursos
+namePrefix: staging-
+
+# Labels específicos do ambiente
+commonLabels:
+  environment: staging
+
+# Patches para customizar recursos
+patchesStrategicMerge:
+  - deployment-patch.yaml
+
+# Configurações específicas de imagens
+images:
+  - name: gustavoantunes/bridal-cover-crm
+    newTag: staging-latest
+
+# Replica count para staging
+replicas:
+  - name: bridal-cover-crm
+    count: 2
+
