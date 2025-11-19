@@ -281,26 +281,43 @@ make k8s-logs
 make k8s-update
 ```
 
-### Comandos Disponíveis
+### 🐳 Build de Imagens por Ambiente
 
 ```bash
-# Docker
-make docker-build        # Build local (apenas sua arquitetura)
-make docker-release      # Build multi-plataforma + push (AMD64 + ARM64)
-make docker-test         # Testar imagem localmente
+# Ver todos os comandos
+make help
 
-# Kubernetes
-make k8s-deploy          # Deploy inicial
-make k8s-update          # Atualizar deployment
-make k8s-status          # Ver status dos pods/services
-make k8s-logs            # Ver logs em tempo real
-make k8s-port-forward    # Port-forward para localhost:8082
-make k8s-delete          # Remover todos os recursos
+# DEV
+make docker-release-dev      # Build multi-plataforma + push (dev-latest)
+
+# STAGING
+make docker-release-staging  # Build multi-plataforma + push (staging-latest)
+
+# PROD
+make docker-release-prod     # Build multi-plataforma + push (latest)
+
+# Todos os ambientes
+make docker-release-all      # Build e push de todos
+```
+
+### Comandos Kubernetes
+
+```bash
+# DEV
+kubectl apply -k k8s/overlays/dev
+
+# STAGING
+kubectl apply -k k8s/overlays/staging
+
+# PROD
+kubectl apply -k k8s/overlays/prod
 ```
 
 **📚 Documentação:**
-- 🐳 [Docker Hub Guide](docs/deployment/docker-hub-guide.md)
-- ☸️ [Kubernetes Documentation](docs/kubernetes/README.md)
+- 🐳 [Docker Build Guide](docs/deployment/docker-build-guide.md) - Build de imagens por ambiente
+- 🚀 [Docker Build Quick](DOCKER-BUILD-QUICK.md) - Guia rápido de build
+- 🐳 [Docker Hub Guide](docs/deployment/docker-hub-guide.md) - Publicação no Docker Hub
+- ☸️ [Kubernetes Documentation](docs/kubernetes/README.md) - Deploy e gerenciamento K8s
 
 ---
 ## 📌 Final Notes
