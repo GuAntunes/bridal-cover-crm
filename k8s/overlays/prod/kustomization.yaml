@@ -10,9 +10,6 @@ namespace: bridal-cover-crm-prod
 bases:
   - ../../base
 
-# Prefixo para todos os recursos
-namePrefix: prod-
-
 # Labels específicos do ambiente
 commonLabels:
   environment: prod
@@ -20,6 +17,8 @@ commonLabels:
 # Patches para customizar recursos
 patchesStrategicMerge:
   - deployment-patch.yaml
+  - configmap-patch.yaml
+  - postgres-patch.yaml
 
 # Configurações específicas de imagens
 images:

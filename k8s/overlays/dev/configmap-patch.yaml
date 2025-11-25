@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  # Database connection URL para ambiente DEV
+  database-url: "jdbc:postgresql://postgres-service:5432/bridal_cover_crm_dev"
+  
+  # Application log level
+  app-log-level: "DEBUG"
+  
+  # SQL log level
+  sql-log-level: "DEBUG"
+  
+  # Timezone
+  timezone: "America/Sao_Paulo"
+

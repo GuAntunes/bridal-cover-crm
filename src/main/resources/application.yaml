@@ -27,7 +27,7 @@ spring:
     
   # Jackson JSON Configuration
   jackson:
-    time-zone: America/Sao_Paulo
+    time-zone : America/Sao_Paulo
     date-format: yyyy-MM-dd'T'HH:mm:ss
 
 # SpringDoc OpenAPI Configuration

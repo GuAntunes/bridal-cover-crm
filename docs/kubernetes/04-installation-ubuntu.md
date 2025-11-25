@@ -145,8 +145,8 @@ kubectl get nodes
 Exemplo do comando:
 
 ```bash
-kubeadm join 192.168.15.7:6443 --token n7rhsb.c1r3ece2wextlmmc \
-	--discovery-token-ca-cert-hash sha256:f461c75eb02a37b385161af6dc614b4dbdad9349feb39152cc982e3e00e1f585
+kubeadm join 192.168.15.7:6443 --token nx67im.tdyi1gyac4hgu6a3 \
+	--discovery-token-ca-cert-hash sha256:e63d9e945f5e8e5bb40f19f73c2bb7ee7e733655e1f0ba287945ab158b892da2
 ```
 
 ---
