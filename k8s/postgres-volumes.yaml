@@ -1,0 +1,62 @@
+# =============================================================================
+# PersistentVolumes para PostgreSQL
+# =============================================================================
+# Criar volumes manualmente para cada ambiente (dev, staging, prod)
+# =============================================================================
+
+# PersistentVolume para DEV
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgres-pv-dev
+  labels:
+    type: local
+    environment: dev
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data/postgres-dev"
+  persistentVolumeReclaimPolicy: Retain
+
+---
+# PersistentVolume para STAGING
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgres-pv-staging
+  labels:
+    type: local
+    environment: staging
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data/postgres-staging"
+  persistentVolumeReclaimPolicy: Retain
+
+---
+# PersistentVolume para PROD
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgres-pv-prod
+  labels:
+    type: local
+    environment: prod
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data/postgres-prod"
+  persistentVolumeReclaimPolicy: Retain
+

@@ -19,6 +19,7 @@ patchesStrategicMerge:
   - deployment-patch.yaml
   - configmap-patch.yaml
   - postgres-patch.yaml
+  - postgres-storage-patch.yaml
 
 # Configurações específicas de imagens
 images:
