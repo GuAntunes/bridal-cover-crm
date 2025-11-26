@@ -12,7 +12,8 @@ spec:
             - name: SPRING_PROFILES_ACTIVE
               value: "dev"
           resources:
-            memory: "768Mi"
+            requests:
+              memory: "768Mi"
             cpu: "500m"
             limits:
               memory: "1536Mi"
