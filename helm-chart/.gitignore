@@ -1,0 +1,30 @@
+# Helm Chart artifacts
+*.tgz
+*.lock
+
+# Chart dependencies
+bridal-cover-crm/charts/
+bridal-cover-crm/Chart.lock
+
+# Secrets (NEVER commit!)
+secrets.yaml
+*-secrets.yaml
+values-secrets.yaml
+
+# Local development
+.helmignore.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test outputs
+test-output/
+

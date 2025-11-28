@@ -1,0 +1,111 @@
+🎉 Parabéns! O Bridal Cover CRM foi instalado com sucesso!
+
+📦 Release Information:
+  Nome: {{ .Release.Name }}
+  Namespace: {{ .Release.Namespace }}
+  Versão do Chart: {{ .Chart.Version }}
+  Versão da App: {{ .Chart.AppVersion }}
+
+{{- if .Values.ingress.enabled }}
+
+🌐 Acesso à Aplicação:
+  {{- range .Values.ingress.hosts }}
+  URL: https://{{ .host }}
+  {{- end }}
+
+{{- else if contains "NodePort" .Values.service.type }}
+
+🌐 Acesso à Aplicação:
+  Obtenha a URL da aplicação executando:
+
+  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "bridal-cover-crm.fullname" . }})
+  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+  echo "URL: http://$NODE_IP:$NODE_PORT"
+
+{{- else if contains "LoadBalancer" .Values.service.type }}
+
+🌐 Acesso à Aplicação:
+  Obtenha o IP externo executando:
+
+  NOTE: Pode levar alguns minutos para o LoadBalancer ficar disponível.
+        Você pode verificar o status com: kubectl get svc --namespace {{ .Release.Namespace }} -w {{ include "bridal-cover-crm.fullname" . }}
+
+  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "bridal-cover-crm.fullname" . }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
+  echo "URL: http://$SERVICE_IP:{{ .Values.service.port }}"
+
+{{- else if contains "ClusterIP" .Values.service.type }}
+
+🌐 Acesso à Aplicação:
+  Para acessar a aplicação localmente, execute:
+
+  kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ include "bridal-cover-crm.fullname" . }} 8080:{{ .Values.service.port }}
+
+  Em seguida, acesse: http://localhost:8080
+
+{{- end }}
+
+📊 Monitoramento:
+
+  # Ver status dos pods
+  kubectl get pods -n {{ .Release.Namespace }} -l app.kubernetes.io/instance={{ .Release.Name }}
+
+  # Ver logs da aplicação
+  kubectl logs -n {{ .Release.Namespace }} -l app.kubernetes.io/instance={{ .Release.Name }} -f
+
+  # Ver health check
+  kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "bridal-cover-crm.fullname" . }} 8080:{{ .Values.service.port }}
+  curl http://localhost:8080/actuator/health
+
+{{- if .Values.postgresql.enabled }}
+
+🗄️  PostgreSQL:
+
+  # Obter senha do PostgreSQL
+  export POSTGRES_PASSWORD=$(kubectl get secret --namespace {{ .Release.Namespace }} {{ include "bridal-cover-crm.fullname" . }}-postgresql -o jsonpath="{.data.password}" | base64 -d)
+
+  # Conectar ao PostgreSQL
+  kubectl run {{ include "bridal-cover-crm.fullname" . }}-postgresql-client --rm --tty -i --restart='Never' \
+    --namespace {{ .Release.Namespace }} \
+    --image docker.io/bitnami/postgresql:latest \
+    --env="PGPASSWORD=$POSTGRES_PASSWORD" \
+    --command -- psql --host {{ include "bridal-cover-crm.fullname" . }}-postgresql -U {{ .Values.postgresql.auth.username }} -d {{ .Values.postgresql.auth.database }} -p 5432
+
+{{- end }}
+
+{{- if .Values.autoscaling.enabled }}
+
+⚡ Autoscaling:
+
+  # Ver status do HPA
+  kubectl get hpa -n {{ .Release.Namespace }} {{ include "bridal-cover-crm.fullname" . }}
+
+  # Monitorar escalonamento
+  kubectl get hpa -n {{ .Release.Namespace }} {{ include "bridal-cover-crm.fullname" . }} --watch
+
+{{- end }}
+
+🔧 Comandos Úteis:
+
+  # Atualizar a release
+  helm upgrade {{ .Release.Name }} bridal-cover-crm/bridal-cover-crm -f values.yaml
+
+  # Ver histórico de revisões
+  helm history {{ .Release.Name }} -n {{ .Release.Namespace }}
+
+  # Fazer rollback
+  helm rollback {{ .Release.Name }} -n {{ .Release.Namespace }}
+
+  # Ver valores aplicados
+  helm get values {{ .Release.Name }} -n {{ .Release.Namespace }}
+
+  # Desinstalar
+  helm uninstall {{ .Release.Name }} -n {{ .Release.Namespace }}
+
+📚 Documentação:
+  - GitHub: https://github.com/GuAntunes/bridal-cover-crm
+  - API Docs: https://{{ (index .Values.ingress.hosts 0).host }}/swagger-ui/index.html
+
+🎯 Ambiente: {{ .Values.app.environment }}
+
+Obrigado por usar o Bridal Cover CRM! ❤️
+

@@ -1,0 +1,30 @@
+apiVersion: v2
+name: bridal-cover-crm
+description: CRM para Noivas - Sistema de Gerenciamento de Leads
+type: application
+version: 1.0.0
+appVersion: "0.0.1-SNAPSHOT"
+
+keywords:
+  - crm
+  - kotlin
+  - spring-boot
+  - wedding
+  - leads
+
+home: https://github.com/GuAntunes/bridal-cover-crm
+sources:
+  - https://github.com/GuAntunes/bridal-cover-crm
+
+maintainers:
+  - name: Gustavo Antunes
+    email: gustavo@example.com
+
+dependencies:
+  - name: postgresql
+    version: "12.x.x"
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgresql.enabled
+    tags:
+      - database
+

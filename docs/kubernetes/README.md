@@ -19,6 +19,7 @@ Esta é a documentação completa sobre Kubernetes para o projeto Bridal Cover C
 - **[Comandos Essenciais](08-essential-commands.md)** - Referência rápida de comandos kubectl
 - **[Kubernetes Dashboard](10-dashboard-setup.md)** - Instalação e acesso via NodePort
 - **[Configurar Taints no Master Node](14-master-node-taints.md)** - Permitir pods no nó master (single-node clusters)
+- **[Conectar a Clusters Remotos](16-remote-cluster-connection.md)** - Configurar kubectl para gerenciar clusters remotos
 
 ### 4. Boas Práticas
 - **[Boas Práticas](09-best-practices.md)** - Organização, segurança, recursos e deployment
@@ -26,6 +27,7 @@ Esta é a documentação completa sobre Kubernetes para o projeto Bridal Cover C
 ### 5. Ferramentas Avançadas
 - **[Kustomize Guide](12-kustomize-guide.md)** - Guia completo sobre Kustomize para gerenciar manifestos
 - **[PostgreSQL External Access](13-postgresql-external-access.md)** - Como conectar no PostgreSQL de outras máquinas
+- **[Helm e Tiller Guide](15-helm-tiller-guide.md)** - Gerenciador de pacotes do Kubernetes - instalação, uso e criação de charts
 
 ### 6. Referências
 - **[Referências e Recursos](11-references.md)** - Links úteis, ferramentas e comunidade
@@ -52,11 +54,17 @@ Esta é a documentação completa sobre Kubernetes para o projeto Bridal Cover C
 **Precisa gerenciar múltiplos ambientes?**
 → Aprenda sobre [Kustomize](12-kustomize-guide.md)
 
+**Quer usar o gerenciador de pacotes do Kubernetes?**
+→ Aprenda sobre [Helm e Tiller](15-helm-tiller-guide.md)
+
 **Quer conectar no PostgreSQL de outra máquina?**
 → Veja [PostgreSQL External Access](13-postgresql-external-access.md)
 
 **Pods ficando Pending no single-node cluster?**
 → Configure [Taints no Master Node](14-master-node-taints.md)
+
+**Quer gerenciar clusters remotos?**
+→ Aprenda a [Conectar a Clusters Remotos](16-remote-cluster-connection.md)
 
 ---
 

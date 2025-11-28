@@ -1,0 +1,275 @@
+# Default values for bridal-cover-crm
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Número de réplicas do deployment
+replicaCount: 3
+
+# Configuração da imagem Docker
+image:
+  repository: guantunes/bridal-cover-crm
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+# Pull secrets para registry privado
+imagePullSecrets: []
+
+# Override do nome do chart
+nameOverride: ""
+fullnameOverride: ""
+
+# Service Account
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  name: ""
+
+# Annotations para os pods
+podAnnotations: {}
+
+# Security context para os pods
+podSecurityContext:
+  fsGroup: 1000
+
+# Security context para o container
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: false
+  allowPrivilegeEscalation: false
+
+# Configuração do Service
+service:
+  type: ClusterIP
+  port: 8080
+  targetPort: 8080
+  annotations: {}
+
+# Configuração do Ingress
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+  hosts:
+    - host: api.bridalcover.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: bridalcover-tls
+      hosts:
+        - api.bridalcover.com
+
+# Resources (CPU e Memória)
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+  requests:
+    cpu: 500m
+    memory: 512Mi
+
+# Autoscaling (HPA)
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 85
+
+# Node selector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity rules
+affinity: {}
+
+# Probes de saúde
+livenessProbe:
+  httpGet:
+    path: /actuator/health/liveness
+    port: http
+  initialDelaySeconds: 60
+  periodSeconds: 10
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /actuator/health/readiness
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 5
+  timeoutSeconds: 3
+  successThreshold: 1
+  failureThreshold: 3
+
+# Configuração da aplicação
+app:
+  # Ambiente (dev, staging, prod)
+  environment: prod
+  
+  # Variáveis de ambiente adicionais
+  extraEnv: []
+  # - name: CUSTOM_VAR
+  #   value: "custom-value"
+  
+  # Secrets como variáveis de ambiente
+  envFromSecrets: []
+  # - name: DB_PASSWORD
+  #   secretName: db-credentials
+  #   secretKey: password
+
+# ConfigMap data
+configMap:
+  enabled: true
+  data:
+    application.yaml: |
+      server:
+        port: 8080
+        shutdown: graceful
+      
+      spring:
+        application:
+          name: bridal-cover-crm
+        
+        lifecycle:
+          timeout-per-shutdown-phase: 30s
+        
+        jpa:
+          hibernate:
+            ddl-auto: validate
+          show-sql: false
+          properties:
+            hibernate:
+              format_sql: true
+              dialect: org.hibernate.dialect.PostgreSQLDialect
+        
+        flyway:
+          enabled: true
+          baseline-on-migrate: true
+          locations: classpath:db/migration
+      
+      management:
+        endpoints:
+          web:
+            exposure:
+              include: health,info,metrics,prometheus
+        endpoint:
+          health:
+            probes:
+              enabled: true
+            show-details: always
+        metrics:
+          export:
+            prometheus:
+              enabled: true
+
+# Configuração do PostgreSQL (dependency)
+postgresql:
+  enabled: true
+  auth:
+    username: bridalcover
+    password: changeme-in-production
+    database: bridalcover_db
+    existingSecret: ""
+  
+  primary:
+    persistence:
+      enabled: true
+      size: 10Gi
+      storageClass: ""
+    
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 250m
+        memory: 256Mi
+    
+    initdb:
+      scripts:
+        init.sql: |
+          -- Criação de extensões necessárias
+          CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+          
+          -- Grant permissions
+          GRANT ALL PRIVILEGES ON DATABASE bridalcover_db TO bridalcover;
+  
+  # Metrics
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: false
+
+# External Database (quando postgresql.enabled = false)
+externalDatabase:
+  host: ""
+  port: 5432
+  username: ""
+  database: ""
+  # Nome do secret existente que contém a senha
+  existingSecret: ""
+  # Key dentro do secret que contém a senha
+  secretKey: "password"
+
+# Persistence (se necessário para a aplicação)
+persistence:
+  enabled: false
+  accessMode: ReadWriteOnce
+  size: 1Gi
+  storageClass: ""
+  annotations: {}
+
+# Service Monitor para Prometheus
+serviceMonitor:
+  enabled: false
+  interval: 30s
+  scrapeTimeout: 10s
+  labels: {}
+
+# Pod Disruption Budget
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+  # maxUnavailable: 1
+
+# Network Policy
+networkPolicy:
+  enabled: false
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            name: ingress-nginx
+  egress:
+    - to:
+      - namespaceSelector: {}
+      ports:
+      - protocol: TCP
+        port: 5432
+    - to:
+      - namespaceSelector: {}
+      ports:
+      - protocol: TCP
+        port: 53
+      - protocol: UDP
+        port: 53
+

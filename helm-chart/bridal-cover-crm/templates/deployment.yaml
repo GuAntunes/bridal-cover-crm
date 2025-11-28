@@ -1,0 +1,118 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "bridal-cover-crm.fullname" . }}
+  labels:
+    {{- include "bridal-cover-crm.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "bridal-cover-crm.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "bridal-cover-crm.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "bridal-cover-crm.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+      - name: {{ .Chart.Name }}
+        securityContext:
+          {{- toYaml .Values.securityContext | nindent 12 }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.service.targetPort }}
+          protocol: TCP
+        livenessProbe:
+          {{- toYaml .Values.livenessProbe | nindent 10 }}
+        readinessProbe:
+          {{- toYaml .Values.readinessProbe | nindent 10 }}
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: {{ .Values.app.environment | quote }}
+        
+        # Database configuration
+        - name: SPRING_DATASOURCE_URL
+          value: {{ include "bridal-cover-crm.databaseUrl" . | quote }}
+        
+        - name: SPRING_DATASOURCE_USERNAME
+          value: {{ include "bridal-cover-crm.databaseUsername" . | quote }}
+        
+        - name: SPRING_DATASOURCE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "bridal-cover-crm.databaseSecretName" . }}
+              key: {{ include "bridal-cover-crm.databaseSecretKey" . }}
+        
+        # JVM Options
+        - name: JAVA_OPTS
+          value: "-Xms256m -Xmx512m -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
+        
+        # Extra environment variables
+        {{- range .Values.app.extraEnv }}
+        - name: {{ .name }}
+          value: {{ .value | quote }}
+        {{- end }}
+        
+        # Secrets as environment variables
+        {{- range .Values.app.envFromSecrets }}
+        - name: {{ .name }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ .secretName }}
+              key: {{ .secretKey }}
+        {{- end }}
+        
+        volumeMounts:
+        {{- if .Values.configMap.enabled }}
+        - name: config
+          mountPath: /app/config
+          readOnly: true
+        {{- end }}
+        {{- if .Values.persistence.enabled }}
+        - name: data
+          mountPath: /app/data
+        {{- end }}
+      
+      volumes:
+      {{- if .Values.configMap.enabled }}
+      - name: config
+        configMap:
+          name: {{ include "bridal-cover-crm.fullname" . }}
+      {{- end }}
+      {{- if .Values.persistence.enabled }}
+      - name: data
+        persistentVolumeClaim:
+          claimName: {{ include "bridal-cover-crm.fullname" . }}
+      {{- end }}
+      
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+

@@ -1,0 +1,173 @@
+# Values for Production environment
+
+replicaCount: 5
+
+image:
+  repository: guantunes/bridal-cover-crm
+  pullPolicy: IfNotPresent
+  tag: "1.0.0"
+
+app:
+  environment: prod
+
+service:
+  type: ClusterIP
+  port: 8080
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+    prometheus.io/path: "/actuator/prometheus"
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/limit-rps: "10"
+  hosts:
+    - host: api.bridalcover.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: bridalcover-prod-tls
+      hosts:
+        - api.bridalcover.com
+
+resources:
+  limits:
+    cpu: 2000m
+    memory: 2Gi
+  requests:
+    cpu: 1000m
+    memory: 1Gi
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 20
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+livenessProbe:
+  httpGet:
+    path: /actuator/health/liveness
+    port: http
+  initialDelaySeconds: 90
+  periodSeconds: 10
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /actuator/health/readiness
+    port: http
+  initialDelaySeconds: 60
+  periodSeconds: 5
+  timeoutSeconds: 3
+  successThreshold: 1
+  failureThreshold: 3
+
+# Use external database in production
+postgresql:
+  enabled: false
+
+# External database configuration
+externalDatabase:
+  host: postgres-prod.example.com
+  port: 5432
+  username: bridalcover_prod
+  database: bridalcover_prod
+  existingSecret: postgres-prod-secret
+
+# Production security
+podSecurityContext:
+  fsGroup: 1000
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: false
+  allowPrivilegeEscalation: false
+
+# High availability
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 2
+
+# Anti-affinity for better distribution
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - bridal-cover-crm
+          topologyKey: kubernetes.io/hostname
+
+# Node selector for production nodes
+nodeSelector:
+  node-role: production
+
+# Tolerations for production nodes
+tolerations:
+  - key: "production"
+    operator: "Equal"
+    value: "true"
+    effect: "NoSchedule"
+
+# Service Monitor for Prometheus
+serviceMonitor:
+  enabled: true
+  interval: 30s
+  scrapeTimeout: 10s
+  labels:
+    prometheus: kube-prometheus
+
+# Network Policy
+networkPolicy:
+  enabled: true
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            name: ingress-nginx
+  egress:
+    # Allow DNS
+    - to:
+      - namespaceSelector: {}
+      ports:
+      - protocol: TCP
+        port: 53
+      - protocol: UDP
+        port: 53
+    # Allow PostgreSQL
+    - to:
+      - podSelector: {}
+      ports:
+      - protocol: TCP
+        port: 5432
+    # Allow HTTPS (for external APIs)
+    - to:
+      - namespaceSelector: {}
+      ports:
+      - protocol: TCP
+        port: 443
+

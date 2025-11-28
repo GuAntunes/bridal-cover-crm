@@ -1,0 +1,58 @@
+# Values for Development environment
+
+replicaCount: 1
+
+image:
+  repository: guantunes/bridal-cover-crm
+  pullPolicy: Always
+  tag: "dev"
+
+app:
+  environment: dev
+
+service:
+  type: NodePort
+
+ingress:
+  enabled: false
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+autoscaling:
+  enabled: false
+
+livenessProbe:
+  initialDelaySeconds: 30
+  periodSeconds: 10
+
+readinessProbe:
+  initialDelaySeconds: 15
+  periodSeconds: 5
+
+postgresql:
+  enabled: true
+  auth:
+    username: bridalcover_dev
+    password: dev123
+    database: bridalcover_dev
+  primary:
+    persistence:
+      enabled: true
+      size: 5Gi
+    resources:
+      limits:
+        cpu: 250m
+        memory: 256Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+
+podDisruptionBudget:
+  enabled: false
+
