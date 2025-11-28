@@ -264,22 +264,81 @@ bridal-cover-crm/
 ---
 ## 🚀 Deploy para Produção
 
-### Deploy com Docker Hub + Kubernetes
+### Estrutura de Deployment
+
+Este projeto usa **Helm** para gerenciar aplicações e **kubectl** apenas para recursos de infraestrutura base.
+
+```
+📦 Deployment Strategy:
+├── Helm (aplicações)          ← Backend + PostgreSQL
+│   └── helm-chart/bridal-cover-crm/
+│
+└── kubectl (infraestrutura)   ← PersistentVolumes, Namespaces
+    └── k8s/infrastructure/
+```
+
+**⚠️ Nota:** Os diretórios `k8s/base/` e `k8s/overlays/` estão **deprecated** e serão removidos.
+
+---
+
+### 1️⃣ Setup de Infraestrutura (Uma vez)
 
 ```bash
-# 1. Build e push da imagem multi-plataforma (AMD64 + ARM64)
-make docker-release
+# Criar diretórios físicos para PVs
+sudo mkdir -p /mnt/data/postgres-{dev,staging,prod}
+sudo chmod -R 777 /mnt/data/
 
-# 2. No servidor - Deploy inicial no Kubernetes
-make k8s-deploy
+# Aplicar PersistentVolumes
+kubectl apply -f k8s/infrastructure/postgres-volumes.yaml
 
-# 3. Verificar status
-make k8s-status
-make k8s-logs
-
-# 4. Para atualizações posteriores
-make k8s-update
+# Verificar
+kubectl get pv
 ```
+
+---
+
+### 2️⃣ Deploy da Aplicação com Helm
+
+```bash
+cd helm-chart/
+
+# DEV
+helm upgrade --install bridal-crm-dev bridal-cover-crm \
+  --namespace dev \
+  --create-namespace \
+  --values bridal-cover-crm/values-dev.yaml
+
+# STAGING
+helm upgrade --install bridal-crm-staging bridal-cover-crm \
+  --namespace staging \
+  --create-namespace \
+  --values bridal-cover-crm/values-staging.yaml
+
+# PROD
+helm upgrade --install bridal-crm-prod bridal-cover-crm \
+  --namespace prod \
+  --create-namespace \
+  --values bridal-cover-crm/values-prod.yaml
+```
+
+---
+
+### 3️⃣ Verificar Status
+
+```bash
+# Status dos releases
+helm list -A
+
+# Status dos pods
+kubectl get pods -n dev
+kubectl get pods -n staging
+kubectl get pods -n prod
+
+# Logs
+kubectl logs -n dev -l app.kubernetes.io/name=bridal-cover-crm --tail=100
+```
+
+---
 
 ### 🐳 Build de Imagens por Ambiente
 
@@ -300,17 +359,34 @@ make docker-release-prod     # Build multi-plataforma + push (latest)
 make docker-release-all      # Build e push de todos
 ```
 
-### Comandos Kubernetes
+---
+
+### 🔄 Workflow Completo de Deploy
 
 ```bash
-# DEV
-kubectl apply -k k8s/overlays/dev
+# 1. Build e push da imagem
+make docker-release-dev
 
-# STAGING
-kubectl apply -k k8s/overlays/staging
+# 2. Deploy/Update no Kubernetes via Helm
+cd helm-chart/
+helm upgrade bridal-crm-dev bridal-cover-crm \
+  --namespace dev \
+  --values bridal-cover-crm/values-dev.yaml
 
-# PROD
-kubectl apply -k k8s/overlays/prod
+# 3. Verificar
+kubectl get pods -n dev -w
+```
+
+---
+
+### 🔙 Rollback
+
+```bash
+# Ver histórico de releases
+helm history bridal-crm-dev -n dev
+
+# Fazer rollback para versão anterior
+helm rollback bridal-crm-dev -n dev
 ```
 
 **📚 Documentação:**

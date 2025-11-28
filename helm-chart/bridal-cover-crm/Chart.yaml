@@ -18,7 +18,7 @@ sources:
 
 maintainers:
   - name: Gustavo Antunes
-    email: gustavo@example.com
+    email: gas.antunes84@gmail.com
 
 dependencies:
   - name: postgresql

@@ -54,6 +54,7 @@ postgresql:
     persistence:
       enabled: true
       size: 10Gi
+      storageClass: "manual"
     resources:
       limits:
         cpu: 500m
