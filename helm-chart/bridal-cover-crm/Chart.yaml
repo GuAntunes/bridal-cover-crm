@@ -3,7 +3,7 @@ name: bridal-cover-crm
 description: CRM para Noivas - Sistema de Gerenciamento de Leads
 type: application
 version: 1.0.0
-appVersion: "0.0.1-SNAPSHOT"
+appVersion: "0.0.2-SNAPSHOT"
 
 keywords:
   - crm
