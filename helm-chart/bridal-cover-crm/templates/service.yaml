@@ -18,3 +18,4 @@ spec:
   selector:
     {{- include "bridal-cover-crm.selectorLabels" . | nindent 4 }}
 
+

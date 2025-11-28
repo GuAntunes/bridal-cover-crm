@@ -1233,3 +1233,4 @@ O **Helm** revolucionou o gerenciamento de aplicações no Kubernetes, e a remo�
 
 **Helm torna o Kubernetes mais acessível e gerenciável! 🚀**
 
+

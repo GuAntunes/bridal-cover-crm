@@ -17,3 +17,4 @@ spec:
       {{- include "bridal-cover-crm.selectorLabels" . | nindent 6 }}
 {{- end }}
 
+

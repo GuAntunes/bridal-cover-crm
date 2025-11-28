@@ -35,3 +35,4 @@ kubectl get pv
 - Devem ser criados **uma vez** e persistem entre deploys das aplicações
 - Em ambientes de cloud (AWS, GCP, Azure), você usaria StorageClasses dinâmicas
 
+

@@ -912,3 +912,4 @@ echo "✅ Validação concluída!"
 - → Ver [Índice completo](README.md)
 
 
+

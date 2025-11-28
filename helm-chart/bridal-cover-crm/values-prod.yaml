@@ -171,3 +171,4 @@ networkPolicy:
       - protocol: TCP
         port: 443
 
+
