@@ -14,11 +14,11 @@ spec:
         env:
         # Opção 1: URL completa do banco de dados
         - name: SPRING_DATASOURCE_URL
-          value: jdbc:postgresql://postgresql-dev-bridal-cover-crm-postgresql.bridal-crm.svc.cluster.local:5432/bridal_cover_crm_dev
+          value: jdbc:postgresql://postgresql-dev-bridal-cover-crm-postgresql.dev.svc.cluster.local:5432/bridal_cover_crm_dev
         
         # Opção 2: Componentes separados (mais flexível)
         - name: DB_HOST
-          value: postgresql-dev-bridal-cover-crm-postgresql.bridal-crm.svc.cluster.local
+          value: postgresql-dev-bridal-cover-crm-postgresql.dev.svc.cluster.local
         - name: DB_PORT
           value: "5432"
         - name: DB_NAME

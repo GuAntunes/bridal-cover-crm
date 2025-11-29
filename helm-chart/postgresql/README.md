@@ -18,7 +18,7 @@ Este Helm chart gerencia o deployment do PostgreSQL para o sistema Bridal Cover 
 
 ```bash
 helm install postgresql-dev ./postgresql \
-  --namespace bridal-crm \
+  --namespace dev \
   --create-namespace \
   --values postgresql/values-dev.yaml
 ```
@@ -47,7 +47,7 @@ helm install postgresql-prod ./postgresql \
 ```bash
 # Desenvolvimento
 helm upgrade postgresql-dev ./postgresql \
-  --namespace bridal-crm \
+  --namespace dev \
   --values postgresql/values-dev.yaml
 
 # Staging
@@ -65,10 +65,10 @@ helm upgrade postgresql-prod ./postgresql \
 
 ```bash
 # ATENÇÃO: Isso irá remover o pod, mas o PVC (dados) será mantido
-helm uninstall postgresql-dev --namespace bridal-crm
+helm uninstall postgresql-dev --namespace dev
 
 # Para remover também os dados:
-kubectl delete pvc -n bridal-crm postgresql-dev-bridal-cover-crm-postgresql-data
+kubectl delete pvc -n dev postgresql-dev-bridal-cover-crm-postgresql-data
 ```
 
 ## Configuração
@@ -139,7 +139,7 @@ psql -h <NODE_IP> -p 30432 -U postgres -d bridal_cover_crm_dev
 
 ```bash
 # Criar port forward
-kubectl port-forward -n bridal-crm svc/postgresql-dev-bridal-cover-crm-postgresql 5432:5432
+kubectl port-forward -n dev svc/postgresql-dev-bridal-cover-crm-postgresql 5432:5432
 
 # Em outro terminal, conectar
 psql -h localhost -U postgres -d bridal_cover_crm_dev
@@ -162,10 +162,10 @@ E também cria o usuário `bridal_user` com permissões em todos os bancos.
 
 ```bash
 # Obter a senha
-PGPASSWORD=$(kubectl get secret -n bridal-crm postgresql-dev-bridal-cover-crm-postgresql -o jsonpath='{.data.POSTGRES_PASSWORD}' | base64 -d)
+PGPASSWORD=$(kubectl get secret -n dev postgresql-dev-bridal-cover-crm-postgresql -o jsonpath='{.data.POSTGRES_PASSWORD}' | base64 -d)
 
 # Criar backup
-kubectl exec -n bridal-crm postgresql-dev-bridal-cover-crm-postgresql-0 -- \
+kubectl exec -n dev postgresql-dev-bridal-cover-crm-postgresql-0 -- \
   pg_dump -U postgres bridal_cover_crm_dev > backup.sql
 ```
 
@@ -173,7 +173,7 @@ kubectl exec -n bridal-crm postgresql-dev-bridal-cover-crm-postgresql-0 -- \
 
 ```bash
 # Restaurar backup
-cat backup.sql | kubectl exec -i -n bridal-crm postgresql-dev-bridal-cover-crm-postgresql-0 -- \
+cat backup.sql | kubectl exec -i -n dev postgresql-dev-bridal-cover-crm-postgresql-0 -- \
   psql -U postgres -d bridal_cover_crm_dev
 ```
 
@@ -182,31 +182,31 @@ cat backup.sql | kubectl exec -i -n bridal-crm postgresql-dev-bridal-cover-crm-p
 ### Ver logs do PostgreSQL
 
 ```bash
-kubectl logs -n bridal-crm -l app.kubernetes.io/name=bridal-cover-crm-postgresql -f
+kubectl logs -n dev -l app.kubernetes.io/name=bridal-cover-crm-postgresql -f
 ```
 
 ### Verificar status do pod
 
 ```bash
-kubectl get pods -n bridal-crm -l app.kubernetes.io/name=bridal-cover-crm-postgresql
+kubectl get pods -n dev -l app.kubernetes.io/name=bridal-cover-crm-postgresql
 ```
 
 ### Verificar PVC
 
 ```bash
-kubectl get pvc -n bridal-crm
+kubectl get pvc -n dev
 ```
 
 ### Conectar ao shell do container
 
 ```bash
-kubectl exec -it -n bridal-crm <pod-name> -- /bin/sh
+kubectl exec -it -n dev <pod-name> -- /bin/sh
 ```
 
 ### Verificar se o PostgreSQL está aceitando conexões
 
 ```bash
-kubectl exec -n bridal-crm <pod-name> -- pg_isready -U postgres
+kubectl exec -n dev <pod-name> -- pg_isready -U postgres
 ```
 
 ## Segurança em Produção

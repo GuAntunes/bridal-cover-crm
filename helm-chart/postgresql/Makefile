@@ -4,9 +4,10 @@ CHART_NAME := postgresql
 RELEASE_NAME_DEV := postgresql-dev
 RELEASE_NAME_STAGING := postgresql-staging
 RELEASE_NAME_PROD := postgresql-prod
-NAMESPACE_DEV := bridal-crm
-NAMESPACE_STAGING := bridal-crm-staging
-NAMESPACE_PROD := bridal-crm-prod
+# Namespaces alinhados com o backend
+NAMESPACE_DEV := dev
+NAMESPACE_STAGING := staging
+NAMESPACE_PROD := production
 
 .PHONY: help
 help: ## Exibe esta mensagem de ajuda

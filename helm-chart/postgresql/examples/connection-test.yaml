@@ -5,7 +5,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: postgres-test
-  namespace: bridal-crm
+  namespace: dev  # Mesmo namespace do backend
 spec:
   containers:
   - name: postgres-client
@@ -40,20 +40,20 @@ spec:
 #    kubectl apply -f connection-test.yaml
 #
 # 2. Esperar o pod ficar pronto:
-#    kubectl wait --for=condition=ready pod/postgres-test -n bridal-crm
+#    kubectl wait --for=condition=ready pod/postgres-test -n dev
 #
 # 3. Testar conectividade:
-#    kubectl exec -it postgres-test -n bridal-crm -- pg_isready
+#    kubectl exec -it postgres-test -n dev -- pg_isready
 #
 # 4. Conectar ao psql:
-#    kubectl exec -it postgres-test -n bridal-crm -- psql
+#    kubectl exec -it postgres-test -n dev -- psql
 #
 # 5. Listar bancos de dados:
-#    kubectl exec -it postgres-test -n bridal-crm -- psql -c "\l"
+#    kubectl exec -it postgres-test -n dev -- psql -c "\l"
 #
 # 6. Conectar a um banco específico:
-#    kubectl exec -it postgres-test -n bridal-crm -- psql -d bridal_cover_crm_dev
+#    kubectl exec -it postgres-test -n dev -- psql -d bridal_cover_crm_dev
 #
 # 7. Deletar o pod quando terminar:
-#    kubectl delete pod postgres-test -n bridal-crm
+#    kubectl delete pod postgres-test -n dev
 
