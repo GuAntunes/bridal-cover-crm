@@ -3,9 +3,9 @@
 replicaCount: 1
 
 image:
-  repository: guantunes/bridal-cover-crm
+  repository: gustavoantunes/bridal-cover-crm
   pullPolicy: Always
-  tag: "dev"
+  tag: "latest"
 
 app:
   environment: dev
@@ -57,6 +57,15 @@ postgresql:
       requests:
         cpu: 100m
         memory: 128Mi
+  metrics:
+    enabled: true
+    resources:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 50m
+        memory: 64Mi
 
 podDisruptionBudget:
   enabled: false

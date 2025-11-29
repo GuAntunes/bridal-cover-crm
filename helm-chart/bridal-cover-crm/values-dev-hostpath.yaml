@@ -4,9 +4,9 @@
 replicaCount: 1
 
 image:
-  repository: guantunes/bridal-cover-crm
+  repository: gustavoantunes/bridal-cover-crm
   pullPolicy: Always
-  tag: "dev"
+  tag: "latest"
 
 app:
   environment: dev
