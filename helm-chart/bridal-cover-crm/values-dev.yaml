@@ -36,36 +36,18 @@ readinessProbe:
   periodSeconds: 5
 
 postgresql:
-  enabled: true
-  auth:
-    username: bridalcover_dev
-    password: dev123
-    database: bridalcover_dev
-  primary:
-    persistence:
-      enabled: true
-      size: 5Gi
-      # StorageClass options:
-      # - "manual" = requires manual PV creation (see k8s/infrastructure/postgresql-pv-dev.yaml)
-      # - "" (empty) = uses cluster's default StorageClass (recommended for local dev)
-      # - "standard" or "hostpath" = specific StorageClass name
-      storageClass: "manual"
-    resources:
-      limits:
-        cpu: 250m
-        memory: 256Mi
-      requests:
-        cpu: 100m
-        memory: 128Mi
-  metrics:
-    enabled: true
-    resources:
-      limits:
-        cpu: 100m
-        memory: 128Mi
-      requests:
-        cpu: 50m
-        memory: 64Mi
+  # Desabilitado - usando PostgreSQL standalone (helm-chart/postgresql/)
+  enabled: false
+
+# Configuração para conectar ao PostgreSQL standalone
+externalDatabase:
+  host: postgresql-dev-bridal-cover-crm-postgresql
+  port: 5432
+  database: bridal_cover_crm_dev
+  username: postgres
+  # A senha está no Secret: postgresql-dev-bridal-cover-crm-postgresql
+  existingSecret: postgresql-dev-bridal-cover-crm-postgresql
+  secretKey: POSTGRES_PASSWORD
 
 podDisruptionBudget:
   enabled: false
