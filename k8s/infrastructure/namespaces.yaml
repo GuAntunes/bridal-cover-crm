@@ -1,0 +1,35 @@
+# =============================================================================
+# Namespaces para os ambientes
+# =============================================================================
+# Criar namespaces separados para cada ambiente do Bridal Cover CRM
+# =============================================================================
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dev
+  labels:
+    name: dev
+    environment: development
+    project: bridal-cover-crm
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: staging
+  labels:
+    name: staging
+    environment: staging
+    project: bridal-cover-crm
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: production
+  labels:
+    name: production
+    environment: production
+    project: bridal-cover-crm
+

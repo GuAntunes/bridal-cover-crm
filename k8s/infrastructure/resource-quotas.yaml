@@ -1,0 +1,54 @@
+# =============================================================================
+# Resource Quotas por Ambiente
+# =============================================================================
+# Limita recursos para evitar consumo excessivo em cada namespace
+# Ajuste conforme a capacidade do seu cluster
+# =============================================================================
+
+# Resource Quota para DEV
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: dev-quota
+  namespace: dev
+spec:
+  hard:
+    requests.cpu: "4"           # Total de CPU requests
+    requests.memory: 8Gi        # Total de memória requests
+    limits.cpu: "8"             # Total de CPU limits
+    limits.memory: 16Gi         # Total de memória limits
+    persistentvolumeclaims: "5" # Máximo de PVCs
+    pods: "20"                  # Máximo de pods
+
+---
+# Resource Quota para STAGING
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: staging-quota
+  namespace: staging
+spec:
+  hard:
+    requests.cpu: "6"
+    requests.memory: 12Gi
+    limits.cpu: "12"
+    limits.memory: 24Gi
+    persistentvolumeclaims: "10"
+    pods: "30"
+
+---
+# Resource Quota para PRODUCTION
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: production-quota
+  namespace: production
+spec:
+  hard:
+    requests.cpu: "16"          # Mais recursos para produção
+    requests.memory: 32Gi
+    limits.cpu: "32"
+    limits.memory: 64Gi
+    persistentvolumeclaims: "20"
+    pods: "50"
+

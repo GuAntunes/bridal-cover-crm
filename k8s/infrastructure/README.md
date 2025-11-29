@@ -15,18 +15,33 @@ PersistentVolumes para PostgreSQL em todos os ambientes (dev, staging, prod).
 
 ## 🚀 Como Aplicar
 
+### Opção 1: Usando Makefile (Recomendado)
+
 ```bash
-# Criar diretórios físicos primeiro
+# Ver comandos disponíveis
+cd k8s/
+make help
+
+# Setup completo (cria diretórios + aplica recursos)
+make setup-all
+```
+
+### Opção 2: Manual com kubectl
+
+```bash
+# 1. Criar diretórios físicos primeiro (apenas para clusters locais)
 sudo mkdir -p /mnt/data/postgres-dev
 sudo mkdir -p /mnt/data/postgres-staging
 sudo mkdir -p /mnt/data/postgres-prod
 sudo chmod -R 777 /mnt/data/
 
-# Aplicar os PVs
-kubectl apply -f k8s/infrastructure/postgres-volumes.yaml
+# 2. Aplicar recursos
+kubectl apply -f k8s/infrastructure/
 
-# Verificar
+# 3. Verificar
 kubectl get pv
+kubectl get namespaces
+kubectl get resourcequota -A
 ```
 
 ## 📝 Notas
