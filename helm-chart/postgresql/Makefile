@@ -12,7 +12,26 @@ NAMESPACE_PROD := bridal-crm-prod
 help: ## Exibe esta mensagem de ajuda
 	@echo "Comandos disponíveis para o PostgreSQL Helm Chart:"
 	@echo ""
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-25s\033[0m %s\n", $$1, $$2}'
+	@echo "\033[1;33m🆘 TROUBLESHOOTING (se tiver problemas):\033[0m"
+	@echo "  \033[36mdiagnose\033[0m                   - Diagnostica problemas com PVC"
+	@echo "  \033[36mfix-pvc-issues\033[0m             - Corrige problemas de PVC automaticamente"
+	@echo "  \033[36minstall-local-path-provisioner\033[0m - Instala storage provisioner"
+	@echo "  \033[36minstall-dev-no-pvc\033[0m         - Instala SEM persistência (teste rápido)"
+	@echo ""
+	@echo "\033[1;32m📦 INSTALAÇÃO:\033[0m"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -E 'install-dev|install-staging|install-prod' | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-30s\033[0m %s\n", $$1, $$2}'
+	@echo ""
+	@echo "\033[1;34m🔄 GERENCIAMENTO:\033[0m"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -E 'upgrade|uninstall|reinstall|status|get-pods' | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-30s\033[0m %s\n", $$1, $$2}'
+	@echo ""
+	@echo "\033[1;35m🔍 MONITORAMENTO:\033[0m"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -E 'logs|shell|psql|port-forward' | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-30s\033[0m %s\n", $$1, $$2}'
+	@echo ""
+	@echo "\033[1;36m💾 BACKUP:\033[0m"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -E 'backup|list-backups' | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-30s\033[0m %s\n", $$1, $$2}'
+	@echo ""
+	@echo "\033[1;31m🗑️  LIMPEZA:\033[0m"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -E 'delete-pvc|clean-all' | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 # ==================== DESENVOLVIMENTO ====================
 
@@ -23,6 +42,24 @@ install-dev: ## Instala o PostgreSQL no ambiente de desenvolvimento
 		--namespace $(NAMESPACE_DEV) \
 		--create-namespace \
 		--values values-dev.yaml
+
+.PHONY: install-dev-no-pvc
+install-dev-no-pvc: ## Instala PostgreSQL SEM persistência (resolve problemas de PVC)
+	@echo "📦 Instalando PostgreSQL (DEV) SEM PERSISTÊNCIA..."
+	@echo "⚠️  ATENÇÃO: Dados serão perdidos ao reiniciar o pod!"
+	helm install $(RELEASE_NAME_DEV) . \
+		--namespace $(NAMESPACE_DEV) \
+		--create-namespace \
+		--values values-dev-no-pvc.yaml
+
+.PHONY: install-dev-local-path
+install-dev-local-path: ## Instala PostgreSQL usando local-path storageClass
+	@echo "📦 Instalando PostgreSQL (DEV) com local-path..."
+	helm install $(RELEASE_NAME_DEV) . \
+		--namespace $(NAMESPACE_DEV) \
+		--create-namespace \
+		--values values-dev.yaml \
+		--set persistence.storageClass=local-path
 
 .PHONY: upgrade-dev
 upgrade-dev: ## Atualiza o PostgreSQL no ambiente de desenvolvimento
@@ -90,6 +127,49 @@ uninstall-prod: ## Desinstala o PostgreSQL do ambiente de produção
 	fi
 
 # ==================== UTILITIES ====================
+
+.PHONY: diagnose
+diagnose: ## Diagnostica problemas com PVC e storage
+	@echo "🔍 Diagnóstico do PostgreSQL..."
+	@echo ""
+	@echo "=== StorageClasses disponíveis ==="
+	@kubectl get storageclass || echo "Nenhuma storageclass encontrada"
+	@echo ""
+	@echo "=== PersistentVolumes disponíveis ==="
+	@kubectl get pv || echo "Nenhum PV encontrado"
+	@echo ""
+	@echo "=== PersistentVolumeClaims no namespace ==="
+	@kubectl get pvc -n $(NAMESPACE_DEV) || echo "Nenhum PVC encontrado"
+	@echo ""
+	@echo "=== Pods no namespace ==="
+	@kubectl get pods -n $(NAMESPACE_DEV) || echo "Nenhum pod encontrado"
+	@echo ""
+	@echo "=== Eventos recentes ==="
+	@kubectl get events -n $(NAMESPACE_DEV) --sort-by='.lastTimestamp' | tail -20 || echo "Sem eventos"
+
+.PHONY: install-local-path-provisioner
+install-local-path-provisioner: ## Instala local-path-provisioner (resolve problemas de PVC)
+	@echo "📦 Instalando local-path-provisioner..."
+	kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/v0.0.24/deploy/local-path-storage.yaml
+	@echo "⏳ Aguardando provisioner ficar pronto..."
+	@sleep 5
+	kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}' || true
+	@echo "✅ Local-path-provisioner instalado!"
+	@echo ""
+	@kubectl get storageclass
+
+.PHONY: fix-pvc-issues
+fix-pvc-issues: ## Corrige problemas de PVC (instala provisioner e reinstala)
+	@echo "🔧 Corrigindo problemas de PVC..."
+	@make install-local-path-provisioner
+	@echo ""
+	@echo "🗑️  Removendo instalação atual..."
+	@make uninstall-dev || true
+	@kubectl delete pvc -n $(NAMESPACE_DEV) --all || true
+	@echo ""
+	@echo "📦 Reinstalando PostgreSQL..."
+	@make install-dev-local-path
+	@echo "✅ Pronto!"
 
 .PHONY: lint
 lint: ## Valida os templates do Helm chart
