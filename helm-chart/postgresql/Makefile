@@ -1,4 +1,5 @@
 # PostgreSQL Helm Chart Makefile
+# ⚠️ RECOMENDAÇÃO: Use o Makefile na raiz (../Makefile) para comandos simplificados
 
 CHART_NAME := postgresql
 RELEASE_NAME_DEV := postgres
@@ -11,9 +12,11 @@ NAMESPACE_PROD := production
 
 .PHONY: help
 help: ## Exibe esta mensagem de ajuda
-	@echo "Comandos disponíveis para o PostgreSQL Helm Chart:"
+	@echo "\033[1;33m⚠️  DICA: Use 'make help' no diretório ../helm-chart/ para comandos simplificados\033[0m"
 	@echo ""
-	@echo "\033[1;33m🆘 TROUBLESHOOTING (se tiver problemas):\033[0m"
+	@echo "Comandos disponíveis para o PostgreSQL (uso avançado):"
+	@echo ""
+	@echo "\033[1;33m🆘 TROUBLESHOOTING:\033[0m"
 	@echo "  \033[36mdiagnose\033[0m                   - Diagnostica problemas com PVC"
 	@echo "  \033[36mfix-pvc-issues\033[0m             - Corrige problemas de PVC automaticamente"
 	@echo "  \033[36minstall-local-path-provisioner\033[0m - Instala storage provisioner"

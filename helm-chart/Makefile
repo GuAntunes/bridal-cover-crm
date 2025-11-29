@@ -1,246 +1,282 @@
-# Makefile - Bridal Cover CRM Helm Chart
-# Comandos essenciais para gerenciamento do chart
+# Makefile Simplificado - Bridal Cover CRM
+# Gerencia PostgreSQL + Backend de forma integrada
 
-CHART_NAME := bridal-cover-crm
-CHART_PATH := ./$(CHART_NAME)
-RELEASE_NAME := backend
+# Configurações
+ENV ?= dev
+NAMESPACE_dev := dev
+NAMESPACE_staging := staging
+NAMESPACE_prod := production
+NAMESPACE := $(NAMESPACE_$(ENV))
 
-# Namespaces
-NS_DEV := dev
-NS_STAGING := staging
-NS_PROD := production
+# Releases
+POSTGRES_RELEASE := postgres
+BACKEND_RELEASE := backend
 
 # Cores
 GREEN := \033[0;32m
 YELLOW := \033[1;33m
 RED := \033[0;31m
+BLUE := \033[0;34m
 NC := \033[0m
 
+.DEFAULT_GOAL := help
+
+##@ Ajuda
+
 .PHONY: help
-help: ## Mostrar esta ajuda
-	@echo "$(GREEN)═══════════════════════════════════════════════════════$(NC)"
-	@echo "$(GREEN)  Bridal Cover CRM - Helm Chart$(NC)"
-	@echo "$(GREEN)═══════════════════════════════════════════════════════$(NC)"
+help: ## Mostrar comandos disponíveis
+	@echo "$(GREEN)╔══════════════════════════════════════════════════════════╗$(NC)"
+	@echo "$(GREEN)║         Bridal Cover CRM - Comandos Helm                ║$(NC)"
+	@echo "$(GREEN)╚══════════════════════════════════════════════════════════╝$(NC)"
 	@echo ""
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-		awk 'BEGIN {FS = ":.*?## "}; {printf "  $(GREEN)%-20s$(NC) %s\n", $$1, $$2}'
+	@echo "$(BLUE)Ambiente atual: $(ENV) (namespace: $(NAMESPACE))$(NC)"
+	@echo "$(YELLOW)Mude com: make ENV=staging <comando>$(NC)"
+	@echo ""
+	@echo "$(GREEN)━━━ Instalação Completa ━━━$(NC)"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -E 'install$$|uninstall$$|reinstall$$' | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(BLUE)%-25s$(NC) %s\n", $$1, $$2}'
+	@echo ""
+	@echo "$(GREEN)━━━ PostgreSQL ━━━$(NC)"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep 'postgres-' | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(BLUE)%-25s$(NC) %s\n", $$1, $$2}'
+	@echo ""
+	@echo "$(GREEN)━━━ Backend ━━━$(NC)"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep 'backend-' | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(BLUE)%-25s$(NC) %s\n", $$1, $$2}'
+	@echo ""
+	@echo "$(GREEN)━━━ Status e Monitoramento ━━━$(NC)"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -E 'status|diagnose|test-' | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(BLUE)%-25s$(NC) %s\n", $$1, $$2}'
+	@echo ""
+	@echo "$(GREEN)━━━ Utilitários ━━━$(NC)"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -E 'restart|fix-|clean' | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(BLUE)%-25s$(NC) %s\n", $$1, $$2}'
 	@echo ""
 
-##@ Setup
+##@ Instalação Completa
 
-.PHONY: setup
-setup: ## Configurar dependências (executar apenas uma vez)
-	@echo "$(GREEN)Configurando repositórios Helm...$(NC)"
-	helm repo add bitnami https://charts.bitnami.com/bitnami
-	helm repo update
-	@echo "$(GREEN)Atualizando dependências do chart...$(NC)"
-	cd $(CHART_PATH) && helm dependency update
-	@echo "$(GREEN)✅ Setup completo!$(NC)"
+.PHONY: install
+install: postgres-install backend-install ## Instalar PostgreSQL + Backend
+	@echo "$(GREEN)✅ Instalação completa!$(NC)"
+	@echo ""
+	@make status
 
-##@ Validação
+.PHONY: uninstall
+uninstall: backend-uninstall postgres-uninstall ## Desinstalar Backend + PostgreSQL
+	@echo "$(YELLOW)✅ Desinstalação completa!$(NC)"
 
-.PHONY: lint
-lint: ## Validar sintaxe do chart
-	@echo "$(GREEN)Validando chart...$(NC)"
-	helm lint $(CHART_PATH)
+.PHONY: reinstall
+reinstall: uninstall install ## Reinstalar tudo
 
-.PHONY: dry-run-dev
-dry-run-dev: ## Simular instalação em dev
-	@echo "$(GREEN)Simulando instalação em DEV...$(NC)"
-	helm install $(RELEASE_NAME)-dev $(CHART_PATH) \
-		-f $(CHART_PATH)/values-dev.yaml \
-		-n $(NS_DEV) --dry-run --debug
+##@ PostgreSQL
 
-.PHONY: dry-run-staging
-dry-run-staging: ## Simular instalação em staging
-	@echo "$(GREEN)Simulando instalação em STAGING...$(NC)"
-	helm install $(RELEASE_NAME)-staging $(CHART_PATH) \
-		-f $(CHART_PATH)/values-staging.yaml \
-		-n $(NS_STAGING) --dry-run --debug
+.PHONY: postgres-install
+postgres-install: ## Instalar PostgreSQL
+	@echo "$(GREEN)📦 Instalando PostgreSQL ($(ENV))...$(NC)"
+	@kubectl create namespace $(NAMESPACE) --dry-run=client -o yaml | kubectl apply -f - > /dev/null 2>&1
+	@cd postgresql && helm install $(POSTGRES_RELEASE) . \
+		--namespace $(NAMESPACE) \
+		--values values-$(ENV).yaml \
+		--wait --timeout 3m
+	@echo "$(GREEN)✅ PostgreSQL instalado!$(NC)"
+	@echo "$(YELLOW)⏳ Aguardando pod ficar pronto...$(NC)"
+	@kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=bridal-cover-crm-postgresql -n $(NAMESPACE) --timeout=120s
+	@echo "$(GREEN)✅ PostgreSQL está pronto!$(NC)"
 
-.PHONY: dry-run-prod
-dry-run-prod: ## Simular instalação em produção
-	@echo "$(YELLOW)Simulando instalação em PRODUÇÃO...$(NC)"
-	helm install $(RELEASE_NAME)-prod $(CHART_PATH) \
-		-f $(CHART_PATH)/values-prod.yaml \
-		-n $(NS_PROD) --dry-run --debug
+.PHONY: postgres-uninstall
+postgres-uninstall: ## Desinstalar PostgreSQL (mantém dados)
+	@echo "$(YELLOW)🗑️  Desinstalando PostgreSQL ($(ENV))...$(NC)"
+	@helm uninstall $(POSTGRES_RELEASE) -n $(NAMESPACE) 2>/dev/null || echo "PostgreSQL já foi removido"
 
-##@ Deploy
+.PHONY: postgres-reinstall
+postgres-reinstall: postgres-uninstall postgres-install ## Reinstalar PostgreSQL
 
-.PHONY: deploy-dev
-deploy-dev: ## Deploy completo em dev
-	@echo "$(GREEN)Deploy em DEV...$(NC)"
-	kubectl create namespace $(NS_DEV) --dry-run=client -o yaml | kubectl apply -f -
-	cd $(CHART_PATH) && helm dependency update
-	helm upgrade --install $(RELEASE_NAME)-dev $(CHART_PATH) \
-		-f $(CHART_PATH)/values-dev.yaml \
-		-n $(NS_DEV)
-	@echo "$(GREEN)✅ Deploy DEV completo!$(NC)"
+.PHONY: postgres-reinstall-no-pvc
+postgres-reinstall-no-pvc: ## Reinstalar PostgreSQL SEM persistência
+	@echo "$(YELLOW)🗑️  Removendo PostgreSQL e dados...$(NC)"
+	@helm uninstall $(POSTGRES_RELEASE) -n $(NAMESPACE) 2>/dev/null || true
+	@kubectl delete pvc -n $(NAMESPACE) -l app.kubernetes.io/name=bridal-cover-crm-postgresql 2>/dev/null || true
+	@echo "$(GREEN)📦 Instalando PostgreSQL SEM persistência...$(NC)"
+	@cd postgresql && helm install $(POSTGRES_RELEASE) . \
+		--namespace $(NAMESPACE) \
+		--values values-$(ENV)-no-pvc.yaml \
+		--wait --timeout 3m
 
-.PHONY: deploy-staging
-deploy-staging: ## Deploy completo em staging
-	@echo "$(GREEN)Deploy em STAGING...$(NC)"
-	kubectl create namespace $(NS_STAGING) --dry-run=client -o yaml | kubectl apply -f -
-	cd $(CHART_PATH) && helm dependency update
-	helm upgrade --install $(RELEASE_NAME)-staging $(CHART_PATH) \
-		-f $(CHART_PATH)/values-staging.yaml \
-		-n $(NS_STAGING)
-	@echo "$(GREEN)✅ Deploy STAGING completo!$(NC)"
+.PHONY: postgres-status
+postgres-status: ## Ver status do PostgreSQL
+	@echo "$(BLUE)PostgreSQL Status ($(ENV)):$(NC)"
+	@helm status $(POSTGRES_RELEASE) -n $(NAMESPACE) 2>/dev/null || echo "$(RED)PostgreSQL não está instalado$(NC)"
+	@echo ""
+	@kubectl get pods -n $(NAMESPACE) -l app.kubernetes.io/name=bridal-cover-crm-postgresql 2>/dev/null || true
 
-.PHONY: deploy-prod
-deploy-prod: ## Deploy completo em produção
-	@echo "$(RED)⚠️  Deploy em PRODUÇÃO!$(NC)"
-	@echo "$(RED)Pressione Ctrl+C para cancelar, ou aguarde 5s...$(NC)"
-	@sleep 5
-	kubectl create namespace $(NS_PROD) --dry-run=client -o yaml | kubectl apply -f -
-	cd $(CHART_PATH) && helm dependency update
-	helm upgrade --install $(RELEASE_NAME)-prod $(CHART_PATH) \
-		-f $(CHART_PATH)/values-prod.yaml \
-		-n $(NS_PROD)
-	@echo "$(GREEN)✅ Deploy PRODUÇÃO completo!$(NC)"
+.PHONY: postgres-logs
+postgres-logs: ## Ver logs do PostgreSQL
+	@kubectl logs -n $(NAMESPACE) -l app.kubernetes.io/name=bridal-cover-crm-postgresql -f --tail=100
 
-##@ Atualização
+.PHONY: postgres-connect
+postgres-connect: ## Conectar no PostgreSQL via psql
+	@kubectl exec -it -n $(NAMESPACE) $$(kubectl get pods -n $(NAMESPACE) -l app.kubernetes.io/name=bridal-cover-crm-postgresql -o jsonpath='{.items[0].metadata.name}') -- psql -U postgres -d bridal_cover_crm_$(ENV)
 
-.PHONY: upgrade-dev
-upgrade-dev: ## Atualizar release em dev
-	@echo "$(GREEN)Atualizando DEV...$(NC)"
-	cd $(CHART_PATH) && helm dependency update
-	helm upgrade $(RELEASE_NAME)-dev $(CHART_PATH) \
-		-f $(CHART_PATH)/values-dev.yaml \
-		-n $(NS_DEV)
+.PHONY: postgres-port-forward
+postgres-port-forward: ## Port-forward PostgreSQL para localhost:5432
+	@echo "$(GREEN)🔌 PostgreSQL disponível em localhost:5432$(NC)"
+	@echo "$(YELLOW)Conecte com: psql -h localhost -p 5432 -U postgres -d bridal_cover_crm_$(ENV)$(NC)"
+	@kubectl port-forward -n $(NAMESPACE) svc/$(POSTGRES_RELEASE)-bridal-cover-crm-postgresql 5432:5432
 
-.PHONY: upgrade-staging
-upgrade-staging: ## Atualizar release em staging
-	@echo "$(GREEN)Atualizando STAGING...$(NC)"
-	cd $(CHART_PATH) && helm dependency update
-	helm upgrade $(RELEASE_NAME)-staging $(CHART_PATH) \
-		-f $(CHART_PATH)/values-staging.yaml \
-		-n $(NS_STAGING)
+##@ Backend
 
-.PHONY: upgrade-prod
-upgrade-prod: ## Atualizar release em produção
-	@echo "$(RED)⚠️  Atualizando PRODUÇÃO!$(NC)"
-	@echo "$(RED)Pressione Ctrl+C para cancelar, ou aguarde 5s...$(NC)"
-	@sleep 5
-	cd $(CHART_PATH) && helm dependency update
-	helm upgrade $(RELEASE_NAME)-prod $(CHART_PATH) \
-		-f $(CHART_PATH)/values-prod.yaml \
-		-n $(NS_PROD)
+.PHONY: backend-install
+backend-install: ## Instalar Backend
+	@echo "$(GREEN)📦 Instalando Backend ($(ENV))...$(NC)"
+	@kubectl create namespace $(NAMESPACE) --dry-run=client -o yaml | kubectl apply -f - > /dev/null 2>&1
+	@cd bridal-cover-crm && helm dependency update > /dev/null 2>&1
+	@cd bridal-cover-crm && helm install $(BACKEND_RELEASE) . \
+		--namespace $(NAMESPACE) \
+		--values values-$(ENV).yaml \
+		--wait --timeout 5m
+	@echo "$(GREEN)✅ Backend instalado!$(NC)"
 
-##@ Status
+.PHONY: backend-upgrade
+backend-upgrade: ## Atualizar Backend
+	@echo "$(GREEN)🔄 Atualizando Backend ($(ENV))...$(NC)"
+	@cd bridal-cover-crm && helm dependency update > /dev/null 2>&1
+	@cd bridal-cover-crm && helm upgrade $(BACKEND_RELEASE) . \
+		--namespace $(NAMESPACE) \
+		--values values-$(ENV).yaml \
+		--wait --timeout 5m
+	@echo "$(GREEN)✅ Backend atualizado!$(NC)"
 
-.PHONY: status-dev
-status-dev: ## Ver status em dev
-	@helm status $(RELEASE_NAME)-dev -n $(NS_DEV)
+.PHONY: backend-uninstall
+backend-uninstall: ## Desinstalar Backend
+	@echo "$(YELLOW)🗑️  Desinstalando Backend ($(ENV))...$(NC)"
+	@helm uninstall $(BACKEND_RELEASE) -n $(NAMESPACE) 2>/dev/null || echo "Backend já foi removido"
 
-.PHONY: status-staging
-status-staging: ## Ver status em staging
-	@helm status $(RELEASE_NAME)-staging -n $(NS_STAGING)
+.PHONY: backend-reinstall
+backend-reinstall: backend-uninstall backend-install ## Reinstalar Backend
 
-.PHONY: status-prod
-status-prod: ## Ver status em produção
-	@helm status $(RELEASE_NAME)-prod -n $(NS_PROD)
+.PHONY: backend-status
+backend-status: ## Ver status do Backend
+	@echo "$(BLUE)Backend Status ($(ENV)):$(NC)"
+	@helm status $(BACKEND_RELEASE) -n $(NAMESPACE) 2>/dev/null || echo "$(RED)Backend não está instalado$(NC)"
+	@echo ""
+	@kubectl get pods -n $(NAMESPACE) -l app.kubernetes.io/name=bridal-cover-crm 2>/dev/null || true
 
-.PHONY: pods-dev
-pods-dev: ## Ver pods em dev
-	@kubectl get pods -n $(NS_DEV) -l app.kubernetes.io/instance=$(RELEASE_NAME)-dev
+.PHONY: backend-logs
+backend-logs: ## Ver logs do Backend
+	@kubectl logs -n $(NAMESPACE) -l app.kubernetes.io/name=bridal-cover-crm -f --tail=100
 
-.PHONY: pods-staging
-pods-staging: ## Ver pods em staging
-	@kubectl get pods -n $(NS_STAGING) -l app.kubernetes.io/instance=$(RELEASE_NAME)-staging
+.PHONY: backend-port-forward
+backend-port-forward: ## Port-forward Backend para localhost:8080
+	@echo "$(GREEN)🔌 Backend disponível em http://localhost:8080$(NC)"
+	@echo "$(YELLOW)Health: http://localhost:8080/actuator/health$(NC)"
+	@kubectl port-forward -n $(NAMESPACE) svc/$(BACKEND_RELEASE)-bridal-cover-crm 8080:8080
 
-.PHONY: pods-prod
-pods-prod: ## Ver pods em produção
-	@kubectl get pods -n $(NS_PROD) -l app.kubernetes.io/instance=$(RELEASE_NAME)-prod
+.PHONY: backend-restart
+backend-restart: ## Reiniciar Backend
+	@echo "$(YELLOW)🔄 Reiniciando Backend...$(NC)"
+	@kubectl rollout restart deployment/$(BACKEND_RELEASE)-bridal-cover-crm -n $(NAMESPACE)
+	@kubectl rollout status deployment/$(BACKEND_RELEASE)-bridal-cover-crm -n $(NAMESPACE)
+	@echo "$(GREEN)✅ Backend reiniciado!$(NC)"
 
-.PHONY: logs-dev
-logs-dev: ## Ver logs em dev
-	@kubectl logs -n $(NS_DEV) -l app.kubernetes.io/instance=$(RELEASE_NAME)-dev -f --tail=100
+##@ Status e Monitoramento
 
-.PHONY: logs-staging
-logs-staging: ## Ver logs em staging
-	@kubectl logs -n $(NS_STAGING) -l app.kubernetes.io/instance=$(RELEASE_NAME)-staging -f --tail=100
+.PHONY: status
+status: ## Ver status completo (PostgreSQL + Backend)
+	@echo "$(GREEN)╔══════════════════════════════════════════════════════════╗$(NC)"
+	@echo "$(GREEN)║             Status Completo - $(ENV)                      $(NC)"
+	@echo "$(GREEN)╚══════════════════════════════════════════════════════════╝$(NC)"
+	@echo ""
+	@echo "$(BLUE)━━━ Helm Releases ━━━$(NC)"
+	@helm list -n $(NAMESPACE) 2>/dev/null || echo "Nenhuma release encontrada"
+	@echo ""
+	@echo "$(BLUE)━━━ Pods ━━━$(NC)"
+	@kubectl get pods -n $(NAMESPACE) 2>/dev/null || echo "Nenhum pod encontrado"
+	@echo ""
+	@echo "$(BLUE)━━━ Services ━━━$(NC)"
+	@kubectl get svc -n $(NAMESPACE) 2>/dev/null || echo "Nenhum service encontrado"
+	@echo ""
+	@echo "$(BLUE)━━━ PVCs ━━━$(NC)"
+	@kubectl get pvc -n $(NAMESPACE) 2>/dev/null || echo "Nenhum PVC encontrado"
 
-.PHONY: logs-prod
-logs-prod: ## Ver logs em produção
-	@kubectl logs -n $(NS_PROD) -l app.kubernetes.io/instance=$(RELEASE_NAME)-prod -f --tail=100
+.PHONY: diagnose
+diagnose: ## Diagnóstico completo do ambiente
+	@echo "$(YELLOW)🔍 Executando diagnóstico...$(NC)"
+	@echo ""
+	@echo "$(BLUE)━━━ Namespace ━━━$(NC)"
+	@kubectl get namespace $(NAMESPACE) 2>/dev/null || echo "$(RED)Namespace $(NAMESPACE) não existe$(NC)"
+	@echo ""
+	@echo "$(BLUE)━━━ Helm Releases ━━━$(NC)"
+	@helm list -n $(NAMESPACE) 2>/dev/null || echo "Nenhuma release"
+	@echo ""
+	@echo "$(BLUE)━━━ Pods ━━━$(NC)"
+	@kubectl get pods -n $(NAMESPACE) -o wide 2>/dev/null || echo "Nenhum pod"
+	@echo ""
+	@echo "$(BLUE)━━━ PVCs ━━━$(NC)"
+	@kubectl get pvc -n $(NAMESPACE) 2>/dev/null || echo "Nenhum PVC"
+	@echo ""
+	@echo "$(BLUE)━━━ StorageClasses ━━━$(NC)"
+	@kubectl get storageclass 2>/dev/null || echo "Nenhuma storageclass"
+	@echo ""
+	@echo "$(BLUE)━━━ Eventos Recentes ━━━$(NC)"
+	@kubectl get events -n $(NAMESPACE) --sort-by='.lastTimestamp' 2>/dev/null | tail -15 || echo "Sem eventos"
 
-##@ Rollback
-
-.PHONY: history-dev
-history-dev: ## Ver histórico em dev
-	@helm history $(RELEASE_NAME)-dev -n $(NS_DEV)
-
-.PHONY: history-staging
-history-staging: ## Ver histórico em staging
-	@helm history $(RELEASE_NAME)-staging -n $(NS_STAGING)
-
-.PHONY: history-prod
-history-prod: ## Ver histórico em produção
-	@helm history $(RELEASE_NAME)-prod -n $(NS_PROD)
-
-.PHONY: rollback-dev
-rollback-dev: ## Rollback em dev
-	@echo "$(YELLOW)Fazendo rollback em DEV...$(NC)"
-	helm rollback $(RELEASE_NAME)-dev -n $(NS_DEV)
-
-.PHONY: rollback-staging
-rollback-staging: ## Rollback em staging
-	@echo "$(YELLOW)Fazendo rollback em STAGING...$(NC)"
-	helm rollback $(RELEASE_NAME)-staging -n $(NS_STAGING)
-
-.PHONY: rollback-prod
-rollback-prod: ## Rollback em produção
-	@echo "$(RED)⚠️  Fazendo rollback em PRODUÇÃO!$(NC)"
-	@echo "$(RED)Pressione Ctrl+C para cancelar, ou aguarde 5s...$(NC)"
-	@sleep 5
-	helm rollback $(RELEASE_NAME)-prod -n $(NS_PROD)
-
-##@ Limpeza
-
-.PHONY: uninstall-dev
-uninstall-dev: ## Desinstalar de dev
-	@echo "$(YELLOW)Desinstalando de DEV...$(NC)"
-	helm uninstall $(RELEASE_NAME)-dev -n $(NS_DEV)
-
-.PHONY: uninstall-staging
-uninstall-staging: ## Desinstalar de staging
-	@echo "$(YELLOW)Desinstalando de STAGING...$(NC)"
-	helm uninstall $(RELEASE_NAME)-staging -n $(NS_STAGING)
-
-.PHONY: uninstall-prod
-uninstall-prod: ## Desinstalar de produção
-	@echo "$(RED)⚠️  Desinstalando de PRODUÇÃO!$(NC)"
-	@echo "$(RED)Pressione Ctrl+C para cancelar, ou aguarde 10s...$(NC)"
-	@sleep 10
-	helm uninstall $(RELEASE_NAME)-prod -n $(NS_PROD)
-
-.PHONY: clean
-clean: ## Limpar dependências do chart
-	@echo "$(GREEN)Limpando dependências...$(NC)"
-	rm -rf $(CHART_PATH)/charts/*
-	rm -rf $(CHART_PATH)/Chart.lock
-	rm -f $(CHART_NAME)-*.tgz
+.PHONY: test-connection
+test-connection: ## Testar conexão Backend -> PostgreSQL
+	@echo "$(YELLOW)🔍 Testando conexão Backend -> PostgreSQL...$(NC)"
+	@kubectl run test-connection --rm -it --restart=Never \
+		--image=postgres:15-alpine \
+		--namespace=$(NAMESPACE) \
+		--env="PGPASSWORD=postgres" \
+		-- psql -h $(POSTGRES_RELEASE)-bridal-cover-crm-postgresql -U postgres -d bridal_cover_crm_$(ENV) -c "SELECT version();"
 
 ##@ Utilitários
 
-.PHONY: list
-list: ## Listar todas as releases
-	@helm list -A
+.PHONY: restart
+restart: backend-restart ## Reiniciar aplicação (apenas backend)
 
-.PHONY: port-forward-dev
-port-forward-dev: ## Port forward dev para localhost:8080
-	@echo "$(GREEN)Port forward DEV → http://localhost:8080$(NC)"
-	kubectl port-forward -n $(NS_DEV) svc/$(RELEASE_NAME)-dev-$(CHART_NAME) 8080:8080
+.PHONY: fix-storage
+fix-storage: ## Instalar storage provisioner (corrige PVC Pending)
+	@echo "$(GREEN)📦 Instalando local-path-provisioner...$(NC)"
+	@kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/v0.0.24/deploy/local-path-storage.yaml
+	@sleep 5
+	@kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}' 2>/dev/null || true
+	@echo "$(GREEN)✅ Storage provisioner instalado!$(NC)"
+	@kubectl get storageclass
 
-.PHONY: port-forward-staging
-port-forward-staging: ## Port forward staging para localhost:8080
-	@echo "$(GREEN)Port forward STAGING → http://localhost:8080$(NC)"
-	kubectl port-forward -n $(NS_STAGING) svc/$(RELEASE_NAME)-staging-$(CHART_NAME) 8080:8080
+.PHONY: clean-all
+clean-all: ## ⚠️  CUIDADO: Remove tudo incluindo DADOS
+	@echo "$(RED)⚠️  ATENÇÃO: Isso irá remover TUDO incluindo dados do banco!$(NC)"
+	@echo "$(RED)Pressione Ctrl+C nos próximos 5 segundos para cancelar...$(NC)"
+	@sleep 5
+	@helm uninstall $(BACKEND_RELEASE) -n $(NAMESPACE) 2>/dev/null || true
+	@helm uninstall $(POSTGRES_RELEASE) -n $(NAMESPACE) 2>/dev/null || true
+	@kubectl delete pvc -n $(NAMESPACE) --all 2>/dev/null || true
+	@kubectl delete namespace $(NAMESPACE) 2>/dev/null || true
+	@echo "$(GREEN)✅ Tudo removido!$(NC)"
 
-.PHONY: port-forward-prod
-port-forward-prod: ## Port forward produção para localhost:8080
-	@echo "$(GREEN)Port forward PRODUÇÃO → http://localhost:8080$(NC)"
-	kubectl port-forward -n $(NS_PROD) svc/$(RELEASE_NAME)-prod-$(CHART_NAME) 8080:8080
+.PHONY: pods
+pods: ## Listar todos os pods
+	@kubectl get pods -n $(NAMESPACE)
 
-.DEFAULT_GOAL := help
+.PHONY: events
+events: ## Ver eventos recentes
+	@kubectl get events -n $(NAMESPACE) --sort-by='.lastTimestamp'
+
+##@ Informações
+
+.PHONY: info
+info: ## Mostrar informações de conexão
+	@echo "$(GREEN)╔══════════════════════════════════════════════════════════╗$(NC)"
+	@echo "$(GREEN)║         Informações de Conexão - $(ENV)                  $(NC)"
+	@echo "$(GREEN)╚══════════════════════════════════════════════════════════╝$(NC)"
+	@echo ""
+	@echo "$(BLUE)PostgreSQL:$(NC)"
+	@echo "  Host (interno): $(POSTGRES_RELEASE)-bridal-cover-crm-postgresql.$(NAMESPACE).svc.cluster.local"
+	@echo "  Host (curto):   $(POSTGRES_RELEASE)-bridal-cover-crm-postgresql"
+	@echo "  Port:           5432"
+	@echo "  Database:       bridal_cover_crm_$(ENV)"
+	@echo "  Username:       postgres"
+	@echo "  Password:       postgres"
+	@echo ""
+	@echo "$(BLUE)Backend:$(NC)"
+	@echo "  Service:        $(BACKEND_RELEASE)-bridal-cover-crm.$(NAMESPACE).svc.cluster.local"
+	@echo "  Port:           8080"
+	@echo ""
+	@echo "$(YELLOW)Para acessar localmente:$(NC)"
+	@echo "  PostgreSQL:     make postgres-port-forward"
+	@echo "  Backend:        make backend-port-forward"
