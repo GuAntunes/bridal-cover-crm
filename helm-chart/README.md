@@ -1,444 +1,571 @@
-# Helm Charts - Bridal Cover CRM
+# Helm Chart - Bridal Cover CRM
 
-Este diretório contém os Helm Charts para deployar o Bridal Cover CRM no Kubernetes.
+Documentação completa para deploy do Bridal Cover CRM usando Helm no Kubernetes.
 
-## 📦 Estrutura
+## 📋 Índice
 
-```
-helm-chart/
-└── bridal-cover-crm/
-    ├── Chart.yaml              # Metadados do chart
-    ├── values.yaml             # Valores padrão
-    ├── values-dev.yaml         # Valores para desenvolvimento
-    ├── values-staging.yaml     # Valores para staging
-    ├── values-prod.yaml        # Valores para produção
-    ├── .helmignore            # Arquivos a ignorar
-    ├── README.md              # Documentação do chart
-    └── templates/             # Templates Kubernetes
-        ├── _helpers.tpl       # Funções auxiliares
-        ├── deployment.yaml    # Deployment
-        ├── service.yaml       # Service
-        ├── ingress.yaml       # Ingress
-        ├── configmap.yaml     # ConfigMap
-        ├── serviceaccount.yaml # ServiceAccount
-        ├── hpa.yaml           # HorizontalPodAutoscaler
-        ├── pdb.yaml           # PodDisruptionBudget
-        └── NOTES.txt          # Notas pós-instalação
-```
+- [Pré-requisitos](#-pré-requisitos)
+- [Estrutura](#-estrutura)
+- [Início Rápido](#-início-rápido)
+- [Deploy por Ambiente](#-deploy-por-ambiente)
+- [Comandos Make](#-comandos-make)
+- [Gerenciamento de Secrets](#-gerenciamento-de-secrets)
+- [Atualização e Rollback](#-atualização-e-rollback)
+- [Monitoramento](#-monitoramento)
+- [Troubleshooting](#-troubleshooting)
+- [Referência de Comandos](#-referência-de-comandos)
 
-## 🚀 Quick Start
+## 🔧 Pré-requisitos
 
-### 1. Instalar Helm
+### Ferramentas Necessárias
+
+- **Kubernetes Cluster** (Minikube, kind, ou cluster real)
+- **kubectl** configurado
+- **Helm 3.10+**
+- **make** (opcional, mas recomendado)
+
+### Instalação das Ferramentas
 
 ```bash
+# Helm
 # macOS
 brew install helm
 
 # Linux
 curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
+# kubectl
+# macOS
+brew install kubectl
+
 # Verificar instalação
+kubectl version --client
 helm version
 ```
 
-### 2. Adicionar dependências
+## 📦 Estrutura
+
+```
+helm-chart/
+├── bridal-cover-crm/          # Chart principal
+│   ├── Chart.yaml             # Metadados e dependências
+│   ├── values.yaml            # Valores padrão
+│   ├── values-dev.yaml        # Configuração desenvolvimento
+│   ├── values-staging.yaml    # Configuração staging
+│   ├── values-prod.yaml       # Configuração produção
+│   └── templates/             # Templates Kubernetes
+│       ├── deployment.yaml
+│       ├── service.yaml
+│       ├── ingress.yaml
+│       ├── configmap.yaml
+│       ├── hpa.yaml
+│       └── _helpers.tpl
+├── Makefile                   # Comandos automatizados
+└── README.md                  # Este arquivo
+```
+
+## 🚀 Início Rápido
+
+### Opção 1: Usando Make (Recomendado)
 
 ```bash
-# Adicionar repositório Bitnami (para PostgreSQL)
+# 1. Setup inicial (apenas primeira vez)
+make setup
+
+# 2. Ver comandos disponíveis
+make help
+
+# 3. Deploy completo em desenvolvimento
+make deploy-dev
+
+# 4. Verificar status
+make status-dev
+make pods-dev
+```
+
+### Opção 2: Usando Helm Diretamente
+
+```bash
+# 1. Adicionar repositórios
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update
 
-# Atualizar dependências do chart
-cd helm-chart/bridal-cover-crm
+# 2. Atualizar dependências
+cd bridal-cover-crm
 helm dependency update
+
+# 3. Instalar
+kubectl create namespace dev
+helm install bridal-crm-dev . -f values-dev.yaml -n dev
+
+# 4. Ver status
+helm status bridal-crm-dev -n dev
 ```
 
-### 3. Validar o Chart
+### Validação do Chart
 
 ```bash
-# Lint (verificar problemas)
-helm lint bridal-cover-crm/
+# Lint
+helm lint ./bridal-cover-crm
 
 # Ver templates gerados
-helm template my-release bridal-cover-crm/
+helm template test ./bridal-cover-crm -f ./bridal-cover-crm/values-dev.yaml
 
 # Dry run
-helm install my-release bridal-cover-crm/ --dry-run --debug
+helm install test ./bridal-cover-crm -f ./bridal-cover-crm/values-dev.yaml --dry-run --debug
 ```
 
-## 📝 Deployment por Ambiente
+## 🌍 Deploy por Ambiente
 
 ### Desenvolvimento
 
-```bash
-# Criar namespace
-kubectl create namespace dev
+**Características:** 1 réplica, NodePort, recursos mínimos
 
-# Instalar
+```bash
+# Via Make
+make deploy-dev
+
+# Via Helm
+kubectl create namespace dev
 helm install bridal-crm-dev ./bridal-cover-crm \
   -f ./bridal-cover-crm/values-dev.yaml \
   -n dev
+```
 
-# Verificar
-kubectl get pods -n dev
+**Acessar a aplicação:**
+
+```bash
+# Port forward
+kubectl port-forward -n dev svc/bridal-crm-dev-bridal-cover-crm 8080:8080
+
+# Acessar
+curl http://localhost:8080/actuator/health
 ```
 
 ### Staging
 
-```bash
-# Criar namespace
-kubectl create namespace staging
+**Características:** 2 réplicas, Ingress, recursos médios
 
-# Instalar com secrets externos
+```bash
+# 1. Criar secret do banco
 kubectl create secret generic postgres-staging-secret \
-  --from-literal=password=secure-staging-password \
+  --from-literal=password=staging-password \
   -n staging
 
+# 2. Deploy via Make
+make deploy-staging
+
+# 3. Deploy via Helm
 helm install bridal-crm-staging ./bridal-cover-crm \
   -f ./bridal-cover-crm/values-staging.yaml \
   -n staging
-
-# Verificar
-kubectl get all -n staging
 ```
 
 ### Produção
 
+**Características:** 5+ réplicas, HA, recursos altos, DB externo
+
 ```bash
-# Criar namespace
+# ⚠️ IMPORTANTE: Configurar secrets antes!
+
+# 1. Criar namespace
 kubectl create namespace production
 
-# Criar secret do banco de dados
+# 2. Criar secret do banco
 kubectl create secret generic postgres-prod-secret \
-  --from-literal=password=$DB_PASSWORD \
+  --from-literal=password=$SECURE_PASSWORD \
   -n production
 
-# Instalar
+# 3. Deploy via Make
+make deploy-prod
+
+# 4. Deploy via Helm
 helm install bridal-crm-prod ./bridal-cover-crm \
   -f ./bridal-cover-crm/values-prod.yaml \
   -n production
 
-# Verificar deploy
-helm status bridal-crm-prod -n production
+# 5. Verificar
 kubectl get pods -n production -w
 ```
 
-## 🔄 Atualização
+## 🛠️ Comandos Make
 
 ```bash
-# Atualizar imagem
+# Ver todos os comandos disponíveis
+make help
+
+# Setup inicial (executar apenas uma vez)
+make setup                   # Configurar repositórios e dependências
+
+# Validação
+make lint                    # Validar sintaxe do chart
+make dry-run-dev             # Simular instalação em dev
+
+# Deploy (upgrade or install)
+make deploy-dev              # Deploy completo em dev
+make deploy-staging          # Deploy completo em staging
+make deploy-prod             # Deploy completo em produção
+
+# Atualização
+make upgrade-dev             # Atualizar release em dev
+make upgrade-staging         # Atualizar release em staging
+make upgrade-prod            # Atualizar release em produção
+
+# Status e Logs
+make status-dev              # Ver status da release
+make pods-dev                # Ver pods
+make logs-dev                # Ver logs (últimas 100 linhas)
+
+# Rollback
+make history-dev             # Ver histórico de versões
+make rollback-dev            # Voltar para versão anterior
+
+# Limpeza
+make uninstall-dev           # Desinstalar release
+make clean                   # Limpar dependências
+
+# Utilitários
+make list                    # Listar todas as releases
+make port-forward-dev        # Port forward para localhost:8080
+```
+
+## 🔐 Gerenciamento de Secrets
+
+### Opção 1: Secret Manual (Dev/Staging)
+
+```bash
+kubectl create secret generic db-secret \
+  --from-literal=password=mypassword \
+  -n dev
+```
+
+### Opção 2: Sealed Secrets (Produção - Recomendado)
+
+```bash
+# 1. Instalar Sealed Secrets Controller
+kubectl apply -f https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.24.0/controller.yaml
+
+# 2. Criar secret
+kubectl create secret generic db-secret \
+  --from-literal=password=mypassword \
+  --dry-run=client -o yaml > secret.yaml
+
+# 3. Selar (pode commitar sealed-secret.yaml no git)
+kubeseal -f secret.yaml -w sealed-secret.yaml
+
+# 4. Aplicar
+kubectl apply -f sealed-secret.yaml -n production
+```
+
+### Opção 3: Valores via CLI
+
+```bash
+helm install bridal-crm-dev ./bridal-cover-crm \
+  --set postgresql.auth.password=mypassword \
+  -n dev
+```
+
+## 🔄 Atualização e Rollback
+
+### Atualizar Release
+
+```bash
+# Atualizar apenas a imagem
 helm upgrade bridal-crm-prod ./bridal-cover-crm \
-  -f ./bridal-cover-crm/values-prod.yaml \
-  --set image.tag=1.1.0 \
+  --set image.tag=1.2.0 \
+  --reuse-values \
   -n production
 
 # Atualizar com novos valores
 helm upgrade bridal-crm-prod ./bridal-cover-crm \
-  -f ./bridal-cover-crm/values-prod-updated.yaml \
+  -f ./bridal-cover-crm/values-prod.yaml \
   -n production
 
-# Ver diferenças (requer plugin helm-diff)
-helm diff upgrade bridal-crm-prod ./bridal-cover-crm \
-  -f ./bridal-cover-crm/values-prod.yaml
+# Via Make
+make upgrade-prod
 ```
 
-## ⏮️ Rollback
+### Rollback
 
 ```bash
 # Ver histórico
 helm history bridal-crm-prod -n production
 
-# Rollback para revisão anterior
+# Rollback para versão anterior
 helm rollback bridal-crm-prod -n production
 
-# Rollback para revisão específica
+# Rollback para versão específica
 helm rollback bridal-crm-prod 3 -n production
+
+# Via Make
+make history-prod
+make rollback-prod
 ```
 
-## 🔍 Debugging
+### Escalar Aplicação
+
+```bash
+# Via Helm
+helm upgrade bridal-crm-prod ./bridal-cover-crm \
+  --set replicaCount=10 \
+  --reuse-values \
+  -n production
+
+# Via kubectl (temporário)
+kubectl scale deployment/bridal-crm-prod-bridal-cover-crm --replicas=10 -n production
+
+# Restart pods
+kubectl rollout restart deployment/bridal-crm-prod-bridal-cover-crm -n production
+```
+
+## 📊 Monitoramento
+
+### Verificar Status
+
+```bash
+# Pods
+kubectl get pods -n production
+kubectl top pods -n production
+
+# HPA (Horizontal Pod Autoscaler)
+kubectl get hpa -n production
+kubectl describe hpa bridal-crm-prod-bridal-cover-crm -n production
+
+# Todos recursos
+kubectl get all -n production
+```
+
+### Logs
+
+```bash
+# Seguir logs
+kubectl logs -n production -l app.kubernetes.io/name=bridal-cover-crm -f
+
+# Via Make
+make logs-prod
+
+# Logs de pod específico
+kubectl logs <pod-name> -n production -f
+
+# Logs do container anterior (se crashou)
+kubectl logs <pod-name> -n production --previous
+```
+
+### Health Checks
+
+```bash
+# Port forward
+kubectl port-forward -n production svc/bridal-crm-prod-bridal-cover-crm 8080:8080
+
+# Health
+curl http://localhost:8080/actuator/health
+
+# Liveness
+curl http://localhost:8080/actuator/health/liveness
+
+# Readiness
+curl http://localhost:8080/actuator/health/readiness
+
+# Metrics (Prometheus)
+curl http://localhost:8080/actuator/prometheus
+```
+
+### Conectar no PostgreSQL
+
+```bash
+# 1. Obter senha
+export POSTGRES_PASSWORD=$(kubectl get secret bridal-crm-prod-postgresql \
+  -n production \
+  -o jsonpath="{.data.password}" | base64 -d)
+
+# 2. Conectar
+kubectl run postgresql-client --rm --tty -i --restart='Never' \
+  --namespace production \
+  --image docker.io/bitnami/postgresql:latest \
+  --env="PGPASSWORD=$POSTGRES_PASSWORD" \
+  --command -- psql \
+  --host bridal-crm-prod-postgresql \
+  -U bridalcover \
+  -d bridalcover_db
+```
+
+## 🆘 Troubleshooting
+
+### Pod não inicia
+
+```bash
+# Ver detalhes do pod
+kubectl describe pod <pod-name> -n production
+
+# Ver eventos
+kubectl get events -n production --sort-by='.lastTimestamp'
+
+# Ver logs
+kubectl logs <pod-name> -n production
+
+# Ver configuração aplicada
+kubectl get pod <pod-name> -n production -o yaml
+```
+
+### ImagePullBackOff
+
+```bash
+# Descrever pod
+kubectl describe pod <pod-name> -n production
+
+# Verificar se imagem existe
+docker pull guantunes/bridal-cover-crm:1.0.0
+
+# Verificar secrets de pull
+kubectl get secrets -n production
+```
+
+### CrashLoopBackOff
+
+```bash
+# Ver logs do container anterior
+kubectl logs <pod-name> -n production --previous
+
+# Ver eventos
+kubectl get events -n production --sort-by='.lastTimestamp'
+
+# Executar shell no pod (se possível)
+kubectl exec -it <pod-name> -n production -- /bin/sh
+```
+
+### Release Preso
+
+```bash
+# Desinstalar completamente
+helm uninstall bridal-crm-dev -n dev
+
+# Limpar namespace
+kubectl delete namespace dev
+
+# Recriar
+kubectl create namespace dev
+make deploy-dev
+```
+
+### Erro de Dependências
+
+```bash
+# Limpar e reinstalar
+make clean
+make deps-update
+make deploy-dev
+```
+
+### Verificar Configuração
 
 ```bash
 # Ver valores aplicados
 helm get values bridal-crm-prod -n production
 
-# Ver todos os valores (incluindo defaults)
+# Ver todos valores (incluindo defaults)
 helm get values bridal-crm-prod --all -n production
 
-# Ver manifestos gerados
+# Ver manifests gerados
 helm get manifest bridal-crm-prod -n production
 
-# Ver logs
-kubectl logs -n production -l app.kubernetes.io/name=bridal-cover-crm -f
-
-# Testar conectividade
-kubectl port-forward -n production svc/bridal-crm-prod-bridal-cover-crm 8080:8080
-curl http://localhost:8080/actuator/health
+# Ver ConfigMap
+kubectl get configmap bridal-crm-prod-bridal-cover-crm -n production -o yaml
 ```
 
-## 📦 Empacotamento
+## 📚 Referência de Comandos
+
+### Helm Essencial
 
 ```bash
-# Criar pacote .tgz
-helm package bridal-cover-crm/
+# Listar releases
+helm list -A
+helm list -n production
 
-# Output: bridal-cover-crm-1.0.0.tgz
+# Informações da release
+helm status <release> -n <namespace>
+helm get values <release> -n <namespace>
+helm get manifest <release> -n <namespace>
 
-# Gerar índice (para repositório)
+# Histórico e rollback
+helm history <release> -n <namespace>
+helm rollback <release> -n <namespace>
+helm rollback <release> <revision> -n <namespace>
+
+# Desinstalar
+helm uninstall <release> -n <namespace>
+
+# Empacotamento
+helm package ./bridal-cover-crm
 helm repo index .
 ```
 
-## 🛠️ Customização
-
-### Sobrescrever valores via CLI
+### Kubectl Essencial
 
 ```bash
-helm install my-release ./bridal-cover-crm \
-  --set replicaCount=5 \
-  --set image.tag=1.2.0 \
-  --set postgresql.auth.password=newpass
+# Recursos
+kubectl get all -n <namespace>
+kubectl get pods -n <namespace>
+kubectl describe pod <pod-name> -n <namespace>
+
+# Logs
+kubectl logs -f <pod-name> -n <namespace>
+kubectl logs -l app=myapp -n <namespace> -f
+
+# Execução
+kubectl exec -it <pod-name> -n <namespace> -- /bin/sh
+kubectl port-forward -n <namespace> svc/<service> 8080:8080
+
+# Métricas
+kubectl top pods -n <namespace>
+kubectl top nodes
+
+# Eventos
+kubectl get events -n <namespace> --sort-by='.lastTimestamp'
 ```
 
-### Usar múltiplos arquivos de valores
+### Customização de Valores
 
 ```bash
+# Múltiplos arquivos de valores
 helm install my-release ./bridal-cover-crm \
   -f values.yaml \
   -f values-prod.yaml \
   -f secrets.yaml
-```
 
-### Variáveis de ambiente customizadas
-
-```yaml
-# custom-values.yaml
-app:
-  extraEnv:
-    - name: CUSTOM_API_KEY
-      value: "my-api-key"
-    - name: FEATURE_FLAG
-      value: "true"
-```
-
-```bash
-helm install my-release ./bridal-cover-crm -f custom-values.yaml
-```
-
-## 🔐 Gerenciamento de Secrets
-
-### Opção 1: Valores inline (NÃO recomendado para produção)
-
-```bash
+# Sobrescrever valores específicos
 helm install my-release ./bridal-cover-crm \
-  --set postgresql.auth.password=mypassword
+  --set replicaCount=5 \
+  --set image.tag=1.2.0 \
+  --set postgresql.auth.password=newpass
+
+# Reaproveitando valores existentes
+helm upgrade my-release ./bridal-cover-crm \
+  --reuse-values \
+  --set image.tag=1.3.0
 ```
 
-### Opção 2: Arquivo de secrets (gitignored)
+## 💡 Boas Práticas
 
-```yaml
-# secrets.yaml (adicionar ao .gitignore!)
-postgresql:
-  auth:
-    password: supersecretpassword
-```
+1. **Sempre faça dry-run** antes de deploy em produção
+2. **Use valores separados** para cada ambiente
+3. **Versione seus charts** seguindo SemVer
+4. **Teste rollbacks** regularmente
+5. **Use Sealed Secrets** para produção
+6. **Monitore recursos** (CPU, memória, HPA)
+7. **Implemente health checks** adequados
+8. **Mantenha backups** do banco de dados
+9. **Automatize via CI/CD**
+10. **Documente mudanças** no Chart.yaml
 
-```bash
-helm install my-release ./bridal-cover-crm \
-  -f values.yaml \
-  -f secrets.yaml
-```
-
-### Opção 3: Sealed Secrets (recomendado)
-
-```bash
-# Instalar Sealed Secrets Controller
-kubectl apply -f https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.24.0/controller.yaml
-
-# Criar e selar secret
-kubectl create secret generic db-secret \
-  --from-literal=password=mypassword \
-  --dry-run=client -o yaml | \
-  kubeseal -o yaml > sealed-secret.yaml
-
-kubectl apply -f sealed-secret.yaml
-
-# Usar no Helm
-helm install my-release ./bridal-cover-crm \
-  --set postgresql.auth.existingSecret=db-secret
-```
-
-### Opção 4: External Secrets Operator
-
-```bash
-# Instalar External Secrets
-helm repo add external-secrets https://charts.external-secrets.io
-helm install external-secrets external-secrets/external-secrets -n external-secrets-system --create-namespace
-
-# Criar ExternalSecret
-kubectl apply -f - <<EOF
-apiVersion: external-secrets.io/v1beta1
-kind: ExternalSecret
-metadata:
-  name: db-secret
-spec:
-  secretStoreRef:
-    name: aws-secretsmanager
-    kind: SecretStore
-  target:
-    name: postgres-secret
-  data:
-  - secretKey: password
-    remoteRef:
-      key: prod/database/password
-EOF
-```
-
-## 🧪 Testing
-
-```bash
-# Criar testes
-cat > templates/tests/test-connection.yaml <<EOF
-apiVersion: v1
-kind: Pod
-metadata:
-  name: "{{ include "bridal-cover-crm.fullname" . }}-test"
-  annotations:
-    "helm.sh/hook": test
-spec:
-  containers:
-  - name: wget
-    image: busybox
-    command: ['wget']
-    args: ['{{ include "bridal-cover-crm.fullname" . }}:{{ .Values.service.port }}/actuator/health']
-  restartPolicy: Never
-EOF
-
-# Executar testes
-helm test bridal-crm-prod -n production
-```
-
-## 📊 Monitoramento
-
-### Verificar HPA
-
-```bash
-kubectl get hpa -n production
-kubectl describe hpa bridal-crm-prod-bridal-cover-crm -n production
-```
-
-### Verificar métricas
-
-```bash
-kubectl top pods -n production
-kubectl top nodes
-```
-
-### Dashboard do Kubernetes
-
-```bash
-kubectl proxy
-# Acesse: http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
-```
-
-## 🔧 Ferramentas Úteis
-
-### Helm Plugins
-
-```bash
-# Helm Diff - Comparar mudanças
-helm plugin install https://github.com/databus23/helm-diff
-
-# Helm Secrets - Gerenciar secrets
-helm plugin install https://github.com/jkroepke/helm-secrets
-
-# Listar plugins
-helm plugin list
-```
-
-### Helmfile (Gerenciador declarativo)
-
-```yaml
-# helmfile.yaml
-releases:
-  - name: bridal-crm-dev
-    namespace: dev
-    chart: ./bridal-cover-crm
-    values:
-      - ./bridal-cover-crm/values-dev.yaml
-  
-  - name: bridal-crm-staging
-    namespace: staging
-    chart: ./bridal-cover-crm
-    values:
-      - ./bridal-cover-crm/values-staging.yaml
-  
-  - name: bridal-crm-prod
-    namespace: production
-    chart: ./bridal-cover-crm
-    values:
-      - ./bridal-cover-crm/values-prod.yaml
-```
-
-```bash
-# Instalar helmfile
-brew install helmfile
-
-# Aplicar
-helmfile sync
-```
-
-## 📚 Documentação Adicional
+## 🔗 Links Úteis
 
 - **[Helm Official Docs](https://helm.sh/docs/)**
 - **[Chart Best Practices](https://helm.sh/docs/chart_best_practices/)**
+- **[Kubernetes Docs](https://kubernetes.io/docs/)**
 - **[Helm Template Guide](https://helm.sh/docs/chart_template_guide/)**
-- **[Guia Helm e Tiller](../docs/kubernetes/15-helm-tiller-guide.md)** - Documentação completa interna
 
-## 🆘 Troubleshooting
+---
 
-### Chart não instala
+**📞 Suporte:** Abra uma issue no repositório ou consulte a documentação em `docs/kubernetes/`
 
-```bash
-# Verificar sintaxe
-helm lint ./bridal-cover-crm
-
-# Debug template
-helm template test ./bridal-cover-crm --debug
-```
-
-### Pods não iniciam
-
-```bash
-# Ver eventos
-kubectl get events -n production --sort-by='.lastTimestamp'
-
-# Descrever pod
-kubectl describe pod <pod-name> -n production
-
-# Ver logs
-kubectl logs <pod-name> -n production
-```
-
-### Erro de dependências
-
-```bash
-# Limpar cache
-rm -rf bridal-cover-crm/charts/*
-
-# Re-baixar dependências
-helm dependency update bridal-cover-crm/
-```
-
-## 🤝 Contribuindo
-
-1. Faça suas alterações no chart
-2. Valide: `helm lint bridal-cover-crm/`
-3. Teste: `helm install test ./bridal-cover-crm --dry-run --debug`
-4. Incremente a versão em `Chart.yaml`
-5. Atualize o `README.md` se necessário
-6. Faça commit e PR
-
-## 📄 Licença
-
-[Inserir licença aqui]
-
-
+**🚀 Boa sorte com seu deploy!**

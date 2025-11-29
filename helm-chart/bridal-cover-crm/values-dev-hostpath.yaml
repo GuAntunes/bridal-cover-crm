@@ -1,4 +1,5 @@
-# Values for Development environment
+# Values for Development environment with hostpath storage
+# Use this if your cluster has 'standard' or 'hostpath' storage class
 
 replicaCount: 1
 
@@ -45,11 +46,9 @@ postgresql:
     persistence:
       enabled: true
       size: 5Gi
-      # StorageClass options:
-      # - "manual" = requires manual PV creation (see k8s/infrastructure/postgresql-pv-dev.yaml)
-      # - "" (empty) = uses cluster's default StorageClass (recommended for local dev)
-      # - "standard" or "hostpath" = specific StorageClass name
-      storageClass: "manual"
+      # Deixe vazio para usar a StorageClass padrão do cluster
+      # ou especifique: "standard", "hostpath", etc.
+      storageClass: ""
     resources:
       limits:
         cpu: 250m
