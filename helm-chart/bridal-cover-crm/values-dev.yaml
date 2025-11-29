@@ -41,12 +41,12 @@ postgresql:
 
 # Configuração para conectar ao PostgreSQL standalone
 externalDatabase:
-  host: postgresql-dev-bridal-cover-crm-postgresql
+  host: postgres-bridal-cover-crm-postgresql
   port: 5432
   database: bridal_cover_crm_dev
   username: postgres
-  # A senha está no Secret: postgresql-dev-bridal-cover-crm-postgresql
-  existingSecret: postgresql-dev-bridal-cover-crm-postgresql
+  # A senha está no Secret criado pelo Helm do PostgreSQL
+  existingSecret: postgres-bridal-cover-crm-postgresql
   secretKey: POSTGRES_PASSWORD
 
 podDisruptionBudget:

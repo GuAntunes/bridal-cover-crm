@@ -3,7 +3,7 @@
 
 CHART_NAME := bridal-cover-crm
 CHART_PATH := ./$(CHART_NAME)
-RELEASE_NAME := bridal-crm
+RELEASE_NAME := backend
 
 # Namespaces
 NS_DEV := dev

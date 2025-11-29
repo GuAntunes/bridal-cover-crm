@@ -1,9 +1,9 @@
 # PostgreSQL Helm Chart Makefile
 
 CHART_NAME := postgresql
-RELEASE_NAME_DEV := postgresql-dev
-RELEASE_NAME_STAGING := postgresql-staging
-RELEASE_NAME_PROD := postgresql-prod
+RELEASE_NAME_DEV := postgres
+RELEASE_NAME_STAGING := postgres
+RELEASE_NAME_PROD := postgres
 # Namespaces alinhados com o backend
 NAMESPACE_DEV := dev
 NAMESPACE_STAGING := staging
