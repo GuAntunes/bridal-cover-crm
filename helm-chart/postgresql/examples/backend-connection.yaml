@@ -1,0 +1,68 @@
+# Exemplo de configuração para conectar o backend Spring Boot ao PostgreSQL
+# Este arquivo mostra como configurar as variáveis de ambiente no deployment do backend
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bridal-cover-crm-backend
+spec:
+  template:
+    spec:
+      containers:
+      - name: backend
+        image: gustavoantunes/bridal-cover-crm-backend:latest
+        env:
+        # Opção 1: URL completa do banco de dados
+        - name: SPRING_DATASOURCE_URL
+          value: jdbc:postgresql://postgresql-dev-bridal-cover-crm-postgresql.bridal-crm.svc.cluster.local:5432/bridal_cover_crm_dev
+        
+        # Opção 2: Componentes separados (mais flexível)
+        - name: DB_HOST
+          value: postgresql-dev-bridal-cover-crm-postgresql.bridal-crm.svc.cluster.local
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_NAME
+          value: bridal_cover_crm_dev
+        
+        # Credenciais do banco (usando o Secret criado pelo Helm)
+        - name: SPRING_DATASOURCE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: postgresql-dev-bridal-cover-crm-postgresql
+              key: POSTGRES_USER
+        - name: SPRING_DATASOURCE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgresql-dev-bridal-cover-crm-postgresql
+              key: POSTGRES_PASSWORD
+        
+        # Configurações adicionais do Spring/Hibernate
+        - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+          value: update
+        - name: SPRING_JPA_SHOW_SQL
+          value: "true"
+        - name: SPRING_JPA_DATABASE_PLATFORM
+          value: org.hibernate.dialect.PostgreSQLDialect
+
+---
+# Exemplo de application.yaml para o backend
+# (Este conteúdo vai dentro do ConfigMap ou no arquivo de configuração)
+#
+# spring:
+#   datasource:
+#     url: ${SPRING_DATASOURCE_URL}
+#     username: ${SPRING_DATASOURCE_USERNAME}
+#     password: ${SPRING_DATASOURCE_PASSWORD}
+#     driver-class-name: org.postgresql.Driver
+#   jpa:
+#     hibernate:
+#       ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
+#     show-sql: ${SPRING_JPA_SHOW_SQL:false}
+#     database-platform: ${SPRING_JPA_DATABASE_PLATFORM:org.hibernate.dialect.PostgreSQLDialect}
+#     properties:
+#       hibernate:
+#         format_sql: true
+#         jdbc:
+#           lob:
+#             non_contextual_creation: true
+

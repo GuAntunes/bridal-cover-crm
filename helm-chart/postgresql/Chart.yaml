@@ -1,0 +1,13 @@
+apiVersion: v2
+name: bridal-cover-crm-postgresql
+description: PostgreSQL database for Bridal Cover CRM
+type: application
+version: 1.0.0
+appVersion: "15"
+keywords:
+  - postgresql
+  - database
+  - bridal-cover-crm
+maintainers:
+  - name: Gustavo Antunes
+

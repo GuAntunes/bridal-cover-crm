@@ -1,0 +1,84 @@
+# Default values for bridal-cover-crm-postgresql
+
+replicaCount: 1
+
+image:
+  repository: postgres
+  pullPolicy: IfNotPresent
+  tag: "15-alpine"
+
+nameOverride: ""
+fullnameOverride: ""
+
+# PostgreSQL Configuration
+postgresql:
+  database: bridal_cover_crm_dev
+  username: postgres
+  password: postgres
+  # Additional databases to create (via init script)
+  initScript: true
+
+service:
+  type: NodePort
+  port: 5432
+  nodePort: 30432
+
+# Persistence configuration
+persistence:
+  enabled: true
+  storageClass: ""
+  accessMode: ReadWriteOnce
+  size: 5Gi
+  # existingClaim: ""
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+# Health check probes
+livenessProbe:
+  enabled: true
+  exec:
+    command:
+      - /bin/sh
+      - -c
+      - pg_isready -U postgres
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 6
+
+readinessProbe:
+  enabled: true
+  exec:
+    command:
+      - /bin/sh
+      - -c
+      - pg_isready -U postgres
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 6
+
+podSecurityContext:
+  fsGroup: 999
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 999
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: false
+  allowPrivilegeEscalation: false
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+

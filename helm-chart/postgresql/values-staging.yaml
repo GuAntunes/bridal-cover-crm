@@ -1,0 +1,24 @@
+# Staging environment overrides
+
+replicaCount: 1
+
+postgresql:
+  database: bridal_cover_crm_test
+  username: postgres
+  password: postgres_staging_2024
+
+service:
+  type: ClusterIP
+
+persistence:
+  enabled: true
+  size: 5Gi
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+

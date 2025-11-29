@@ -47,7 +47,27 @@ helm version
 
 ```
 helm-chart/
-├── bridal-cover-crm/          # Chart principal
+├── postgresql/                # Chart do PostgreSQL
+│   ├── Chart.yaml             # Metadados do chart
+│   ├── values.yaml            # Valores padrão
+│   ├── values-dev.yaml        # Configuração desenvolvimento
+│   ├── values-staging.yaml    # Configuração staging
+│   ├── values-prod.yaml       # Configuração produção
+│   ├── Makefile               # Comandos automatizados
+│   ├── README.md              # Documentação do PostgreSQL
+│   ├── QUICK-START.md         # Guia rápido
+│   ├── DEPLOY-INSTRUCTIONS.md # Instruções de deploy
+│   ├── templates/             # Templates Kubernetes
+│   │   ├── deployment.yaml
+│   │   ├── service.yaml
+│   │   ├── pvc.yaml
+│   │   ├── secret.yaml
+│   │   ├── configmap.yaml
+│   │   └── _helpers.tpl
+│   └── examples/              # Exemplos de uso
+│       ├── backend-connection.yaml
+│       └── connection-test.yaml
+├── bridal-cover-crm/          # Chart principal (backend)
 │   ├── Chart.yaml             # Metadados e dependências
 │   ├── values.yaml            # Valores padrão
 │   ├── values-dev.yaml        # Configuração desenvolvimento
@@ -65,6 +85,33 @@ helm-chart/
 ```
 
 ## 🚀 Início Rápido
+
+### PostgreSQL (Banco de Dados)
+
+**IMPORTANTE:** Instale o PostgreSQL primeiro antes do backend!
+
+```bash
+# 1. Navegar até o diretório do PostgreSQL
+cd helm-chart/postgresql
+
+# 2. Ver comandos disponíveis
+make help
+
+# 3. Instalar PostgreSQL em desenvolvimento
+make install-dev
+
+# 4. Verificar status
+make status-dev
+make get-pods-dev
+make logs-dev
+
+# 5. Conectar ao banco (teste)
+make psql-dev
+```
+
+**Documentação completa:** [postgresql/QUICK-START.md](postgresql/QUICK-START.md)
+
+### Backend (Aplicação Spring Boot)
 
 ### Opção 1: Usando Make (Recomendado)
 
@@ -116,6 +163,29 @@ helm install test ./bridal-cover-crm -f ./bridal-cover-crm/values-dev.yaml --dry
 ```
 
 ## 🌍 Deploy por Ambiente
+
+### Ordem de Instalação Recomendada
+
+1. **PostgreSQL** - Banco de dados (PRIMEIRO)
+2. **Backend** - API Spring Boot
+3. **Frontend** - Interface React (se houver chart)
+
+---
+
+### PostgreSQL - Desenvolvimento
+
+```bash
+cd helm-chart/postgresql
+make install-dev
+
+# Verificar
+make status-dev
+make get-pods-dev
+```
+
+**Documentação:** [postgresql/README.md](postgresql/README.md)
+
+---
 
 ### Desenvolvimento
 

@@ -1,0 +1,211 @@
+# PostgreSQL Helm Chart Makefile
+
+CHART_NAME := postgresql
+RELEASE_NAME_DEV := postgresql-dev
+RELEASE_NAME_STAGING := postgresql-staging
+RELEASE_NAME_PROD := postgresql-prod
+NAMESPACE_DEV := bridal-crm
+NAMESPACE_STAGING := bridal-crm-staging
+NAMESPACE_PROD := bridal-crm-prod
+
+.PHONY: help
+help: ## Exibe esta mensagem de ajuda
+	@echo "Comandos disponíveis para o PostgreSQL Helm Chart:"
+	@echo ""
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-25s\033[0m %s\n", $$1, $$2}'
+
+# ==================== DESENVOLVIMENTO ====================
+
+.PHONY: install-dev
+install-dev: ## Instala o PostgreSQL no ambiente de desenvolvimento
+	@echo "📦 Instalando PostgreSQL (DEV)..."
+	helm install $(RELEASE_NAME_DEV) . \
+		--namespace $(NAMESPACE_DEV) \
+		--create-namespace \
+		--values values-dev.yaml
+
+.PHONY: upgrade-dev
+upgrade-dev: ## Atualiza o PostgreSQL no ambiente de desenvolvimento
+	@echo "🔄 Atualizando PostgreSQL (DEV)..."
+	helm upgrade $(RELEASE_NAME_DEV) . \
+		--namespace $(NAMESPACE_DEV) \
+		--values values-dev.yaml
+
+.PHONY: uninstall-dev
+uninstall-dev: ## Desinstala o PostgreSQL do ambiente de desenvolvimento
+	@echo "🗑️  Desinstalando PostgreSQL (DEV)..."
+	helm uninstall $(RELEASE_NAME_DEV) --namespace $(NAMESPACE_DEV)
+
+.PHONY: reinstall-dev
+reinstall-dev: uninstall-dev install-dev ## Reinstala o PostgreSQL no ambiente de desenvolvimento
+
+# ==================== STAGING ====================
+
+.PHONY: install-staging
+install-staging: ## Instala o PostgreSQL no ambiente de staging
+	@echo "📦 Instalando PostgreSQL (STAGING)..."
+	helm install $(RELEASE_NAME_STAGING) . \
+		--namespace $(NAMESPACE_STAGING) \
+		--create-namespace \
+		--values values-staging.yaml
+
+.PHONY: upgrade-staging
+upgrade-staging: ## Atualiza o PostgreSQL no ambiente de staging
+	@echo "🔄 Atualizando PostgreSQL (STAGING)..."
+	helm upgrade $(RELEASE_NAME_STAGING) . \
+		--namespace $(NAMESPACE_STAGING) \
+		--values values-staging.yaml
+
+.PHONY: uninstall-staging
+uninstall-staging: ## Desinstala o PostgreSQL do ambiente de staging
+	@echo "🗑️  Desinstalando PostgreSQL (STAGING)..."
+	helm uninstall $(RELEASE_NAME_STAGING) --namespace $(NAMESPACE_STAGING)
+
+# ==================== PRODUÇÃO ====================
+
+.PHONY: install-prod
+install-prod: ## Instala o PostgreSQL no ambiente de produção
+	@echo "⚠️  ATENÇÃO: Você está instalando em PRODUÇÃO!"
+	@echo "📦 Instalando PostgreSQL (PROD)..."
+	helm install $(RELEASE_NAME_PROD) . \
+		--namespace $(NAMESPACE_PROD) \
+		--create-namespace \
+		--values values-prod.yaml
+
+.PHONY: upgrade-prod
+upgrade-prod: ## Atualiza o PostgreSQL no ambiente de produção
+	@echo "⚠️  ATENÇÃO: Você está atualizando PRODUÇÃO!"
+	@echo "🔄 Atualizando PostgreSQL (PROD)..."
+	helm upgrade $(RELEASE_NAME_PROD) . \
+		--namespace $(NAMESPACE_PROD) \
+		--values values-prod.yaml
+
+.PHONY: uninstall-prod
+uninstall-prod: ## Desinstala o PostgreSQL do ambiente de produção
+	@echo "⚠️  ATENÇÃO: Você está desinstalando de PRODUÇÃO!"
+	@read -p "Tem certeza? [y/N] " -n 1 -r; \
+	echo; \
+	if [[ $$REPLY =~ ^[Yy]$$ ]]; then \
+		helm uninstall $(RELEASE_NAME_PROD) --namespace $(NAMESPACE_PROD); \
+	fi
+
+# ==================== UTILITIES ====================
+
+.PHONY: lint
+lint: ## Valida os templates do Helm chart
+	@echo "🔍 Validando templates..."
+	helm lint .
+
+.PHONY: template-dev
+template-dev: ## Mostra os manifestos renderizados para DEV
+	@helm template $(RELEASE_NAME_DEV) . \
+		--namespace $(NAMESPACE_DEV) \
+		--values values-dev.yaml
+
+.PHONY: template-staging
+template-staging: ## Mostra os manifestos renderizados para STAGING
+	@helm template $(RELEASE_NAME_STAGING) . \
+		--namespace $(NAMESPACE_STAGING) \
+		--values values-staging.yaml
+
+.PHONY: template-prod
+template-prod: ## Mostra os manifestos renderizados para PROD
+	@helm template $(RELEASE_NAME_PROD) . \
+		--namespace $(NAMESPACE_PROD) \
+		--values values-prod.yaml
+
+.PHONY: dry-run-dev
+dry-run-dev: ## Simula a instalação em DEV sem aplicar
+	@echo "🎯 Dry run (DEV)..."
+	helm install $(RELEASE_NAME_DEV) . \
+		--namespace $(NAMESPACE_DEV) \
+		--values values-dev.yaml \
+		--dry-run --debug
+
+.PHONY: status-dev
+status-dev: ## Mostra o status do release em DEV
+	@helm status $(RELEASE_NAME_DEV) --namespace $(NAMESPACE_DEV)
+
+.PHONY: status-staging
+status-staging: ## Mostra o status do release em STAGING
+	@helm status $(RELEASE_NAME_STAGING) --namespace $(NAMESPACE_STAGING)
+
+.PHONY: status-prod
+status-prod: ## Mostra o status do release em PROD
+	@helm status $(RELEASE_NAME_PROD) --namespace $(NAMESPACE_PROD)
+
+# ==================== KUBERNETES ====================
+
+.PHONY: get-pods-dev
+get-pods-dev: ## Lista os pods do PostgreSQL em DEV
+	@kubectl get pods -n $(NAMESPACE_DEV) -l app.kubernetes.io/name=bridal-cover-crm-postgresql
+
+.PHONY: get-pods-staging
+get-pods-staging: ## Lista os pods do PostgreSQL em STAGING
+	@kubectl get pods -n $(NAMESPACE_STAGING) -l app.kubernetes.io/name=bridal-cover-crm-postgresql
+
+.PHONY: get-pods-prod
+get-pods-prod: ## Lista os pods do PostgreSQL em PROD
+	@kubectl get pods -n $(NAMESPACE_PROD) -l app.kubernetes.io/name=bridal-cover-crm-postgresql
+
+.PHONY: logs-dev
+logs-dev: ## Mostra os logs do PostgreSQL em DEV
+	@kubectl logs -n $(NAMESPACE_DEV) -l app.kubernetes.io/name=bridal-cover-crm-postgresql -f
+
+.PHONY: logs-staging
+logs-staging: ## Mostra os logs do PostgreSQL em STAGING
+	@kubectl logs -n $(NAMESPACE_STAGING) -l app.kubernetes.io/name=bridal-cover-crm-postgresql -f
+
+.PHONY: logs-prod
+logs-prod: ## Mostra os logs do PostgreSQL em PROD
+	@kubectl logs -n $(NAMESPACE_PROD) -l app.kubernetes.io/name=bridal-cover-crm-postgresql -f
+
+.PHONY: shell-dev
+shell-dev: ## Abre um shell no pod do PostgreSQL em DEV
+	@kubectl exec -it -n $(NAMESPACE_DEV) $$(kubectl get pods -n $(NAMESPACE_DEV) -l app.kubernetes.io/name=bridal-cover-crm-postgresql -o jsonpath='{.items[0].metadata.name}') -- /bin/sh
+
+.PHONY: psql-dev
+psql-dev: ## Conecta ao PostgreSQL em DEV usando psql
+	@kubectl exec -it -n $(NAMESPACE_DEV) $$(kubectl get pods -n $(NAMESPACE_DEV) -l app.kubernetes.io/name=bridal-cover-crm-postgresql -o jsonpath='{.items[0].metadata.name}') -- psql -U postgres -d bridal_cover_crm_dev
+
+.PHONY: port-forward-dev
+port-forward-dev: ## Cria port-forward para o PostgreSQL em DEV (porta 5432)
+	@echo "🔌 Port-forward criado: localhost:5432 -> PostgreSQL"
+	@kubectl port-forward -n $(NAMESPACE_DEV) svc/$(RELEASE_NAME_DEV)-bridal-cover-crm-postgresql 5432:5432
+
+# ==================== BACKUP & RESTORE ====================
+
+.PHONY: backup-dev
+backup-dev: ## Cria backup do banco de dados DEV
+	@echo "💾 Criando backup..."
+	@mkdir -p backups
+	@kubectl exec -n $(NAMESPACE_DEV) $$(kubectl get pods -n $(NAMESPACE_DEV) -l app.kubernetes.io/name=bridal-cover-crm-postgresql -o jsonpath='{.items[0].metadata.name}') -- \
+		pg_dump -U postgres bridal_cover_crm_dev > backups/backup-dev-$$(date +%Y%m%d-%H%M%S).sql
+	@echo "✅ Backup criado em backups/"
+
+.PHONY: list-backups
+list-backups: ## Lista todos os backups disponíveis
+	@ls -lh backups/ 2>/dev/null || echo "Nenhum backup encontrado"
+
+# ==================== CLEANUP ====================
+
+.PHONY: delete-pvc-dev
+delete-pvc-dev: ## CUIDADO: Deleta o PVC (dados) do PostgreSQL em DEV
+	@echo "⚠️  ATENÇÃO: Isso irá deletar TODOS OS DADOS do PostgreSQL!"
+	@read -p "Tem certeza? [y/N] " -n 1 -r; \
+	echo; \
+	if [[ $$REPLY =~ ^[Yy]$$ ]]; then \
+		kubectl delete pvc -n $(NAMESPACE_DEV) -l app.kubernetes.io/name=bridal-cover-crm-postgresql; \
+	fi
+
+.PHONY: clean-all-dev
+clean-all-dev: uninstall-dev delete-pvc-dev ## Remove tudo do PostgreSQL em DEV (release + PVC)
+
+# ==================== PACKAGE ====================
+
+.PHONY: package
+package: ## Cria um pacote do Helm chart
+	@echo "📦 Criando pacote..."
+	@helm package .
+	@echo "✅ Pacote criado"
+

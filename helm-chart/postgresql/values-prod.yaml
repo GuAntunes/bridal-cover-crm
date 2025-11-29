@@ -1,0 +1,38 @@
+# Production environment overrides
+
+replicaCount: 1
+
+postgresql:
+  database: bridal_cover_crm_prod
+  username: postgres
+  password: CHANGE_ME_IN_PRODUCTION
+
+service:
+  type: ClusterIP
+
+persistence:
+  enabled: true
+  size: 20Gi
+  # Consider using a specific storageClass for production
+  # storageClass: "fast-ssd"
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+  requests:
+    cpu: 500m
+    memory: 512Mi
+
+# Production affinity rules (optional)
+# affinity:
+#   podAntiAffinity:
+#     requiredDuringSchedulingIgnoredDuringExecution:
+#     - labelSelector:
+#         matchExpressions:
+#         - key: app.kubernetes.io/name
+#           operator: In
+#           values:
+#           - bridal-cover-crm-postgresql
+#       topologyKey: kubernetes.io/hostname
+

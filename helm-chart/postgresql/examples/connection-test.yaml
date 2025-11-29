@@ -1,0 +1,59 @@
+# Pod temporário para testar a conexão com o PostgreSQL
+# Use este pod para validar se o PostgreSQL está acessível
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: postgres-test
+  namespace: bridal-crm
+spec:
+  containers:
+  - name: postgres-client
+    image: postgres:15-alpine
+    command: ['sleep', '3600']
+    env:
+    - name: PGHOST
+      value: postgresql-dev-bridal-cover-crm-postgresql
+    - name: PGPORT
+      value: "5432"
+    - name: PGUSER
+      valueFrom:
+        secretKeyRef:
+          name: postgresql-dev-bridal-cover-crm-postgresql
+          key: POSTGRES_USER
+    - name: PGPASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: postgresql-dev-bridal-cover-crm-postgresql
+          key: POSTGRES_PASSWORD
+    - name: PGDATABASE
+      valueFrom:
+        secretKeyRef:
+          name: postgresql-dev-bridal-cover-crm-postgresql
+          key: POSTGRES_DB
+  restartPolicy: Never
+
+---
+# Como usar este pod de teste:
+#
+# 1. Criar o pod:
+#    kubectl apply -f connection-test.yaml
+#
+# 2. Esperar o pod ficar pronto:
+#    kubectl wait --for=condition=ready pod/postgres-test -n bridal-crm
+#
+# 3. Testar conectividade:
+#    kubectl exec -it postgres-test -n bridal-crm -- pg_isready
+#
+# 4. Conectar ao psql:
+#    kubectl exec -it postgres-test -n bridal-crm -- psql
+#
+# 5. Listar bancos de dados:
+#    kubectl exec -it postgres-test -n bridal-crm -- psql -c "\l"
+#
+# 6. Conectar a um banco específico:
+#    kubectl exec -it postgres-test -n bridal-crm -- psql -d bridal_cover_crm_dev
+#
+# 7. Deletar o pod quando terminar:
+#    kubectl delete pod postgres-test -n bridal-crm
+
