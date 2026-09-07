@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: bridal-cover-crm
+  namespace: argocd
+spec:
+  description: Bridal Cover CRM - ambiente de desenvolvimento local
+  sourceRepos:
+    - git@github.com:GuAntunes/bridal-cover-crm.git
+  destinations:
+    - namespace: dev
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+  namespaceResourceWhitelist:
+    - group: "*"
+      kind: "*"
