@@ -52,3 +52,5 @@ externalDatabase:
 podDisruptionBudget:
   enabled: false
 
+podAnnotations:
+  gitops-test: "etapa-6"
