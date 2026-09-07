@@ -26,7 +26,10 @@ argocd/
 # 1. Instalar ArgoCD
 make install
 
-# 2. Configurar repo SSH no ArgoCD (UI ou CLI) — ver plano Etapa 3
+# 2. Configurar repo SSH no ArgoCD (Etapa 3)
+make setup-repo-secret    # gera chave + cria Secret no cluster
+make show-deploy-key      # adicionar no GitHub Deploy Keys
+make verify-repo          # validar conexao Successful
 
 # 3. Aplicar AppProject
 make bootstrap-project

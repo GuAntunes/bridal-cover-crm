@@ -1,0 +1,1144 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      checksum/config: 8d1d6bba11066a4dc8e3e2caa0b4a4876a5a9df42ab77c7ba2efe8429715def4
+    creationTimestamp: "2026-09-07T19:03:16Z"
+    generateName: backend-bridal-cover-crm-764d4b67f4-
+    generation: 1
+    labels:
+      app.kubernetes.io/instance: backend
+      app.kubernetes.io/name: bridal-cover-crm
+      pod-template-hash: 764d4b67f4
+    name: backend-bridal-cover-crm-764d4b67f4-spzwl
+    namespace: dev
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: backend-bridal-cover-crm-764d4b67f4
+      uid: e6b2d9e5-5ea3-4a70-978c-7544b24c0ed8
+    resourceVersion: "5065"
+    uid: 5e6f01c1-122c-4b73-a53a-3f30c78daf76
+  spec:
+    containers:
+    - env:
+      - name: SPRING_PROFILES_ACTIVE
+        value: dev
+      - name: SPRING_DATASOURCE_URL
+        value: jdbc:postgresql://postgres-bridal-cover-crm-postgresql:5432/bridal_cover_crm_dev
+      - name: SPRING_DATASOURCE_USERNAME
+        value: postgres
+      - name: SPRING_DATASOURCE_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            key: POSTGRES_PASSWORD
+            name: postgres-bridal-cover-crm-postgresql
+      - name: JAVA_OPTS
+        value: -Xms256m -Xmx512m -XX:+UseG1GC -XX:MaxGCPauseMillis=200
+      image: gustavoantunes/bridal-cover-crm:latest
+      imagePullPolicy: Always
+      livenessProbe:
+        failureThreshold: 3
+        httpGet:
+          path: /actuator/health/liveness
+          port: http
+          scheme: HTTP
+        initialDelaySeconds: 60
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 5
+      name: bridal-cover-crm
+      ports:
+      - containerPort: 8080
+        name: http
+        protocol: TCP
+      readinessProbe:
+        failureThreshold: 3
+        httpGet:
+          path: /actuator/health/readiness
+          port: http
+          scheme: HTTP
+        initialDelaySeconds: 45
+        periodSeconds: 5
+        successThreshold: 1
+        timeoutSeconds: 3
+      resources:
+        limits:
+          cpu: 500m
+          memory: 512Mi
+        requests:
+          cpu: 250m
+          memory: 256Mi
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+          - ALL
+        readOnlyRootFilesystem: false
+        runAsNonRoot: true
+        runAsUser: 1000
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /app/config
+        name: config
+        readOnly: true
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-c9sv7
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: lima-rancher-desktop
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext:
+      fsGroup: 1000
+    serviceAccount: backend-bridal-cover-crm
+    serviceAccountName: backend-bridal-cover-crm
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - configMap:
+        defaultMode: 420
+        name: backend-bridal-cover-crm
+      name: config
+    - name: kube-api-access-c9sv7
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    allocatedResources:
+      cpu: 250m
+      memory: 256Mi
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2026-09-07T19:03:17Z"
+      observedGeneration: 1
+      status: "True"
+      type: PodReadyToStartContainers
+    - lastProbeTime: null
+      lastTransitionTime: "2026-09-07T19:03:16Z"
+      observedGeneration: 1
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2026-09-07T19:04:12Z"
+      observedGeneration: 1
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2026-09-07T19:04:12Z"
+      observedGeneration: 1
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2026-09-07T19:03:16Z"
+      observedGeneration: 1
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - allocatedResources:
+        cpu: 250m
+        memory: 256Mi
+      containerID: docker://ede3d4c653b942e375090a520fb36fd3760fde674ab12c8d4d0b7819a5cc25c5
+      image: gustavoantunes/bridal-cover-crm:latest
+      imageID: docker-pullable://gustavoantunes/bridal-cover-crm@sha256:e433e030cac694af260485bbd6120e3504eb34529b750c6b9c70fcf3d13df45c
+      lastState: {}
+      name: bridal-cover-crm
+      ready: true
+      resources:
+        limits:
+          cpu: 500m
+          memory: 512Mi
+        requests:
+          cpu: 250m
+          memory: 256Mi
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2026-09-07T19:03:25Z"
+      volumeMounts:
+      - mountPath: /app/config
+        name: config
+        readOnly: true
+        recursiveReadOnly: Disabled
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-c9sv7
+        readOnly: true
+        recursiveReadOnly: Disabled
+    hostIP: 192.168.5.15
+    hostIPs:
+    - ip: 192.168.5.15
+    observedGeneration: 1
+    phase: Running
+    podIP: 10.42.0.45
+    podIPs:
+    - ip: 10.42.0.45
+    qosClass: Burstable
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 232m
+        memory: 256Mi
+    startTime: "2026-09-07T19:03:16Z"
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    creationTimestamp: "2026-09-07T19:02:53Z"
+    generateName: postgres-bridal-cover-crm-postgresql-745c6bf45-
+    generation: 1
+    labels:
+      app.kubernetes.io/instance: postgres
+      app.kubernetes.io/name: bridal-cover-crm-postgresql
+      pod-template-hash: 745c6bf45
+    name: postgres-bridal-cover-crm-postgresql-745c6bf45-hbmrv
+    namespace: dev
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: postgres-bridal-cover-crm-postgresql-745c6bf45
+      uid: 2221fbb7-6e96-4c0f-b388-97c89cb1eacd
+    resourceVersion: "5003"
+    uid: 0cf628c6-8aec-4ba0-b50d-ae0f53258baf
+  spec:
+    containers:
+    - env:
+      - name: POSTGRES_DB
+        valueFrom:
+          secretKeyRef:
+            key: POSTGRES_DB
+            name: postgres-bridal-cover-crm-postgresql
+      - name: POSTGRES_USER
+        valueFrom:
+          secretKeyRef:
+            key: POSTGRES_USER
+            name: postgres-bridal-cover-crm-postgresql
+      - name: POSTGRES_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            key: POSTGRES_PASSWORD
+            name: postgres-bridal-cover-crm-postgresql
+      - name: PGDATA
+        value: /var/lib/postgresql/data/pgdata
+      image: postgres:15-alpine
+      imagePullPolicy: IfNotPresent
+      livenessProbe:
+        exec:
+          command:
+          - /bin/sh
+          - -c
+          - pg_isready -U postgres
+        failureThreshold: 6
+        initialDelaySeconds: 30
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 5
+      name: postgresql
+      ports:
+      - containerPort: 5432
+        name: postgresql
+        protocol: TCP
+      readinessProbe:
+        exec:
+          command:
+          - /bin/sh
+          - -c
+          - pg_isready -U postgres
+        failureThreshold: 6
+        initialDelaySeconds: 5
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 5
+      resources:
+        limits:
+          cpu: 300m
+          memory: 256Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+          - ALL
+        readOnlyRootFilesystem: false
+        runAsNonRoot: true
+        runAsUser: 999
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/lib/postgresql/data
+        name: data
+      - mountPath: /docker-entrypoint-initdb.d
+        name: init-script
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-jbr2d
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: lima-rancher-desktop
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext:
+      fsGroup: 999
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - name: data
+      persistentVolumeClaim:
+        claimName: postgres-bridal-cover-crm-postgresql-data
+    - configMap:
+        defaultMode: 420
+        name: postgres-bridal-cover-crm-postgresql-init-script
+      name: init-script
+    - name: kube-api-access-jbr2d
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    allocatedResources:
+      cpu: 100m
+      memory: 128Mi
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2026-09-07T19:02:57Z"
+      observedGeneration: 1
+      status: "True"
+      type: PodReadyToStartContainers
+    - lastProbeTime: null
+      lastTransitionTime: "2026-09-07T19:02:56Z"
+      observedGeneration: 1
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2026-09-07T19:03:08Z"
+      observedGeneration: 1
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2026-09-07T19:03:08Z"
+      observedGeneration: 1
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2026-09-07T19:02:56Z"
+      observedGeneration: 1
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - allocatedResources:
+        cpu: 100m
+        memory: 128Mi
+      containerID: docker://c3cc2d833960034e8a6f6c400b16fe77ed6f02d47ec04fb3be7c4b2c3df8f95e
+      image: postgres:15-alpine
+      imageID: docker-pullable://postgres@sha256:fe0737ba566a2c5b2a28f34433c0a423261900ec17b9bf7ad115e1aae7e57f1b
+      lastState: {}
+      name: postgresql
+      ready: true
+      resources:
+        limits:
+          cpu: 300m
+          memory: 256Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2026-09-07T19:02:57Z"
+      volumeMounts:
+      - mountPath: /var/lib/postgresql/data
+        name: data
+      - mountPath: /docker-entrypoint-initdb.d
+        name: init-script
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-jbr2d
+        readOnly: true
+        recursiveReadOnly: Disabled
+    hostIP: 192.168.5.15
+    hostIPs:
+    - ip: 192.168.5.15
+    observedGeneration: 1
+    phase: Running
+    podIP: 10.42.0.44
+    podIPs:
+    - ip: 10.42.0.44
+    qosClass: Burstable
+    resources:
+      limits:
+        cpu: 300m
+        memory: 256Mi
+      requests:
+        cpu: 79m
+        memory: 128Mi
+    startTime: "2026-09-07T19:02:56Z"
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: backend
+      meta.helm.sh/release-namespace: dev
+    creationTimestamp: "2026-09-07T19:03:16Z"
+    labels:
+      app.kubernetes.io/instance: backend
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: bridal-cover-crm
+      app.kubernetes.io/part-of: bridal-cover-crm
+      app.kubernetes.io/version: 0.0.2-SNAPSHOT
+      helm.sh/chart: bridal-cover-crm-1.0.0
+    name: backend-bridal-cover-crm
+    namespace: dev
+    resourceVersion: "5018"
+    uid: 8600e4b4-a649-4082-a82d-668ff5e89e39
+  spec:
+    clusterIP: 10.43.103.76
+    clusterIPs:
+    - 10.43.103.76
+    externalTrafficPolicy: Cluster
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: http
+      nodePort: 31983
+      port: 8080
+      protocol: TCP
+      targetPort: http
+    selector:
+      app.kubernetes.io/instance: backend
+      app.kubernetes.io/name: bridal-cover-crm
+    sessionAffinity: None
+    type: NodePort
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: postgres
+      meta.helm.sh/release-namespace: dev
+    creationTimestamp: "2026-09-07T19:02:53Z"
+    labels:
+      app.kubernetes.io/instance: postgres
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: bridal-cover-crm-postgresql
+      app.kubernetes.io/version: "15"
+      helm.sh/chart: bridal-cover-crm-postgresql-1.0.0
+    name: postgres-bridal-cover-crm-postgresql
+    namespace: dev
+    resourceVersion: "4952"
+    uid: deccd749-b30e-4d8d-9b44-5c34784c538e
+  spec:
+    clusterIP: 10.43.44.11
+    clusterIPs:
+    - 10.43.44.11
+    externalTrafficPolicy: Cluster
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: postgresql
+      nodePort: 30432
+      port: 5432
+      protocol: TCP
+      targetPort: postgresql
+    selector:
+      app.kubernetes.io/instance: postgres
+      app.kubernetes.io/name: bridal-cover-crm-postgresql
+    sessionAffinity: None
+    type: NodePort
+  status:
+    loadBalancer: {}
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      meta.helm.sh/release-name: backend
+      meta.helm.sh/release-namespace: dev
+    creationTimestamp: "2026-09-07T19:03:16Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/instance: backend
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: bridal-cover-crm
+      app.kubernetes.io/part-of: bridal-cover-crm
+      app.kubernetes.io/version: 0.0.2-SNAPSHOT
+      helm.sh/chart: bridal-cover-crm-1.0.0
+    name: backend-bridal-cover-crm
+    namespace: dev
+    resourceVersion: "5069"
+    uid: c172c28e-8f42-4ae7-983f-8b1e446e393b
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app.kubernetes.io/instance: backend
+        app.kubernetes.io/name: bridal-cover-crm
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          checksum/config: 8d1d6bba11066a4dc8e3e2caa0b4a4876a5a9df42ab77c7ba2efe8429715def4
+        labels:
+          app.kubernetes.io/instance: backend
+          app.kubernetes.io/name: bridal-cover-crm
+      spec:
+        containers:
+        - env:
+          - name: SPRING_PROFILES_ACTIVE
+            value: dev
+          - name: SPRING_DATASOURCE_URL
+            value: jdbc:postgresql://postgres-bridal-cover-crm-postgresql:5432/bridal_cover_crm_dev
+          - name: SPRING_DATASOURCE_USERNAME
+            value: postgres
+          - name: SPRING_DATASOURCE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: POSTGRES_PASSWORD
+                name: postgres-bridal-cover-crm-postgresql
+          - name: JAVA_OPTS
+            value: -Xms256m -Xmx512m -XX:+UseG1GC -XX:MaxGCPauseMillis=200
+          image: gustavoantunes/bridal-cover-crm:latest
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          name: bridal-cover-crm
+          ports:
+          - containerPort: 8080
+            name: http
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 45
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 3
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 250m
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            runAsUser: 1000
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /app/config
+            name: config
+            readOnly: true
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 1000
+        serviceAccount: backend-bridal-cover-crm
+        serviceAccountName: backend-bridal-cover-crm
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - configMap:
+            defaultMode: 420
+            name: backend-bridal-cover-crm
+          name: config
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2026-09-07T19:04:12Z"
+      lastUpdateTime: "2026-09-07T19:04:12Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2026-09-07T19:03:16Z"
+      lastUpdateTime: "2026-09-07T19:04:12Z"
+      message: ReplicaSet "backend-bridal-cover-crm-764d4b67f4" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    terminatingReplicas: 0
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      meta.helm.sh/release-name: postgres
+      meta.helm.sh/release-namespace: dev
+    creationTimestamp: "2026-09-07T19:02:53Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/instance: postgres
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: bridal-cover-crm-postgresql
+      app.kubernetes.io/version: "15"
+      helm.sh/chart: bridal-cover-crm-postgresql-1.0.0
+    name: postgres-bridal-cover-crm-postgresql
+    namespace: dev
+    resourceVersion: "5007"
+    uid: 8f589eca-de5b-40ff-bb9f-c934cfcbf8b1
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app.kubernetes.io/instance: postgres
+        app.kubernetes.io/name: bridal-cover-crm-postgresql
+    strategy:
+      type: Recreate
+    template:
+      metadata:
+        labels:
+          app.kubernetes.io/instance: postgres
+          app.kubernetes.io/name: bridal-cover-crm-postgresql
+      spec:
+        containers:
+        - env:
+          - name: POSTGRES_DB
+            valueFrom:
+              secretKeyRef:
+                key: POSTGRES_DB
+                name: postgres-bridal-cover-crm-postgresql
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                key: POSTGRES_USER
+                name: postgres-bridal-cover-crm-postgresql
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: POSTGRES_PASSWORD
+                name: postgres-bridal-cover-crm-postgresql
+          - name: PGDATA
+            value: /var/lib/postgresql/data/pgdata
+          image: postgres:15-alpine
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - pg_isready -U postgres
+            failureThreshold: 6
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          name: postgresql
+          ports:
+          - containerPort: 5432
+            name: postgresql
+            protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - pg_isready -U postgres
+            failureThreshold: 6
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          resources:
+            limits:
+              cpu: 300m
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            runAsUser: 999
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/lib/postgresql/data
+            name: data
+          - mountPath: /docker-entrypoint-initdb.d
+            name: init-script
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 999
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: postgres-bridal-cover-crm-postgresql-data
+        - configMap:
+            defaultMode: 420
+            name: postgres-bridal-cover-crm-postgresql-init-script
+          name: init-script
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2026-09-07T19:03:08Z"
+      lastUpdateTime: "2026-09-07T19:03:08Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2026-09-07T19:02:53Z"
+      lastUpdateTime: "2026-09-07T19:03:08Z"
+      message: ReplicaSet "postgres-bridal-cover-crm-postgresql-745c6bf45" has successfully
+        progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    terminatingReplicas: 0
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: ReplicaSet
+  metadata:
+    annotations:
+      deployment.kubernetes.io/desired-replicas: "1"
+      deployment.kubernetes.io/max-replicas: "2"
+      deployment.kubernetes.io/revision: "1"
+      meta.helm.sh/release-name: backend
+      meta.helm.sh/release-namespace: dev
+    creationTimestamp: "2026-09-07T19:03:16Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/instance: backend
+      app.kubernetes.io/name: bridal-cover-crm
+      pod-template-hash: 764d4b67f4
+    name: backend-bridal-cover-crm-764d4b67f4
+    namespace: dev
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: Deployment
+      name: backend-bridal-cover-crm
+      uid: c172c28e-8f42-4ae7-983f-8b1e446e393b
+    resourceVersion: "5068"
+    uid: e6b2d9e5-5ea3-4a70-978c-7544b24c0ed8
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app.kubernetes.io/instance: backend
+        app.kubernetes.io/name: bridal-cover-crm
+        pod-template-hash: 764d4b67f4
+    template:
+      metadata:
+        annotations:
+          checksum/config: 8d1d6bba11066a4dc8e3e2caa0b4a4876a5a9df42ab77c7ba2efe8429715def4
+        labels:
+          app.kubernetes.io/instance: backend
+          app.kubernetes.io/name: bridal-cover-crm
+          pod-template-hash: 764d4b67f4
+      spec:
+        containers:
+        - env:
+          - name: SPRING_PROFILES_ACTIVE
+            value: dev
+          - name: SPRING_DATASOURCE_URL
+            value: jdbc:postgresql://postgres-bridal-cover-crm-postgresql:5432/bridal_cover_crm_dev
+          - name: SPRING_DATASOURCE_USERNAME
+            value: postgres
+          - name: SPRING_DATASOURCE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: POSTGRES_PASSWORD
+                name: postgres-bridal-cover-crm-postgresql
+          - name: JAVA_OPTS
+            value: -Xms256m -Xmx512m -XX:+UseG1GC -XX:MaxGCPauseMillis=200
+          image: gustavoantunes/bridal-cover-crm:latest
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          name: bridal-cover-crm
+          ports:
+          - containerPort: 8080
+            name: http
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 45
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 3
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 250m
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            runAsUser: 1000
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /app/config
+            name: config
+            readOnly: true
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 1000
+        serviceAccount: backend-bridal-cover-crm
+        serviceAccountName: backend-bridal-cover-crm
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - configMap:
+            defaultMode: 420
+            name: backend-bridal-cover-crm
+          name: config
+  status:
+    availableReplicas: 1
+    fullyLabeledReplicas: 1
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    terminatingReplicas: 0
+- apiVersion: apps/v1
+  kind: ReplicaSet
+  metadata:
+    annotations:
+      deployment.kubernetes.io/desired-replicas: "1"
+      deployment.kubernetes.io/max-replicas: "1"
+      deployment.kubernetes.io/revision: "1"
+      meta.helm.sh/release-name: postgres
+      meta.helm.sh/release-namespace: dev
+    creationTimestamp: "2026-09-07T19:02:53Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/instance: postgres
+      app.kubernetes.io/name: bridal-cover-crm-postgresql
+      pod-template-hash: 745c6bf45
+    name: postgres-bridal-cover-crm-postgresql-745c6bf45
+    namespace: dev
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: Deployment
+      name: postgres-bridal-cover-crm-postgresql
+      uid: 8f589eca-de5b-40ff-bb9f-c934cfcbf8b1
+    resourceVersion: "5004"
+    uid: 2221fbb7-6e96-4c0f-b388-97c89cb1eacd
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app.kubernetes.io/instance: postgres
+        app.kubernetes.io/name: bridal-cover-crm-postgresql
+        pod-template-hash: 745c6bf45
+    template:
+      metadata:
+        labels:
+          app.kubernetes.io/instance: postgres
+          app.kubernetes.io/name: bridal-cover-crm-postgresql
+          pod-template-hash: 745c6bf45
+      spec:
+        containers:
+        - env:
+          - name: POSTGRES_DB
+            valueFrom:
+              secretKeyRef:
+                key: POSTGRES_DB
+                name: postgres-bridal-cover-crm-postgresql
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                key: POSTGRES_USER
+                name: postgres-bridal-cover-crm-postgresql
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: POSTGRES_PASSWORD
+                name: postgres-bridal-cover-crm-postgresql
+          - name: PGDATA
+            value: /var/lib/postgresql/data/pgdata
+          image: postgres:15-alpine
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - pg_isready -U postgres
+            failureThreshold: 6
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          name: postgresql
+          ports:
+          - containerPort: 5432
+            name: postgresql
+            protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - pg_isready -U postgres
+            failureThreshold: 6
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          resources:
+            limits:
+              cpu: 300m
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            runAsUser: 999
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/lib/postgresql/data
+            name: data
+          - mountPath: /docker-entrypoint-initdb.d
+            name: init-script
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 999
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: postgres-bridal-cover-crm-postgresql-data
+        - configMap:
+            defaultMode: 420
+            name: postgres-bridal-cover-crm-postgresql-init-script
+          name: init-script
+  status:
+    availableReplicas: 1
+    fullyLabeledReplicas: 1
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    terminatingReplicas: 0
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: postgres
+      meta.helm.sh/release-namespace: dev
+      pv.kubernetes.io/bind-completed: "yes"
+      pv.kubernetes.io/bound-by-controller: "yes"
+      volume.beta.kubernetes.io/storage-provisioner: rancher.io/local-path
+      volume.kubernetes.io/selected-node: lima-rancher-desktop
+      volume.kubernetes.io/storage-provisioner: rancher.io/local-path
+    creationTimestamp: "2026-09-07T19:02:53Z"
+    finalizers:
+    - kubernetes.io/pvc-protection
+    labels:
+      app.kubernetes.io/instance: postgres
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: bridal-cover-crm-postgresql
+      app.kubernetes.io/version: "15"
+      helm.sh/chart: bridal-cover-crm-postgresql-1.0.0
+    name: postgres-bridal-cover-crm-postgresql-data
+    namespace: dev
+    resourceVersion: "4987"
+    uid: 18c0e0c2-c8e8-49ff-b882-ca12a5a96d12
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: 2Gi
+    storageClassName: local-path
+    volumeMode: Filesystem
+    volumeName: pvc-18c0e0c2-c8e8-49ff-b882-ca12a5a96d12
+  status:
+    accessModes:
+    - ReadWriteOnce
+    capacity:
+      storage: 2Gi
+    phase: Bound
+- apiVersion: v1
+  data:
+    POSTGRES_DB: YnJpZGFsX2NvdmVyX2NybV9kZXY=
+    POSTGRES_PASSWORD: cG9zdGdyZXM=
+    POSTGRES_USER: cG9zdGdyZXM=
+  kind: Secret
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: postgres
+      meta.helm.sh/release-namespace: dev
+    creationTimestamp: "2026-09-07T19:02:52Z"
+    labels:
+      app.kubernetes.io/instance: postgres
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: bridal-cover-crm-postgresql
+      app.kubernetes.io/version: "15"
+      helm.sh/chart: bridal-cover-crm-postgresql-1.0.0
+    name: postgres-bridal-cover-crm-postgresql
+    namespace: dev
+    resourceVersion: "4946"
+    uid: 60a2f178-7749-43f3-bb19-ac4607c25a8f
+  type: Opaque
+- apiVersion: v1
+  data:
+    release: SDRzSUFBQUFBQUFDLyt5OTJZN3J5cG9tOWlvcVZWM1lxTXkxU0NxcGxWTGpBQmFaSWtXbFJLVW9pVk90Z3cxT1NWSUtEbHNrSlZFSDZ3RnNHRzBEN2FzR2pMTFJoaHUrOG9WaHdQZm5UZndDcmtjd0lqaExWQTU3cjExMkZhcnI3RjRwa2pIOS94Ly9GQkZmL0tYcmE1N1ZIWFoxemRoWnZ0bTk2N3IrYTlBZC9xWDc2dTZqK0JmVENrR1FXbVozMkNVd29uK1BEZTZ4YjJ1OFA4UjZRN3ovNWFFM2VCZ1E5MWh2aUdIZHV5N1FQbDNFdENKajc0YXhHL2pkWVpmem8xZ0RvR01FWGdpczJPcmVkYU5ZaTVPb08reVc5ZDUxL1NDMjRLTi8rc2QvLzE5M1hyUzlwdi8xZi9PanYra3NPdFRlTlRYUW9ZT0R0ZS9Rd3J6ekdyZ2RGOVdxbVFHc3R4TWxoaFZGd2Q5ODk3LzcvL1NQLytGLzdRZ1dzTFRJNm5EK2E3RDNOTmlWNFhlLzArRUR6eHAyY3NxZ0I1cG5SYUZtV01PT2FSM2dFOUhhUjMvOVQwSEhERHEwbyszallRZi9nbjNCR3ErMHppZ01oeDNzQy9hRnVGL3hvNWZWWkxIT0d2OXYvL3ZPQ0hXbTg5Zi9xVE1LZ1d0b2YvM1BmLzFQQVdwK29jZVc3MmdkcmJNUlpyQWFyZnFnWTUwc0k0azEzNFRmd3ErdFV4anM0dzYvZUJyLzhySVExbi82dS85aWwraVdFWU9PYmNXZCszdS82RHpzZStjKzZHeWp3QSsxMlBuVDkrNWZ2a1NoWlh5Qk5VVC9nUDM1aXgrWTFrdXdqMzk4NzNZaWEzOXdEU3NxQ0hHdkl4TGZHNURFOThiZSt5OHZtK2RlTGhxSDFVWHZkc0dOTFErMW5uSDhpMmFhZXl1S0xQUXMvL0hqZXpkcnpuQ0N6dmZ1UnBnTk8wNGNoOE92WC84dWIzdjRkeVVOdm5kekh2ODNuWG5ndTNHdzF6ekxqd3VTL1Mza1VTZHJyV01HVVNjTXpBaStxUGNkUHV2YysxbVBRVWNMd3kvdzlkNjNZaXY2NGdaZmtYRDVodlduVWxDcXVrRmdSeGVjcTllUFhuK203czc5YTcxNng5SkE3SFFNeHpKMjlYb2hLKzVmZy8xUjI1dEYvZEhCK0hxTGc1MUg3QkVid3Y4UDFtSWtlMUFRRlFTR0Jwd2dpdEhicjVvUkoxb2M3TDltTFdmVS9SLytjNGNPUENpS1VlZXYvekcyM0tpazd5aE9OT0NldFgxSDYreXpXUVpmT0Jid09rbG83elhUS3NTcWM5bXByMWU5dkgvdEhEU1FXTkdYVlBOQWd4QnVGUC8xLzlpN1J0QXhyYzdlT3JqUlgvOVBLeXJiZ3UrRGZWcTJsZEdrcUlIUnp0YStzdzhBZ08vTFFzV0RHNlZndXdjTkJIc3J5dmxyQmxXTFVIU3l6dDRvL21SRnVWcmFWeVR4M1Z6L1haZjVwMy84RC8reDh4UVlDWlRnbXBhNDc3QnVQRW4wYkI1RXc2OWZiVGQyRXYyTEVYaGYyV1RreDRsdlJWZkV6SXFPWGpoWVoxUVYxa0wzUy9ZdCtoVFZFaDAxMjdiMjk0bjcxZlZONi9URmlUUHkvOU0vL3Z2L3ZUUHlkTmZ5NDBJbmZ2Y1grdDYxb2JJTmczMG5pYlI5SjdoU3kzL1QrYi8veC8vbC8vbS8vanY0L1hlLysrT3VhMEQxQ2UyT1o4V2FxY1VhL0xzd1RoZWQ3OTUxblFDOStkU1lvVEVKa3IwQlRjYy9mTExvbisrNkIyc2ZaVllLNmZncjJ3V3RUYWp0dFE0ZnVBY3Q2dHgzVm00VVc1NEdaWksxOXBadnVKbitnUTltbG1aRzNidnV6a3FQd2Q1RVhjcjZ1QXRpNFBxd3MrSGU5ZTE3UFFqaTdsMzNhSm1tNjl2UXlxS2lmNzdyZXBycng1cnJXM3RZdkNRWG0wU3hkZ2c2K1dDNmQxM0wwMXpRSFhadExmcWlaVThmSC80ckd6NkZBKy8rK1BOZFZ3dGRzUnpoZ2VqQ0oySDFwR20rdW5mZE9BMWhZMXFJWkIvUjRNZGRGd1RHRG5MT3RueHJyOFUzdkFEaXl3REh5Y29IY0cwcmlydkRidVJvQk5rZmFwZzVHQkNFYVpvOVV1OFpwUDROMHdqVEpISFN3dm9hOGZocTlvaEgvQUVqWDBudDRSVW5OT0ticGoyWWh2azQrRFlZUEQ0aTFvU1diMEtTV3czYWhFRVUyM3NyK2hWMEd4d2x2c0Qvd2M3c3JUQ0lvSzFJYS9LRnBEUDZvcnV4cjNrdUVwYjg3KzZQUC8rNDY4YVdGd0l0YnJaVlB2ektMOWJqMVpmNEJQbVl5WGIzY2ZyM0MzZEZMUlY1NmlqUkl0VDl1Y09OSCsybFB3MVZsb200TVg4d1BUSGx4dnhxdmFJOG5kalpta1NlVFphSkZFazRjQ3gvMEZmVTJaUjRZUFQ0QTdjTW5oK25mNzhPWFdxbFNpZWd5RHpneGlCUnZVR3FTd3ltU1lOa1lRYzJOeVlQdXJUcGM1UDRHMGVUNWJlekhlbm8wc1orbGJGbmpxWVdpb1FEbzBjNUNuSHJXL0Zzc014V1hWR0QxMlZnYzR3S0RQL2xLU0FlYlpWOXRKZUU0eGorc2lqN3BMRk1hdEtrcE1yVE0rd0xOOEVIdER1eVJVOU1qY2ZGVmsrcG5iS2lLR015dWl4REdST3FXYzRPdjFrcFptdVNZcytBNnVnVEVSZ3BHZXFlbWFveWY1NTVZcUpJMDBpVmxtZzg5SUYrM1U1SDlyS2cxWHhoYzJQbXFMTmdxeGdMLzlqbkQ0ZzJrL2piYkVXbGlrVDY2bXFVaUI0VG1aSjRubmtnVVh0VFlQVG1pY1lPenVaa1h0QkozT3lPZlk1MU1ITkNuUmZ1NDhIcVJmYk1jdzVHYjFsOGcvcXFTdVN1M25kVk9wM1ZGUldxTHJYVkNSSlRKSkFZNmNoZGU0T2RLbElIdzErNkhFMUtpblRDVlhtZUdJU1ltaDdZcWlzU3MyUUtaSFh0ai81RHV1VEd6QmFPVzArZm5nS2FvZ3oyRkNyRTVDbUVkRDBIc0E4dmlpOEEzWE1jamgzYm9qaWRjNnpnY0d5VEJod3JQcWdTajVzc2s2anNZNStHTkdIRkI0TWRwQ1pOTGRhWXdNZzQ5YklCeThHVWR2YW1OQVZLVDRnNDFnUW1QWXBuVWtNdXZsbnBLTmw0WXFSS3pGbGRrWFdaZ3JTeFo5S2pyZm44UWZjcHgyVHRBZWRIaWRHamdKS1NSNzAzeFF3OE9zb3JNdEVKQVd4Z0h5YVl5MDE0WVBocXFCRGlHY2tKQ3hLRk9PRXF1N0U1YjVwcWt1RG9OTDdWZXlvd1hIeHJlRmlpK21La3MwaStYWTUrZ0cySFVQWlUyVUh0Y0dQeVJSaUxyeXR4MURJdUNyVnZwRDluZkpvc0FGM205VG1ESlVaUGNNd0psQzltcDA2Z2ZQRWdIN09qc2dLUzVkY1ZsL1ZWNGdNOUhibVFkd3VYQ3N5SmNJVHlOcTM2M2kvKzNvd0hLNUhtbm1rZnlUUFFKenpnV09BaG5lRUxEdFFqSEQyZDZ3U3pXM3BRbjVCYlZlYitJSGw3dEZjaW9qV215dE5FVHlsZ3NlTFdsQVZIOXdRNDc1QytXZU1DczNDcEphUTF4NTZBNlRFcHh6S1IyaE1USTZWaVRTSnhreDJjdVFubEdON1kxbFBxc3YrMjZvR3RBdjlsd2RsZ0I4bXhqeE9xZEV3Zy9UZzYrMC8wQnR0alA3QU5kckJUVnhTaHl0T3dLS2VuRk5Tdm1DblBiWVVZeEF1WHVwU0ZzK25ON2RrS1QrcThSbk1lVElIT2lvNUJiSksxeDhTcXpCOFZpVWQwNDJpODl6dGs5YmtocXd6UGJJQTZYV0kzNWZXMzlmRzM5dysyaGFrU2Z0UlpCbE5YSTlmcVJmQS8yL0NZUkNVMjlqTUxFcFVWSHppYUxPaWI2T3pBVWNkVFIyZVpSQ0hFdEtaajdUbTlzMTlsL0p1VmtvTlhHZlpMVEZTYUdyeXVwb04zNTBPVFB2MXMzS1dOT0t2eWxOQWtIc3g4cEdOaC85MzNkUEtTT09GR1R3REdEaXc1dDJZWC9FSVhiUkp6QW82NUxZUjJlTDZqS1FycUtJTjR0SS85a2IyVXFVaVRlT2ZZZjRVMnNnL0hzR0daVkZsQi9zRHZvTHlQYmFYNW5hMnpnNjBpbldKVklqRjFkWVJ5QUpTZWlLbnJBTW1GMWhOZFZlSXhuYWFRZk13azlXRDRwbU40eTk4Z0F6eWhwSU52VmtxRnVzZEhwaVFBanA2NmhnZDJpblNNRldKQXFESVhLNzFwUFBOVVhHZFBxSDVJRTFUK3lUNHVuajVFYzlSM1FjSnNneEI5VXdJN1pYVzBsY3crZ3pvLzgvRUhlby9IRmx0VWY2WFh2TXErN3g0Q2V5ME5vSDQ5R0hCY0VvbEJYWVRtZmdyOUI4NHU5QzNIQ2djanBZNDZJWnd2YU9pcjhoTHBCcWp2ZGZjak92NEllWGFjZVRHdWVHS3FleUlHOWFjbVBSNXlmeTFSaU0yZ2xmYTV2SEQwYUl2OEo1ZUtkTUk4dDlubWkzNW0zOUY0OHE1dnRockZPazA1eG1TVW9QTHlORkZsSWZPWDBrR28renlHOU9jYWJ4MXJycjg4NUF2UWMrU3ZjYXdERk9tRWFUUzExVmh4cXgyaG40REd2elhabzUzNUM3aW45Nlk5Ulo3dVB0WlBwTGVRLzZSSjVGYWZpRHVvUzVUY0g1NUptVDg4ay9oVVg1R2VLWjBpSGRHUXMyY3VHdWZESE1xZmo5cHBzMk9aL3N6OVRxVW5wanI5cHB3ZEZJbkhUSW5COUI1MzBGalIwU2RDY01QM1BNSnltZjVpb2piL0V6eXNEd24zYUhNTWRUQjZnbTk0NG5xek9mWUx1cTZKS1laa2xCQVRqUjBqSDNvRGZVM1dURldSRjlhamhpKzJYT1A4UnNDbnpBWWZMSmNpdnhheHdVcDR3bmJQTlQ2b2hJaEJmMG5wVFgrVGYvYmJlWUUzNk1IUitJRmp3N05Pa0VkRkZvS1gxZlRiekJNY2t4MG5Cc3Vjalo1NU1EeGh3TG5VSThkTzRmd2dlSG9VcS9TdW1MOVBPa0ZDRytjWUx1WG9LYlVzNnQvZ3pQeGlicVNtOVBEVCtqNlQrRWlUeEFUUlQ1N0dISTNGNWtRZ09Sb1A0ZCtHSjhJNW5wcFBtTC8yUktnZmZZNDVQbWYrQmhickRSMzc3aHd3Y2w4bG5ra2dWaVFUUUYybEVERXdYRFJmWFUwV29NNE5aNzFTanM2R2RPd2oyeXZ6V0wxdFZTS0psOVYwS2VBVXRjRjVlWTFQeHk4cm9WMTJhTTZXb1l6UkkyZzN0anFCeHdxTVdXZ3M1aVlVYkFNK1IvUGpkL2dLc1ZISXRNeWZkSG9VaTdrY1ZqYTFNYTVFa1VWTW8wa2N6bU85MEprcktCc2ZLcmRUWk1GUlBDamZXVG1ESHVIODB6eXRiSDR6THJ1WTE0NEo3UW5CT3pyMFlWSVM2QjdqNnF5WWw5bTczcTlqZXltTG1ON2pvZjRJZGMvb04zVGxoTWNVV2NDTmxOcnBLY1Z0eG1QbzcxNzZiSUhCanUxWkxyZC9rSjlXekNWZUo4alFaQWNwOHBWbDFPK0RYdGpNQzEyT2RBanJISlhWeCt6aDc5RGY4VXcySFpQbGcydmU3STgrdWZLNU1YL1FKUmliRHM3Y2ZLR1pyQmdhbFkybnpJa0krZFNINDFKV1ZGck1NNlFmV0RIU1Z4UnVzR2FxUUwvbWR2N0RidS96b05VUGdyYVJtNVR5UWlvU0hsM1l5dERvcloraTNqUlVVRzVrWXh1ZVNHanl5MU1zaWVkYTN3Sk41akc5TnlYZjZ0dEhaS1JvWC9DWVBySXAzaURTMmFtakVCR1V2VUNWVGpFM21SNTA5dVFxRXIvL1dlMWw4cTQ2T2p0SVZSaEQ1YjRzNUZkdG5NakhNdk41KzlQR3lvcm5NajhtYzdWeGlrbnhYS2VwdDN5YzVBTjVMcFJqODF4cXJCTThya083d05iajNsSE1qYzNRSER1NHNnMXNiU0pneG1UZW42VURYNU9Gd0pTNEJNYVZNOHpFbHhLSm1SSUpqTFJkcmlDOVppdUsyb3gzdHNBT3RzYTVVUjhjUjZCSjVFNlY3UnM1TUFmcXd6UDNOQXByK2FpRDBUTWRsVENobnNDMTFTRFVQUUZZTkJtWUxKUmJHTi8zRDl5WWlSVVBBTjBYb0MvZTFMTWVjelJvRXVpK0docmVJRUUwb0RQYXJBbW9pMHdIK2k3UVQrRW00am1QcStsOGpQWXlHNk85eEtjOHQzcHlmUTM1UmMrMEhmeXBlOWYxQWpOMlVmYTBualh1RFhGeVNBeSs0TDBIRWlOSThpRlBIZis0YTBtMi91SllJTFQyMFpjNEJGVysxZXBGaDJjN1pLd0o1Y0M0d1dRZHdHWDYwZFlKSmYvTkI0bzh4V1oyOE91c2h3L3lPR09uU21xb2U3ZDFiYW5INUVZWng1Uk9XQzJQbWNsYXpUZEY1VGFRSHFoZXdFMk90am1aNHJvM3QvbnQzSDZsS2N6d1FMenBpWjdxZ1FlTzVtSU82c3BsbSsxNi9KWGU4YWtxd1JpY2NqaFdBS3JINFBwa2FTTmJNTm5aaG96MG82ZEo0ZzdHRndaTm9maHRab2V5dXFJd3d4Y1RoY2pLbS9TSW1LZlF2MmRTSTZXZ2IrV1lNcHh6VUFkdjdGVWpsc2pxNFZnMVZLWFR6a2dweC9BMnRzNkNXSk1Gb05JVXBxY1Vwckhnek5HT2E2M2czeHRiR0pQcmpBZlF0bEpuZ3hXM3o2dUg1NVdrUUIyWno5R2k3bHJ1S3VkVHdUOE42aE1Dd1BudHFsREhFMmg4WnhoUG83R1g0L3djWDVzMkZDL3BmdUVqVkxhc3djdWluZnJjcVdMbU5Xd0gyWmxOeG1kSSt4VFIvSkdiQ0trbTRXdFRVajFOdG0zT3hkeXF2anlmVjlXL3krUnYxSC81elhKWDFuMloreWpxYnRXWnhmaXUzMzFXamsrWmY1Yi9OaWJUVVBjRmo2TTVZS1FZTUZLdUpYWXUrcGJSeTVUSUxmZWtuUE8yUTEza2NkVlRRNHNldWJNVmgvd2ZxeGZGWlM3cGNnNWQ1aFRnN3pSNFh2YW1RSkVGY0NsenlEZWVRQjd5b1U0ODJJbzh0K0g4VUdtcWxHOGxXd094ZFpaeHN6eGtjS2o2QWVjblNON3drYllaL3hwNjVXaDRJREZaeGVaYzhUeGJpV2ZPSFNYNVdrdEJsL0kzV2xzaHdFR0hjZFZrQ2d6MmhQdzB6bzFjanA2K29uanJOOUV1ZU03MTZST01FK0Q0c3pHZXpwOGNZNlJJVTZCUDVzWDhRalo3NXZQQmpNam9uZG1maitTamN2N2t1U2hJcjQvNHlRWUJaUmY1WGZPcUx3KzFNUVB2emJXb3pCNGlmOTd3U0dDeWFMM29NT3VWc3ZIT2V0WVI2dVdEeVc3YVpQUlczZ2JHWm81S2lMdVpOQ1VYMTM3NXVzaTV2ZDFIQ3NwSnJCTktuMk5iNlhPTDcydmtJL1dFZytGU0JRK2ZuOTFCTmE5WTBkTWs4amEvZkI3TzV5Mk1ROWE1N0hEdUtJWTB1SlZQUS9OOUhYdzB4bWprSm0vU2dBQm9IVWIzZUxCd2IvdUg3K3FIaVJCVXRtcmc1Yi9MM0NmSE1sdUZHT0M2RDMyUFI2UXJQamxYeXJxV0VyL1ZlMkppanQrMVRkZGxhSEpyZUtMVGxMZktWM2orZkd3WnR1YmJOdVY0a3pKdXY2SHZvYXdvc2hpWjlNaXQvdWJlRzBkeWl6YzNaSFpjeXdXZ1BNWW42Vi9sRWpiSW4zNkw3bS9tQTFGN0V5clZKQkpUM1pFN2xlY1hlUkh1dC9IaHBvOUFwYXJNNEpvOEJTbzljcGNyaWxDa1U2alMxTzZTSmh6MDBhQ3RrTVhROE1RZE56RURWWHF3bS8yalFpT2xkcHJNTzRwM0FtcVRWOENhQ0hDT09mcFljRXlXY1ZFc1ZWc1RmOU1PbDc1c1ZaYWJvSFdEeitrWHJ5cVAxbzZiZGpSVTNkdTVJMVVpODNGZCtpUkxtOXR1c1BtWmMzOG5yYk5jOUI5RjY5bzZ5NmRwbmNuVGI2YjEram9XK2pTdGI4OGpCamRaTzFGWkJsTWtsQ2V1anpGcS9LN1RsWjVTV1Y0QzdEajJhcXkySnM5aHZIRXlKWkRDT1dvU0R0QmRxcG5EaHJ4aWhkQWc4dnhmZlV5ZStHQ3lLRDhaQ1ZYZmJ2WHpFM0l2UXIySDlOeHYxbFZpVlVkaFgydCtUYVczR3pKM2tlZThqR00ra3FPOTVkdlg2TXp0eGlnUHBFbEx1MDRyYUJ1UlRQK0J2S20zOFJ0MWttUDArSjdlbSs2cU5SYnFkL0lxcitkOXUvNitmWG1idjQ0cEN3R2tqU2J6bUNhUi9vWVFvVitBZllMZndHTEIyV1JCb3VMbCtEOFkwMTJzRDdrb2wvWEpuUEh1RGI1OVh1YU1ZdngvbVAxN2k5YWY4bDJPaXN5ZlRXS1FxalIxVmlVK1ZlV2xyUkVpK2Z2bExnYlc2aWZaU2I4MlA5Nkk5ZCszWmZXK1VZOTFYL1YyRzIvSDlEVTlnUGJDL1E3ZG11cTM0bk12M0NuZXZOK1FtNmZnTUV2Rjh3TEc3aW1LM1Q4aTl5MStKL1M1blEvRXhDMCtrTHY3bUc5WjBraGNGSEhVODZwTk4zNHNiOXQvSk1uQm0zbGJJL0JmWGR2VFFyUzl2NUc1dmRKbUNqRklWQS80YTRrNTFyVWY0b1RISERXeEhuMHJKOXFMUTkxYjl0RUtrcWVHS29ZN3hpaU1WVmx3MEVqWGFCY2EwdDRmenpoYzc0Q2gzVkdaQ1VFN1N1bVJuZmYvWFlyclZSU01zZ0s2aDNaTkpTWTl5alJGdG1LT2RnNWxIbzV3a0NRbTF1bTZ0YXVOTDEvOXZLZ3JiWjBaSCtUaXQyODRSdUp2Y1RFN3BlVlpmbnpCUmtXbXdqSWh0UTNRcGhrakhSRHpaYmpYSkhLM2NLbXhLbE9SM2dOb0laTDJjR0N5REJvQ0ltWG1yUFYvendJb1I1ZkppbjYyMEU3bHh2WGRTUmcxa2tNMGxhREZGNG5FdUtlTWhHamphcmI1c1RUWXVqZkFHbUxiWENpK1VLQ0JuU2ZwUW9WZ3psY0xMMzc1N2lrTGdJc3lUVlp5eUNqa3labHRrRzBHWUhHMHNMcStFTTFQakwrcWMzZHlGRStNVUZJV2JkZ2cwU0lTVlBxOFcvUkpBTHBNUllvc2dLSXRYUkl4UmFwRU9Pc1hrMEFhS2JJUTZnUlo2eGQ4eHdlcXhPK05uaGpQaUZ5c3oxZkpuNkF3T0ZPYTNGU2JFRWs2VTNvTXB0RWp0eXhQb0dtQkZtazVkNWYxZjhJSHlwckRlWi9IOVdJemU5R0hqTFk5VFJhQ0MyZHF0NVRJUk8vQjhZQ0Q3aGNid2tjTnVwcnNRRVZ0WGNtTTNmcDlxVlJMK3VTMFBnZFgzLzRzbmkzb2FzeVZESThxMVRVeFE1TzlXR1NVR0Y4VkthaisxcGtESXB5Yi9jNDJyMndtWXFRenVRRXY1MXk5N2txRlhhaXBoMFo5VnpLZVBiOU9OZ21MVDZud2NnT25TQ2tFZnpBbEVsdlhOeVdVc29BY0xkendBR1p0MEVJVXNDYkxOOGRUZDVwVVJBTXgxV1NCWEJLRHhHVEZCNU8relFlT3JoWmhWSGxhbnhkeFF3OWVMdkxVYVpiUloydkswOUNjZ0NkWW55bzdXR09PdmRudjkvczhYM09YY3B6SnhqcXd1WXVOZUpxRU95cXhTUXhQaE00LzJvQml3Zm0yRGk4V21EUFptZm1DbzZaTmgyKzJ5eGRvZDh6UllLckZGN1NKdHpidXJDMXhDUU9HRFR1SU5Ja25yeGV5aTNhUUhDOTE0aFFxdmQzbGVMS0RDSTM1VitNQk92Z3hxcit6YXd1VndBQW9FVlB3cW5WenZTSlBmVlVXbHZYTmlmWDJEVytBNlZCL1BRVzJPT2FYOWZjNkN3Z1Z0dFBqbDRZM2NOVjEwT3hMTm04d0hRZU9MaDNyY3pqU1pCWG8wSkhIcVZRbnB1QmkvcDNtOUtVdW5BSkZFc0o2bVkvTDBuWFpqN1JuRUFQYzhIaHdRZiszeGdVZDdZTXBUN2VxUEwvUXVlUGpKWDFWaVNTYVk4RHNZcEZoZzFPcjFZYWN5RGkxV21QcWREMFcxekxHUElsaklBbkw1cml6elN5Ykt6NW5DeGxpWW5vZzFRa1MrVFdYQ3o2MWV1cC9iN2x4UFZHVjI2K2VtR2EyOHFGZEhobCt1ZG1CaFlBUHhrdFJvRGJZUU56c2VFYkd4ZFY2OUVhZlB4Y1FpSVozTFB5Z2t5a05NUFhTYm83ZW9Ta21VT0tZV2E5eGNiWEV4RmRSNUpuTmpxVFdtODBGbnpPK2Z0d2xyMmdtVmdtZW45clh6WmhaYjNEelpiTmJ0dlpWOEtjSC9YSWU1cm9ZQnYwclFpUTNudWhkenAxTWQzelN4NjE0VXRqaHhXVTRjdG1HUm9qa2I2SG5wdGIvdHZvYmJhWFVzN2pEN0hXUFFnY1BqV003alZjN1JscUtnNWNOSTZ3djlCNkI1aEMwSXk2dTZQSTg1ZGRxek5Id2J4dWZyOUhHTzBWNkN2YVF6OEtabVN6VFVTd3hkbjh0TVE4Q3hpOFZXVHlyR3p6VTJWTm9uTEYwL2pSeTMrZ3ZZMDJFVklFK1JuTmpFNkhJMHhDRmwvTDh5Z2NyRHJqVU40d2FrMUVDN2F6aE1ZenVLNWR6L05KK0oyMTJ1ejUrdEFIT3orcS9yVHR1K0kvWDQ2ejhOYlJCNWxJM3FZN2hBUlNUTkhoMjgyQmt1Um1NTmJ4QlhNaUlrVjdNc1JyUHN3T1M5Y09tZitBY29zbHpZMTY4T3lkR1NiMk55Kzh2a25QdE9tU2lIdlNKR0tzYkhQbVQ3YjU3STVrTGZUMVBrMHhla1VmWE1XRUxEWXYweDRYTXhDZ3VaTkJod3o1SEQ2QXNIbTU4bTZvU3Mxc1RaR1N0QTdSWlI3Mk9lNjc4N1J2OVA2TE5EREtQcVJJSmZacm00a0d0M2RtcVRMR2d1UDRqL1VjNjdnTjlxMktGblA1eUxkNll0Q1F6bTZtU0czMSttK2IxTk5TbExINXlzOEwxaHVobDhQYmNuclFtYUpGUGJQUUVvSHNvNmR4WUdQZ0lId3dXNVdqT0p0UU5UQ0hMZktSSUlMNGNvMEtjSEUzQ0Z6OGpiZll4M3JiSDR6bzZORjF0S0duR291UkJaY1gxVlU3a044VHA3Zk0vcjRNQW1OWkl4VEdlNm9FRXhrL04vbFRQRy9TODlHbmROK1BEdDJUaWlqNG1PNGhVZWRxYXE3aDQ5OU5pZE5yKzA0ZFNpbzhQZlFMLzlsWkswUW0xajZTRTM4eXRoWTdCZ25MVDFjS2xMZzUyRElpNVhlWWhPYjAzRFMwUHhyd01qQjkzdFFNZXdMRC9oYVdOZmY2b1NobGZzL0dLbXp6bVhLbVNVdVJCcitoalRLanpyS2VjOHZmdE9kcnMzYzhadndTU2pTZG1oeDdsZVVzczFlVHZ4ZmRGN2pOV1pHZWw1Z2NQakR4ZitNYUJudWIzaGQvQzRzQ2NURU9sZDVrbmZ2TndVQkhMUDIwWVVUUlpFR2x5bU0wclFBRVl4K3ErNEtoRTNlL0JiSFJ3R01ZYm5ualdZWHhIVkRHUVVUMXJ6TXZTSnZVb3ZQN2NaSmxVSmNTckhFL1JoZ2hqUjNSQTVpcUdoSHFKZ0hwQUpTNzZ2bjJYaHA4ZmQ1dWViN1hSRERyMHJ4Qk1wRW1rUC9NRngvQk1ZSTV4b0V1RDFCSkZUSk5Pb2VWbEFDY2JGdEpLaFBQV3I4ZDVVSzlhTWdWbGRGWG1CeXBkV3VVTUdqNW5LZGV4S3VFSHc5L1YzK1ZqYnVZQTRmTzhuU1lkTHUybXJBTERZM3oxb3Y4dGh5MSt5dmpmM3R3UVBIOUVUdzhJa2hnTTN0TFRybS92clNqNmdLNkdZMEdMeVBVRGRkbG1oMHM5bEtpeTBOTjcwejBhdnhjOTVCdGc2K3RHMCtMUXk3KzBOYVBidmtNRk9LTzByak5RanU2UkI1UE4rRjdHR08vNEVQeU5OYU8ydGF2MlEwVjhwTWo4dVhaNDNZWjB6ZnJLUCtrc2N6YXdSdnpWeHZOdDdidDJrQnkzdEgrMzVBYlRLeEFlN0pJM0xYRjVOUVpmaU9yeDZTemYrTmdXcDVYMUZJZXBydU1aTkY4L0haZFBHaHQ5M29sVmI5R201b2RPcHJqT2lrM2ZZVEoxZE04RU4raVhqYm1GRG9VT1FrQkhOUFhJVFJoYzd3bk4yRG5MZS9lYmNRT0RhUmRyUEZkMFJFQTR6cmtsRG8rNVNSNzNaYlJBQjhWYjQzWDBuYlBKOVd3V3M4TzJHWUUwMkphY0F0UzNIclBWQ0RGUm42NXpDbWh0Sjk5YzNKcFArSjJ4M1BRcWpxL1RiSkNhclgzSzIvWEZXUEhFTkIvbjdqMVFqWlljZVp1TnZiblo2SU0rTzRsaGo3MDM5M0tFcHY0Qk0yQ3dnNTNBZ3JQaGkwZWszblpUWEVYbm9TL0M4YXNkSGRRQnVuM1dxbUVHbGpvaGpEV1pUMDA1U3pzdWZYRUgzYUYvRFZzSkdudi9ib3h6NXVHaHZtTUlSUUlSQ3Z0TEZYM3hmSDNsMG4yK3p1dHRCNS90cTJNeFlxTElxcU5KSnhTcVZhRUE4eUJLcEdONlRBakRHNTI5TmlkdnlBNTA2VVhkKzFDZi96L2VLdkdiWERFU0cyQUUyWDlyL3VXZ3ZlOXN3VEczNDJlTkFGQXQycHRpU1hMNUx5eThkVzl1VTZoVXBOZmNabEppd0RSZHE4WTh2cDBTdW9IclZ3dXppM0RyTmc1UzNWUmRMakZqaFZtd1A0S2pkQm42YmZLeTZLeDRtWlorWXhuNWFpbTdaVTdrb2RsSHRsTzBuT2xxNTlzSFpSMy9oaE9EajhpNlpoaEJjclhyck5Yc3RCeFJVb3BqWE8xUlNOM01ySytPSXYzZWpZUWYyWVZ5dVJQb295engzbEJCeldqZ2VwZFRHNTMrR2FLUjMrcVZFSDJNR0JTb3NqLytmTmZOQUppN3c3OTB0ZGRYMTNmanREdjh5dzhFYkFzZld2NkIyUWZleWpMMlZoeDFoLy93NXp2NHpOMEh2bWY1Y1hmWURmZUIyYjNyV3FkNHI0MzlBL3dFRmsvaUlESTA0UHAyVm8ybUE4dnNEdU45WXQxMVBlMGtXQWdUTitvT2NleXU2N2wrOVlDNDY4YmEzclppK21XemlWM2duaEYwN291MU55dy8xbXlyTzN6RWltL21saGZzMDF1ZmtUL3V1dG1lMmJtR3hsT2dKdGNnZWJQWk1PekNPV0x0RVdCMEdPempZYWNBKzQ2Y0pEYURvei9zMkh2TnNGNFRCT3ljSVEranoydVZvZCtkRHB5QXcwNGJvRFQ4RDdpdmxwRWF3TXEvaGl3TGt2Zyt0UGIzUldQM29hTkYxckRUdzZLaTJEYlU4Z0tPcTF0N1g0dUxDam9kMHdUM2tPYkR6a0VEcnFuRlZ2WW1jb0xqZmZRckdIWmVOUkRsRDhOOUVGcjcyTFdpc3Z4MWpaMU9odlQvQ3lvTitWYTlNVjBOV0VZODdBUjcrMHRaOUV2KytNdExCaUM4V3M2ZXNpZkZDRjVCZXRUU3ZJbGNKdXAxNjFwa0FkZTM3Z1AvM25QdFBleFA3VFVJTWlKSHc0NEJ0Q2dLdGRnWm12clg3Rk0zUUVEWm51WnJ0Z1dGRTdWaitXWVl1SDVjRFBWbzZlVVFyVk1ZUk1tK1BtYlhOMEJpV3NNY04vN085VitETzgrSzk2NFIzWVg3d0xOaXgwcWllczBGVDFDQnNxcHdIK2cxK3JZT04yZVBhY1dhQzZKaFJ3TkhMVVYxNXkwV2xFSVhCOVNyenJ0eHUvcnVqN3ZtcFB1QnBpaGtGSGpTWWcxU3VwZ1AyZDlkTkluZEtIWjlPNXZ1MlRNbmlQSy9ZQ2U2US9LaFI5eDFJL1RGczVWQ0RhQkYwVEhZUXkyUVJMQUZwSUJnRDE0VEFPRFB4Y0hhNzEwemI4WDEwT1Q4U3pkTUFIZ0pnR3ZBV3JoWFBvaGY5bFlFMWNvRnhMU2RhTGZ4eW1QTnpwdERGYjhrQURUVVZaNXlRN1BlOTRNNEV5SDQwN0QyOFgwbUwvc3ZidkRWQUVrVVcvdDdONG9TYTk4ZGRvRVZSNVp2N05Nd3ZzLzFuRys3L3VsTGtjWnJYa1VRN29OVGVxOEhabm9mdVdjNFdoenozaWtUUmVCK2I1bnUzaklnbVNHckVOUTdsRzgrb3lRcTNyMjdWS0tRTVJtV2RzNmlGbHg2eURVdGRyTFA0Ri9kWWZkci9uQ2RnWk8vN0sxWDk5VDk4V2RvRFdKUTFZamcxdHZxL0hQQmZyNE9QWit4QkZhQTBMNkJlN0I4SzRwZTREeEFkNlZvTGtqMjF0clpXNUVUQUxNNzdOMGg3SERXUXBqMlJlOHU3ay80V2xSVUNpQXFoTmp0dTdHcmdTY0xhT25LTWdMZmpMckRQbmJYRGEyOUc1amxJMmhnb3NRd3JDaXF0WTdmZFhPOVczNElyY1cxdVBwV2ZBejJ1MEpRLzlLMWNubUNKQTMyY2ZWWE1UbkNmUkFIUmdDTnlwcCtRV1kyRGtyVWMzUzd4OHFDZWpIWVEyTUw2ZFZTVmUrNm9yc2JMemRQSDJybHp6VVpRdWFnTmpuKzRTL2QxMzNnM1N6ZjliVFljR2FhYm9Hb2R1MUFYdjQrazlFZmVTc2hvaFVVTUNSRVhON0lYWGVjL1FFRnhBL01SdjhRMnlJM2lpM2ZRQUtqSVk3TkE4UUh3ZEpNYWUvRzFnSyt2YnVZeVQrdUIxWk1RTlpGOStNRWU4MjJhRGlwY2wwUkJ1Ym9zbzR3TUovY2FKK2cyd3FveExRenlieDBYbHgvZE5CY0FCOTJoM2hXYm1VWnlkNk5VenJ3WSt1RWlyMUc3RDVJUWloL0dJYStLbUgxNGVnU0tPNE5CVnliUjcrWStnMTFYQ3JiWWRkd05COWF1bnZYUjlvcE1kQU5BdzB0WEt2enlpVGNkWE16MHpMSVBHRElyNFJwZklBSS9BTU9hTzk2Mmg1TkNUZ1ZUUjMrbGQzMkVCVVB2NkRoZHUvdk8vVGV6ZS9sTWEwT05FVSt1bitrNDF1UXpYLzluL2V1Rm4zM2FXRThXbzg3WTNrOTVsZmNndTl3VElkZnJEdGptVnV0VjUzdjNTUnh6ZnNnaXNMdjNYOEh6ZjM5ZllmZGEzN2NDYTI5NTBZUjVPWjNueFZHL0xvem1zMDZMd0luY3JNeE8xNTFGbnpuYWJRZVVhUFZ1Tk9rZFdlOXFELzVkOUIrWGd2a0pZa0tGWDlMeFBaV2VaWEdYN3JBOWR5TUxFYVlkSWRkRWtPbXdVUHVLL3lORTNNM0svVnJZa1gxVHdteStTbEI5dUduUDM2Z3J6WFQvU2w2dHF6cGc0cTJkNjFveVEvcTJSN3FPUEtaYVJpUG9pNitTUzA0aFJvMGdQTzZsVmczNlBvRDJhekxLYW9CRUJ4Zjl1N0JCWlp0aldIQWt0M1NVV2dSUXdzMTNRVnU3R2I5TXZkQkNEWGFhRFpEU2d3U2JlR0RWQWlDbUhHQkZhVlJiSGxsOFgzaWp5SSs4T0hyUW16UXMwMEUvWXRjTWVSejdkcEIrVkZ3QWtZaVJjRHpVbitTbVhBNjgxczRhQ0dLMmtaWnFOOWFxYkczdE5ncU9sVHoxOTZiOVZBVVltdC8wT0NjN21FUnVzNHN0d2l3dUxIWFFtdWRjUnR4TFlLMXhnR3c5a1g3S0RxTURNZnl0TzdRVHdBb2ZsV2hLNFpoK0QzNjN4ckRodWgvYXZldSt3cnBXNzg3NUl0akFjKzEvV0J2VmNrTUxxV1dpaXdnSEgwalJaaHFvVXFRQjhQYkZPZmlYVk1Da1lxVzVhbWpJdkY3UlRLQmtUNDhjeW0xUWZockV4NDNFSjZHQVA4T1ZPa1VjYXdaNlFSbjZ4S0RLWVFUNnA0UmNaTXAwR0ZBTDZzZ1g1cHB2bWVaUkIwRlc0NGxnVXBrZ1Q5SE8wZkRFejFOZG9CS0Z3bUZjVGh6cVJmZE81RWNPMGl5ODh2WkdMZ0poVEN2TllrRU16dElCSVovM2ZRRU9KN25EUE0zdzVZU2Qvd2FuZS8zNTg4enp3eE4rakg3bHdXKzdnMVNkUmtraWgrbXMyUDJyeWFaaWQ2YkF0b2xBeldGM3pwKzdkblo5QjRPdER1M2w4UWcxbUcvRVRabWpCczA1V2tTMnZyNjY4em5lOFlvK0hYbVRSME4vUmJpN1BjZzFTVGorZGxITkpVVWVScnFQZkhNamNGWWtPZlBNNTlLZFNJRVNtLzVQUFBBVHBYR0I5b05FcFBGajRZMytKVjJTY0lnK0lQS2JySStZTHZERWx2bTQzRnd4UzNHZG5JVUY5OXFLNUxVcGVQenloTVRqUUNKUWFpaHppTDYxREFvTS9yVFlNb3NOd0l2ck1oWUhZWG9Ub1ZOQ3Y4T3Rod2pBS08zdEZVUG9LM01KaXVlSVIzUnY1TjUza2Y0ck1Rdy9VaCtydmM0ZVB4R1BGN241K2Jhem9KUzNaQmVHa29reXBqU1Rpc2k1UE9LNGhCcTV6aEg4eHJqamthSWlDdVFXZy9oci9hM2IrNEx4MHlaSlRiZ2hRMDVYaHFMeWZHQmYxbTRsR2dRRzF0UEtWNlJZb0JHdXFJU0JXMWNCbjJPdHBPWk82aTkyOWxHaHNDLzFRa2MzVVpocE5SWlE0Y0lnVmNpbDlyaDAyck1yRVJtc0ZodWNJWjdDZ2EzMExJMk8zRXViSmkxSURhK2hkSUZkRy81RE1kUVJ6QTFqdUZpZ3cvR2dxallpeTFDV2lIb0hibVdjWDZ6M0pqVDljNUF6NDJlNEtnRVNOVHMrK1ZtTnhpanVpZFEyZ1JjNldVYmVuS3BUaUdIQlh6S0NKc0hWRjUrR3AzbmVIUmNuT2Vwdmd4VllYT2FyM0dqL3U2ME9NL1ArakpjQ1p2bFpabVR2Z3dYeXhRaERCcnpwL2xaT2xNeERXZnNXR1NYb2pnWG1jRmtqVEh6Ykx3TzBDZWpaOW9sbDZ2eFlDR3RBNFQ4YW93UXV0dHg0WTYyQ0lXNHgyTUd1dVZEUEp2czJGYWtFRmZaOFRPOW9ZQkNPQWVPbnVadGpiL056M3hjOHA2bXhxc05UeFg4bmhKUVJqWlpHN1JoNjk2anJiSWdWZVVNZFZkUFI1RHZHYktjbEI4Z2c5cFJuanJvWUUyQktEemhReDF0QkZORGhXQjJlbzh2eDhyWndYVEppbHVOZmJRNWw2djFrZHM5ajgyVnNCRVh6OWF6dUZ2OEsvMlBYZ2JyM1R4czBtRVo1RElXY25SOWJtTTNickVhQmFiTUh6aVdJUlRwMjFNSWFaenVkczlqOHVsNTlXODByY21XYjNqaWthTnhocU5OU3lMR3NiVWJ4eEo0ak9WVjFKKzV3VmN1bmRzek45aE5hY09lMGc2LzNNU01zQU56UVJ6TVZ5Sy9lVjVSanh4emZLYVh3REdKeUo1aVUwYkF3SUtieE93bUhRMDRtaXZyNFh6c0d6ZUphOGlTSTFqblpMTVRtYlc3QTdNMWR6VFN2SyswZUpiWkIzZEdqM2JUcDNIRTBjdmQzTWQ4MmdhajRrWVd6ZzZldVpRZmNRd1B6SWw0aEhwaU0zWmUxbURYNTFnQkdKTjViTXBvNHptZ3ZlYnZYRGMwa0x4VlZqeEN1VHIydzBRaGdKTWpxV2ZvbUtOMmVWektBcTVrRytNU2xYMXNxZU1obWJrVi9YTms2cDBxVXdBdFQzZzh5VTNFbzhveW1McHNiK01oVEJsdUxBQ0RGUk4xdnZoVjkvaFFRYWpYWmRzN1JaNDdVOXBaTE5PZFM5dkJsc05HdG9qUVo0VGlocGVHbnRSWmtKaWpFSHBFV0U0TENhR0hzVXlLOUpNdk9CYTdRYmRENU9paTdmTkd6TkN1Rkltc2FFVzNqaG0xeGRFUGpYNllyQmdiN01reDJVMk1iSkpmSGVpZlNRSXd0NEVOWlNkRC9LN2VHU21WcWdpVmVvckdyL2ZtOWpNckFOUGR3WDdtaU56Vjl4eTlEQzV0NXZNSzM2bXlZcy9jVWF5NitVRW9lWTc2TWZQUlVsS2pyK3BrU3M3a0thNjdxTnp6eGU4K1I4KzNIQU4xdXhoQmVTcFJ3cXRienhEcWkzbER0MjBJRUp2U0Nma0hISnVqUlJhbzN5a0Y5QlVGN1hjeWN4OHFYU1k1UUdjeHUwSWVIKzJlbVNtekhvdlVCaE5mMXp1R0YxWTdOQ2FPZnJEbFVUQ2xWM1VrZWRUM3hFSWI3eW1EdG5mVG1mUUE1MlhoTDZEYko2cXhqbUxJRjhVWC9VTE9CRlk4NnV5QWJNNi9vdi9Iaks5ZTgzY3VjOVBzVnBpVFk3aG9mSWl1clhLMktjcG44MnhaYkxTaVI0RXdGcVhuMVlYTVZiZDBsQ2lValJzeW9FNEUvR3RXRm8wcHRWWjRha29QQTRVNGhXZ0Zuc1lQM0NSYlVueHQzS1RBSEEzMlJDSkVmaG9yZVZETWZWVWl0eGE2QVVDQTdmNno4S2l1Rnl1ZDZycyt0Nm5SaWdvTGVxdnNZMTFmdFBLdDVnc1c1YUtaRFA4MTBlMFRTTjdISlY5U0pOK1Q4djJuK2JqQkJRcmFEaUhkWGNoNGRVdEV1WHpPMWhIelIvRGJ1aS9ibE5rdHZ0VlpnSmFDWjlLam5kUHhzWDc3aENKVFIzMnlzMmVTWXMrVzcrdnAvSDFKbHh2NkJmTGIxeVRTdjhIWDhuMnViNHB2a2tJK2F6UnArcm1sTEtGb2IxZWZYOFprZWxDZk1yMjVxbTRxc0ZVSm9XWWQxSW1jNlpSalV3OXRkdUw0MlhyV2dzWGZQMnpUVVZVMjArMXdmcUo0UU16aklHNVY4eXNtZktSSzRwRjdtbitDWDlScWpTMy8vOElyUk1jYmZFTHZidktJbWI0STZBYWgrWFpKMTN5SzRrYXQrdnlDL2VwTkhiVzBkODNmYlg1SkRhSCtIUjNKWUtiRW9NTUF5SWFNeTNqUWZoNExqT2p1V20zSGUzckxsS0dmeU93UTMzNjYzbXFuVFUzM2xEZXBYT3VlYXJ5R1c5M0M4akU5OUFhdG1FcVB6TnlIcE5LVElQTXIyTndYWThWRTZlM3Mwc2NzM2xmamdHTmRDWnNUc3hSNVJzWVE4RUJZRzRjOWN3dTZLT1ZOSmJYM3QyaTNGc2ZNWkxVaEo4L0w0SGtHS0c2TmtlckNwV3EwZ3ZINjhybmlYU2JESDVBdjlKMVp5bTdEcnNDWVBhekZ4MVU5bVk3NG9INzRPWEtIZEJrOVNyTDRZOWZ3NGJKM09RQlQvbDUzbTNxbjhGODIrVzE5VFZrc2JsUEtmTDN5QnRVcm43UzhkYWsrTjNNNUtONjlOVzhxUFlKOGtTWS9pMXNzNi9QaCt0bjVabjlLK3dMNW1PdkI4dWJSZDJYemZYbXIrZ0xwUFFxYnY1OXU5dXRLeGo3V055VFQ5WDRoZVlOOVFuSGcrQlRxTWdVc2I5eU1NU1N5OGw4Zy8rd1ExOXY5MGJFcTgySE5KOTJwYmZxV0FjeDZmSG9SVTlENC9qTTZ0OTZuTjJPVHQvVmw3Y2FoeXBlZy9mYm5iNHl4SVNlMStWN2s3OExHclVmWlhLL25XQ3Y1V0xYR2ZuVjYvd3k1YS9Bdmw3M3JaN244WGR6WWxOMk05UWsvcUdYc2tHWWYwSFdiei9BNzl6L2EvSXBLbGhYaUJCVHA0VG4vTjdlRFNPNHpYaUlmYVAzMHEwZHVOWWs1dDhjRllLNUorTEVjeTBXWkM1dVg2cXRSYkhoS25nY1F6ck0wZUtiUkRZVjRxcnBVQVF3VzZRUy8veWkrSS81dGdELzJyclA1MlU3S2U5TTYzRHRCRklkYTdGeHN0TTB6RlZETDI2bzNTTG14QUV4UGpQUWVsVUdMWEVHTlpQdTFzL3ZVcy9VbEE2MzlNTDY2RExZY0kwTExsOTBaeEFLUG00Q0RLWE9RMHRsZHZDNFZLRkFqOWREOXBUdEZudTZtS1hVdzNKRmZxOU9IR2s2SFZwL1lJTGdDb3pkL3BpK2hGSjhDZTc0TW5uT0lzdXlvZEIybWJCM1lhZy9kODBqb0JKT1lFekZSNWZtaGRmOC8ydERhZ0JUcmMyTW1NZ21HUkpBcUU4RkJsc0U3T2RsNkMvZU03cVpBeDRBdTRHZWVnbXhGd0E2YlI1UW1hUDk0bnhzamFBTUVIVWJiWVhuRUxUdmpVa0kvOURrV2VuNDhvTzJ3RG8vVnovYmxvenVheW4zNVNvL0NGKzRJbno5UmNiNGZ2amorMnVlZU5xZjVEZzl6K3B5Z1YxVEIrbEZiWTdMcGMwOGNQbWV4NGl4RmRreDFIZGp6N1laWVN6czQxc2FSMWpmNmVnVlJsbjJMb0JOQ1JUcU5WZW5rV0NJUEVBekhaTjdubnVaSDFEZFdURFZwc05zUTRsWW55SjF4RHV6NWVvVDQzZ3BoOW1hZFkveFduZnd5ZUw3QTk4MTRtSjlkV3Jqb1hpZDAveURDekM2T2V0VnczUmN1bFcvY1BtVXJTV0NBTEZ0eDFLM0FOMTRnTGFLYzV0c2NocWlHWTMrN0RvUkhIQ3Z5dElTYXFNTjdOSTZWMTNtQTdnU3FIVU1uUUY5ZEJ6YS9NY1BxT0I3UzRLSEZicUNIM05la3gySTFEUy91c3Q0VTgzbVRIUnVGNDFFbk0zU3ZkWmJCek9keWRleHV5N0VEbkdORmRCZVlKcW1oSVl0ZzRZN2M3STRXd1RHOHBUdWpSMjV0anJzem1nSW1PMDlxeHl2ek9TOW1SMUxoZkhPNTU3ZGc1UzduUVE3bGR6UXoyVDNxOVNOOExYSmRPN0ovTVM5RzlYbDFxdWJWcUlCRmpmWGVsRVR2dGc2dlpUTFZmcmJwV3I0OFJUcWQxZVhIemxMMCtqaUdFVzlwOTkrcDFETUZrMkVwTExNVEEzQUNQZE01MW1LbXZLRHlIWnpSUmQxUXFiQW1qdHg0YitEb3ZvRER5VGtqMnBkWG9VQmZZRHBTK3NSMExJVE5SV0dLQkVQUWFaYUs3aTFkMmtZWEtQV3pDK05KUXBPbkI5M0RBZXBYbHZKOUxrODVaQ2MzaXZQN0M1MFFNdERzRVRRTStiblo4MjBHVkZnTitUbGM5aFRxRXFnTzl1VEN4SzlIcFREVm1JL1AxMVBJZkRzSG53ZEc3MG9wcC95NlRTbHpPQStWc2gwMmNSbmU2R3M3YmlRVjZoN0FOSW1KQkZhTUZCbXNWWWsvNko1d1hyZ2pZajVDaGcwWUhzandUQ3NGZVVSOGw1aWQ5cms2TVg1NXE4N05NOTBFbSsvbmw3eENOOWxSUEJCcDZNVE5vejNMRkU1eWRXRTJqZHpuQkJwb25TQUJSenZOSmVEbUJjcUg1K1V0UXhSc1M5aHd5TjlpMlFBcVoyK2NZVUJKTUl6aWJFVjZ1dzkwKzJVVS9leHkxTUVaR3Z6S29Nemo5Z09HemNzVE11T1VIZnJpMTh2ekhNbGVxM0Y0elU0R1RWK1YzalNXQ1NUL2w4YW9xdnVZWGF5NlhGRm5WU0lEWlVVQm83ZCtDbFpVb3BjNGNrdGI2VTFEUlJJZ1BZRE9QdHFyUE8zWGRrbTNLanVoMFlNRzJDektvOE84QlI5bVV1dThiMTZPaE9Td2RpbkFPckEzWXhpU21DdEI1QnY0akZDRzFMRVFHcjBwYmt6UTRUL2FsSVFTdDZQRUNJS09sc2RFQnJINThHbWpod0hXSi9vM2xXbTREOHozdENuVDJMeHhxYUZhM1ZUK2ZUZjF0MmpScWJvakR5YURrRkJRMjVVMjVVNno3U2laditPbVpzSGVUVzM2cEUrZyt5eW1LM0ZVSG5sY3VObVYvVzhjeFlUQlY2ektRcURLeFpWMS9OYndtR09HTUl6Y0ZQZjJ0em42THMyaGRyakNCWnBNRDdva1lob3I0am1hQ0VJYmdHN0dqR0MyNWtSMElEMW5QY2dmSEppc0EweDU3cjdwWXBjdUU3VnRvR0N3SkF6Z0g5NFk0MWFGMmtqQ0hSMjZTaktIcnJxcndodzhOSG84cnNwY24yTlB3Snp3UVBmNDFKSXByRWdtNXNjNFVUdDE1SkNXYXdQUEJuR01EVS9jYWZJVUtEMUlteWx5VVF2YTZKNFo2cjVkUjRwb3V6WXcxWHNPT1pOZ3NMNkxDL2VRMjQ2UCtvcjdUSC9TYkVFNXM1U1EvdlAxNlBpcHZoQloyWms4UFNJM2J6dk95ck1aWWtkaFFXdm9GbzdCN3BKQ3MrWm5KZEcxekpYN21LRlVYQ0lESTVTSnA4Q2VIWU1MRkljU2ZhSVA1N1FxcWFHRnRKUVFOWTcxNXNpUzZ3SzlxZG1IUERtS1kvcWtRaHJOM055bUt6bGJ2VEdHajRkNDZmeXAxUk5KQlFLNnM5azFacXJNWDNrd2tFZXRJUjRNRDk3M1FzcVE2QXJ4NjJuZWl1QTEzNDZlSzhTbGQxR20rdHlUZ1hSS2NTUjZuWSt0aVg1RkxsVklJNG5Fa0djS2RkSG9wbWNVbUJQaEtOU1F0VXBacU9zTHdnR0tkTUkwZWxDRnJzZWdqdlJSSGN0K00rVGN2Um5HUWxwb0VnNzBub2hkaEtQUU11SUt3Y1ArYnpRVTZqZ0huYzI4Y0k2R0hpQ0lUSGtLUk5hQmNoTG94R20zY0Vmbk56eTR6NDY5VnMrOENHTXpQVndkTWYrTm51Ym01dGpueDk4ejlqTGRWRjFCMUx5dUw5VGRQRGt1OGRsVzJ4YnZ0TldiY09lMklEdFk1bUVkRzFkT0ZlaWhab0crYUlldFZ5QXRTbjEyNFMxbCtqOVJaY2ZSWlNwU1YrUldKN0M2ZmNYNXAzbUs1a0tGaGwxZDljcG1YcVhjSyt4SWJjeFgrbW42bXR0NGFQZXVyckpxZUk3RndxeWNlMm1qNEpsTHFXV2RmcGtIbDkwdVFOKzZJU0h6TlR3RE0xTzlKeDZ6OEhtVXpRMWZUSll5djlBSmNxVVRBNnl1VjZDZWhiclFRUDRWMmk1ZDJOb1NCYzZVU0NSSFFuSGRhT2E3dE4rV01KbmkrbzQ1cjcxQnN2RUdCemlQUzhUYy9CMUNHOS9tdWhIUmlIY01sbkUxNlJTYUxLaFNEYXlRNnIwU09Tbm14c3djSWJObjZQcG9tenhxWXd6N0xaNHRoS3FMVmRFSThpTk9rZDR6bDRZSENFMDZBWlVRbVV6ZmxpaHlaYVRIcFJTblNXYVFiYnBFY0NoUUIyTFdNcndKemZLR2J4TnJFa2sxWUZtZXVHelRNYVRuQ25kVVQwVnoyMXBSbnQ3amJNVVRNZWozb2UzN1BTSFZwQ21leTNyMWJhWm5ZSDhvM1JmQ3BhUjZta1NHNW1SWDh3TkZUNVducVNvSlk4Z2pHRUVvaEFQVWlZalNpS3Q4ZTc4NkZuQUQraHlZK0tCS1BKNGpHTmFSYjN1cUJIeHRndlJDeHFzS1dlcWdqaXQwVmhGR2FwY28xRGtPdzZhOE5wcnJYeUZVNVJBeWdveU9RNXdSM0lvLzc3Y2hUODlXMUY2VmQvM3NPdjQyL3lhN2pyTVZJWW9kSERQazFrR0tVUEJ1b0ZjVkM5aTMwSzB5VlBKYnNVSWRVVW80R093ZzBnbVRYR1dJMlMzOVJYNVhkZzBpaXB6SkExcllxZWlWeFQ3TmplczJRdkNWNTgrWFNMNDVYTk1CYlQ3d0JnaTZLRnNrZ3U4UnNpSTYycUlUSjJEa0tJaEdtc2xlNHp1WFNuUkNBTVl4eEJyZlp2TXk1dGdza3VUOFJyK0syT0lBYmJFaUkwZ1VtOXVKSjFOaW9zSlBMVzlTdVBDbFZVbjE0SmloWDd2MkJxVzhxcXRzenBTUU95dUsxd2tTeFhBY3F4NE1GK25LTXBhaEszeVE4cnMzNW1pbyt3TDgzdEdmQW50K3BzNDU4bXVxeUJRUVdSQ3IwZ0JIU3g3cjdOMGxORThqUGpvSE52TGJzNFd3cWs4WmI0RTVNUStHRjlsRkxFbDd4Yk80WFA2NHRJMlY3c3hodkVUb080dDFYNzFDZEN6MXBKaloybU1kY1hCZTZWRldUWFVDNjE4aGQrY2JDMi9QVitodkNsdHQzSGJUVWhQOXJZcEQ4RVFsUUdKbHRyQ1dHY3pTNGt1a253MWJHSlByc244VDRYQjlpMCsrOGFvdTd5NzFyWWJ5ZkhYN1RIYkY0TzBiWWFwTTBQeDJtWTN3VHBscURJMXMxcWhDVTlVditxUVRRaDFoMjdaNnRWdWFZUDJOR0NiYjhHYXlnNjFPSFBzY0l6eHRMdlF3OGhlZjBGWExWMzFhTWNKbXc4enQ1Mnl1MUgwMmFqTUc1K2Zselg0aXZXVDBLRWNoeEQrZ3YwdHNmdnc0WGswZmYzekFiMmVRb2xpelhkOStONGxVcmRCL0pJRTB0Lys1RTBqVGFyZWxIYUM3L1F2bFZWODZ5SGV0NUxzZGJxMTM4cEVKSFNKNU90MWtRVUpPZVB1NGVCbzkwMTVUTWJRcUhiWUdZYm9PaWlURGJSQWpGaXJmWmF4TFRJTE9Vcm9vY2JFdEVsb3pDWnlObm9pY1A1MFZNWU1RRTZVM0pZM0pzclk3NkRQSkZmNnMwemgwZEVMREU3ZVFaL1ZFMTBWQ0lLNENnMUlPWWtXbXdwblhkUExSZFFjMXhhTElRbkIxclZVQndVay9QcjhCdWJuTXpuamFGOUNyc1B3RnJPbEZvRkhiVFJLYjdPbGNneE50Skd2S1NWZlFMOFYvUnNLajE3NThZaENMOFh0cjJ2TWVMN1VrUE00MjlxRTE3YVlEM1V4dW9HOXh4MkxxVnorTzhIb0NZNGxUNGtlU0YzL0FXblExSjkxQ2J2SzdoNStDT24rMkdvc2dYdVBTV1gxN2ZicFJMN3JDVVdKU3EzQzJKODFyTEdvWWpLM2p5ZGQ4UTh2YklLYytTMkRseXZ4aURSbzZZM0F1MXgyNHE2VzdySzFJay9Ed3hqb3Uvc1k2YnJXVVY4S0xYeVRTNkJ2N0plZ2JTM3R1ZG4ybTRZRnRwWmV1NWVzenl4MlZQcnpHQnAxL2NEMzVHNGJoUks4R3VQYnVhZUhCdDhIZ1czWFpRNDVmbG9PVzVaaHNOZncxMHpwMDN3QmN5OUE2M2dWL3l0QXZmc2tBTVl5OTl3dXN0Z1dCcEFBeHViOEVZcnF2d1p1VW9GRWYvUG9Xc05UTFlyVm1oZkhxbDVmUmFpVXRoS2NtdGtsUlJ3bjlkSVVwTlVLQVd0ZG9VbEdzSFlKM0lhVVFkR0tjQVdDVUVGSlhoTDBDT3ZvNExORUhJR2VLVnByZ01WZXZyMkZBV252eFFGNWpkbHhoY2VCL1BISkpBL01pQjdIZ0E5TkMyQmJ3dGFmNTdxdUZaT2orL3Y2Ny83ZWRGZXJRTmFiZTF6ZEJMci83V3VpSzFqNXlBMy9ZT2VEZi9aM3JtOFBPcWdHUzhkMzNyRmlEc3dFQnF1WGdmWnF4czN6enZnM0VMd085S0lIZmdQY2xjcjRhanJhUHJ6dDRqMy9Cdm1EWnAxb1lYc0IvM1FZS2JQdmE5YU5ZODQycWQ3YytQQlJEL3Q3RnZtQmZpUHNWUDNwWlRSYnI3OTFiUlRJY05QTmVUNGVkaVFWdTlpSFU5dkY5OE5yVzZlei9QczZ3NW0zbXQzaEZGL2lOLzhhbW44T21rb0tYSUppd0h3VUs1Z1VNNWcwY3pPLys5d29KOHdvS0Uwb0Q3TjMzNzdjaE1SRTA1QVVvNXNkUU1XdTFmeS9oTWEvd01kOEF5R3hIeUx5R3lHd01vN1h5RnF6TTN3R1dlVG13QWpXekRUYnpQZHpNUytETTdQY045RXpFelRwKzVnV0FaZzFCOHhwQzg0SktINGZTYkdKcE5zRTBMOUUwcnhwcG84WU5XTTBHcm1ZVFdMTU5XZlBkcHVBYy9hekdxMk9PdjJPYi9rM2IvUnh0RjRXV2dZZ0MvWXhocDNBekN2MVdFT3orQXZRWGFhQVNjR3ZZY2VJNHJJa0pRbDRjZHRiMFMvRXdJMXJ4V1pRakd3Ny9NQnAvVnZSTUt3UkJDdWQxaS9ScFlSaDlyVVR3cWZ6MjM2VHdKMHRoN210SHd3N2VJaWMxa00wUzIvZHpsUGt3YlFySktGcXVzeGxWVTZIRzFXQ0dEY2N5ZGxIaTViN2JzUE5vNG1aZjF6VWN4L3A5N2NFMEhxMmVSUmlhaHVrUDJzUGp0NzVHYWdQejlZSFE5Ry9makcrNlJsaXYxdU1ETWZpR2s2YjErbEJVRFpxRC92eXdQeUVVSlRQUWowWW93TDhyNEZtWkJwUmdIVE03QS8wY2RuQU1LL1dJRWZpeDV2cld2aHJmZmVlOTBkeHVBNDMxQm5KaEErZTdaRm9OeGZDaW5rN0gzQWZoMWNQN3ptZzJhejVzaHpwc2JhOE9lM2dKSFY2KzMwVFd2a21tVGdkRjhYQm12aE9pRDdQUXZKaXhaZEdYTXZnZmRrWWxtSGF1dEd2S3ZzNkJ1bUp2TU92bHloN2MxUDNRZTYxbEFScmt2TVRqSEhaNjlkYzVNdWNGQjVCdjFybUpoWHp4OFpXQnl0eXZxd1RBc05OdmpxV2VDb0M4cUwrOFJQTE1GVmJ4LzVxWW5zTU9XYjFzSmlQK01HS1V6ZnhtYWp5UWIxQ0QvQjNFNk5XSmthZFNHb1BLY2lvWDR6VENaTmdoTWN4clBzNnlKOE1PeXJQVVh4WDVsclpxQ1BKV05TZ0hVOGVOUDdSTWl0V0x3UEhzTHkvQ2d1Rm00OVV2STNyTmllTjZoV2dCRGs1VjB6clU1MkgxMTk5MmlseGpKek1XU1FIU2Y2TzFwOUY2dEZwc0JIcjh5MGFZdFRhMk5YVmpXT1hDaGwrL2ZpVEZpRktMWDl0U25PMDlmNk5mcTdIQWorYnRsQ2dhL0d5bFJYYnpxbEptSDNnWHpDM1RvNEwxZXFXMXN3WStRcEhMa2pzckhYYXUwcTN0WEoySzg4NEM1U3VqNjlGTlIrTG9sOFhMZXRWS29Ydlppd2l5NzNYdVplOUU0Z1Q4UXg3Ky9TYXlXSnlsMFkrNWRtTHBGeTJKckxrTGdCdjlpY0N3Vy9JMVBzVjdyVk5MaDNjTzJ0NkZVVnJVWGlDL0Y2Q2pSUjh2ZFFoQTRsbHo2QnkwbVk5TXRPdWo5ZUNuTDduT0NzT3YxMThVcHJScEc0dC9zd2F2WFlYTGVzcDdUUnB5OEo2SER2K3ZlOWZOdldDVTdTM2gzdlBWQkhUNUMwaC9nYUZ3WUhhSDNTalN1ai8rM3dBQUFQLy9NNzR5Q2dmRkFBQT0=
+  kind: Secret
+  metadata:
+    creationTimestamp: "2026-09-07T19:03:16Z"
+    labels:
+      modifiedAt: "1788807853"
+      name: backend
+      owner: helm
+      status: deployed
+      version: "1"
+    name: sh.helm.release.v1.backend.v1
+    namespace: dev
+    resourceVersion: "5070"
+    uid: afae6d58-72d8-48f8-a74d-bf66ad6fb409
+  type: helm.sh/release.v1
+- apiVersion: v1
+  data:
+    release: SDRzSUFBQUFBQUFDLyt4OStYT2pTSnJvdjZMUTI0aWRqV2U3QUZrcW80MytRV0NCa0NWc0laRWNVeE1ka0dCQVNvNFc2RUM5L2IrL3lBUWtkUG5xbXRtWnQrdnVxcklneWZ5dS9LNzhQdlI3TTdKQ3Q5bHRKbkdhZVVzM2JkNDBnK2cxYm5aL2I3NEd5elQ3MVhFVEZPZXUwK3cyR1lycDNGTHNMZlY5Um5lNkZOTnRNM2YzbllmMmQrYVdhblVwcW5uVFJOYW5IM0hjRkM2REpBdmlxTmx0U2xHYVdRZzFZQndteU0zYzVrMHp6YXhzbFRhN3pmMjhOODBvemx4OGliNXJpRzdXeUh5MzhWSmdNSjJNR2pDT0loZmlHUnVPbTFrQlNycy9va2FqUWY3cWJ6TjNHVm1vUHVvdmN1eTRML0V5KzQ5aW9MdE40bVhXa0o4Zis3KytQQ3V6WC83dEw0dVY3Y0lNTlR3M2E5emVZcXFsaVFYZGh1T3VHN2R4WTU3R1VXSmwvaTgvbXIvZnBZa0w3L0FNNlYrcHY5MUY1ZHgvL0dnMlVuZTVEcUNiTmlwNjM5ckx3TEhRTFl6WDd2SVdMc1BiNnM1djZEL09ZSkZlVGlEQmM2ZnZ3aE5rYmtoQUtVaDVaem5PMGsxVGwxd3JQL3p4bzFtdUIvMjQ4YU5aSTZlMXRnSmsyY2h0V0ZtMzhXOGxKTjEvMjVQblIvTkg5Q05pTHZJaXNkSjBFeStkTGg3U2FEVHEwS2N1WEY0ZzUwZG9jNGFqWTJYVzNjdnpkQ1lxL2Vtdkw3M3BWSHRXSGpITi82dGhXNm5idVcvYzNqb3VqQjBYUTlLNmF6eGFtWVh2TkxEQUwwTUxTMExCL3R2OXZXNmpnT0ZYQXNPdmNCbis2cmpyY3BDYVlrRUszZTRlNGxMSzd1OGFzN2lTcjhZcURTS3ZnWmw0K3hvdk45WTVMZXIzenFpUnJ1RzNEMUdrZmQ5aXV2aXZnNnpQZkRjNmhxTkFNQ0VVOUJzb2hoYnk0elJyM0twN0pCcTN6aFdzZjBUdHV3YnZ1M0RSU0dLblVValRKY1ltc1hOQktsSGpSOU5La2pzOGNobTVtWnZlQmZFM1BPaVhOL0M2T1g4a3dFb2lndTR2ZTdvVEFlemNOVURnYmhvbzlzNmd3dGYrc1JBMWJsOHhETTAvYnByUXQ1WVpWcW1obTFsWVVQSHZwZUo5WTUzbVRYUHRMdE5DTWRKMzFOMjV1cXh0TktjUzU5ZDQyZURJckEwZXo5cmdsWEh6cHJsd2M3d1AwMmIzcjgyak5hb0htemRud0RUL2R0TU1yU0RLckNCeWwvalJQZHppS3Myc2Rkem9SZGtxY3RQbUgzKzdhVnBKQVBZQXI1a212cEljcnREdDVrMHp5eFA4dUpVa0tJQmt6MkVLb1JndW10MW9oZEJOTTNQREJGbEV2eCtXMjEvOEpqL1ArdE83Ykp1Vm9EZTd6ZkgwM2xNWVFFa0RKVGFuM01SdXlaVFpHaUtWRnNhU0tLL3RzSTJNbHBMWXpMMW5pb0F5TkpUQ1hmekVCejFQR21UZlIxTXVNUU1Pd1dsdkJVSWhkVFN3RzBVeWdwR1pHSXk2Y2dab1kwNTd3U3hrRnliZzFqQ2FCTktBWnNuenZkaVRlRTV3QndxQ1lkdTNlVzV1TSsyVnFjbVVwYkVyaWZlZmJVWkJxc2ptRHIvb2tHZEVjQS9KWis1NVJpbUNUbk12S3Bxd1E5NWZPdG9RdzVwS29vTWN2cGVOdExadmEyQUhSV0Z1VHJudmJ0NWJxU0ZJVFUzWW1kUDJzNkhSQ0xZNDMyQlU3MVdudkpIMjRGbVJ2TFlqem5kRWo1V2lkQVZiSERMeTlzWnVEU2xJcHh0OTJsN3RZUnBRZ1RTb2NBVTdUQTlKUkN1RDJkS21xSHBTeEsxaFM0bGdDSFpRMjZ6TUNLUzJpR0ZTQTRtL3gyc21GM0dpME9SbE9vbXRGZ2d3TFd5ZWkweDk0dG1ZaHZyWUcwM3BWUjEydDVWNkl6UkV0Z2g4eUtpcldTaGtwaTV2REUxR21OWVNUNjhsTWRuWlRIdGo2RXI4TWgxK0g0V0lNalY2cCswNFp4VEpsS0VyTk16YnZpa3F1YW5MTzFPWDdiRkFyUXhOV1JENFcxVHdOQ0g4UWdianJ5VitlQ0lyQW9ObHc5Q0dxVG5sZk9jeDlvYjk5b3ZTQjY5VDBPdFV2NnQ5ZGdwNDZVbmllMTVOaHBBOWtKRWtvbEFTd1ZiaTI1cWhiV2xUSDY4Z0EzSW5SSE56MnFaY25VTVNQM3kwQjJEbmlDQ2ZndDZwTEEzdDZLb3MxWjlMbmoweS9nUUh0THVFQjZhdnBiWG45Z0Fzc0N4RGtkMDVvb1BwdExYNWR1aG8yOVRHTko5SzNpamcyTmRwK3oxWlc4R1dPUitGY3Vyb01tWHEwc29XMmJtaGJUb0ZMMDNmSGdBRTgvYk8xSWVNcGNsb0ZKRzlnNTg5MEU1UTFvYzlPdkhNYUxpMnAxekwwcFhZMHU0OVIvU1JKTzdYS1BiUGdNT3k2STAwN3grSmx6Y0NsWnp1Y2R0VXRJY3RJUjFGQU9OSzVMcVUyUVhaVDNWWk9JWnZZZWlLYjRRWURvNTlKYkxaSTdSeFcya21pV0JsOHVUNjB6aDRROGNOT0IrMjVKYmRHaTZldlpnOGY3cnZJQVBtTUFTVXhGT1pmYlMzQ0h4VFU5c2lRNWZSYUhHa2I5aFhvbk80eE1iMDBCUXN1OGM0aHladGk5c0M1NkMzdXI1WEZkOFIreXUxejg1QTM1a3FRSDVWKzhKTXBaMFhkYUd3VXNBOVNPSVE3MzFHSm5wUFFRYkRMa3lNZTM3dkthSkFHUnE1ai9rZDJxMWhadWhFcHhjeXdWUDFNWjB2MEQyVGhBUC9ub05DMXg3c3diRWVkSFM1MktPYWVwRG4rV1IxS3MrT0xpZDJDTDFDTjlJWTdwYWhYK1FUMGM4anpWekR5UEZoT1BtOGpoeklqSkd6bitmWG8wcU5kMUpIbmsxMlkrOGdnMEQwa1IwY2RKQTBBRHRMYTBlbDN0bmcrU1NlamlWeHV6WVlJYlV3amZsZUJxYWZvcDAzMGladjd5c2lPMEtBNVpQb1NpK21Sd0gzYUlsZ2J1WGN4bVltSG13cHZqTUF1NnZ5TDdJTG1IL0ZubTQ4S1JRMmtHOFQyd3pETm5KRXNCdUZhRDFpQ0E3c096cm9pTllqOGRwY2FJVnhzRU1admVpWDlpU0JKK0M5bUJrRm5HWnBvSVhwYnJiR0hiN2dSODEzSU5lL1ltTlRpUi82Y05CYkVmcnB3NVdwSzVnZmlaMnpaQzRDMnh2K3diR3UzVjZiSzdHeHZkYmFjM05HWCtRQmdTZm9aYVlYUHpWdm1tSHNaQUh4Qk9zcGhWYVhibmNaOW81dWRSNlk3NTAyWFdZVi9yaTU0RGorNnJzb2NaZnBYWmFnZysvb3R0TDFrNWNJN29EejdYQlMycHVDM2paalZQWW5OdlFoTmZMaTMwWXRtdVVqWXU4WHBtWW1kdmdHRGZTanNiNmpiU21KYno5YW9wQTdmSWxuVFVlUjUxU1dNZlZoYnVHOU85aDR6bUJJMitIWWsrZGo3NVhuS0JpaVRHMkIwQXpSdmNSTG1ZVHBQRW0rdXpubG1WcDdVZXdQL1BuaE4zNGg1NlltVU5nSGtFUUZtYUZBMndOc1kwRnFEeFllMUlGdml5aTBOTENRaUZ4eWhNY2Z4ZlBZRjZUM2NGaWFVZC9MQnh0OGhGczFmMDFQMUhUVHJHVWlHQTBUTEdNRTd3aXNqTHpIakhQdVFSb291YVhSTTBjelEwdjNQQ21nZ3NOOHBSOTJtSDlSOEtQWGVma3lIL1p6NHpnQjYwTWNRNnhndnAvN292eFcrSjNmK3l4ZnQ2V2RLajdEd1RDeEl5V1VlQW5CbkVJd2w4NzM5Ujd2Z2w2TzFwNUxqOGF1WER1eGdVeWJvWm00ZkM4WVRTVml3NDU5amhPWnFtZ2JGdjRiK1p6SFQ1UFdFQm02c3Q4ajFkNHh5SE9ZaHpLSnV3eDlqRzBoTW5rdWNLY2NaWW1xWnpDK2ovMUJXeFFDVTl1cytDQmVIK0RBOG9wV0YvVHB2T0RiMGY3YXdCQ3RITkh3cEFEc1JsT3d3L3AyVXN4ZjBXUC9HWVFnaHd4YTI5am5HQXdSRkxkRVAwcEJHa2o4OEpYNElsK2lXZnhVNnBOSG02RXpqSGVCMjNiM1FkeXd6NDdzd2JqYVQ3R3BiYk5SSk1janBxQnY0WmU4WmQ5TFBwVDJCdFBuTFgwTkdTeWJNbVczaHVQRDJ2YzEzRkJZMnlzY0hIQ2FxUTkzSkI3QjgxK3pqYTA5N3l0ZjdNb2NHNnlIMW82b1hwTEJhL1lqTTdTMmJ6SmdNZEtHN2NwWHErMnpXUlZ6dkNXNzZoNTM2Yk44MmhIYjNGTFdjTEgxalJDa1pBL3FiOUNqOEJVNjc4WFhSL2J6T3Y0MSt4bGZ0dXZURDlrRnNnOUxQYkUyZytMeklWN0Zmb084ZHJRMmpqdlcyUDh6SngrekRmczVWR0Z1TUN4dFI4cHo2UWRsSjdKMUhpZnZuNW1zakVxL0RDN1pVdi9EZnU3VHhkd080Q3I4UmpWZnZwVEJGREwxendmN0tZWDczNFAzNExldjhlSlVKcjFmZnZtSW44TlNWSXYrL3BhZkErUG9OZkJDSzduTHJiRG02Umc2bCt3MTN6ejJuSG4veVdMUXlueU12UW5EcnN3UVJUTk4yUEFoalJ4UklCRVM4ZlRGajBudWhjeFFabW50eE9IcG5kRWFKbkF3ZVpKNHJ0SndaZFRHbFI3RFZlODVQZEpLUExleXRQYkN4Qkw1V0ZET3hGSGZESHY5V0NzaWFxUXB3U2lTdC9aajdMMlNqRXJQRzAwcDcyQ3BoSVVwSXBKUndWRzl1WThhd1U0U3pUVU11SVdsbWFHcEQ1RWRUVERIR0VzZnJ1MlFSbmFrN0VxNEg5VUY0RUJmOVpTK29FN1VJYWRTcW1jUWowVklkU3hWSWNoMVJzN3RXVW9pRXFrdlR4VlZVSlVwMTU4QWhac3NoSmt5NVFJWW9vV2hiVjhOaG5nY3IwWnJtT2t0QmNIVzVQdW4xd0xzQm9iczRubFRSRUU0MnBmNis5MU9Zd2t0Y1NUam5ES3pkTG9PQUxLZ0JnZllTTVFXY1BvVUtKSWtjSnhLeS9xTUh2WWwzdG1QZ2FLd2d6bXNZQjZvQytFWjhCdzM2Mjg4VlJnT3dRS05GZFVSMUp4N21RWHYwMEFTbEJkSkpCNllid3NzZ2YxNVUvQlRvWWZjREUyOGlib2RTd0kzblFKek9PdURnUUxHM295Ni93aWRGcVp1ZUtEL2NMamZ3dEcvOU5QZ0wzbjRkMTZEeTNIMGUzRU43eUQ3U212b1kxbUdqQnliR3UxTEF3N0JrRTVnQzF2bzlrN2kvZHpVQmRyU2g5aERDN0ZGVkt0OUNHUmx4dmUyOGpSTlNyaWhrVitHNXhKZW1COHFKVXVLU25QU2dLT05jSnNZT2FmTzhoUDVtbGY3eEpsTzFMWmEyeStZRnJNSjVRc3p0ZS9CQVFoc0VjMnZ5RWN4aDdDZDErN05iZXlOSUhZT1EvclZGQUh6cndBbjloeWMzZ1Y1NzdQUGtpQS9UdnRBbmt5NWphTU5VMHNiZjBUTzl2djdNN2kreC9OU0JrOW9Jb3huL0tmb2NZd25QUlFtUUJFK2hhc1hmOHlDZHRyc1cvYXpLRE1JM1NoN3g0QWFPcmVCT2N1TUo4a1NHNlhuZ091Yk9wZmFMWlJoQS9VVERlbmZ4WENTWTZFZE1adzVodHZTWkIvdTR0TlUzUDdlcEhCcEtuaDJ6bURvT3lLSTNGa3B6QU9sRFVXMUl3bERWTGx0R05aRGlDRlZzR2VHcnN5dGZ1azY3eXBqVmFXOXZ4Q3VIT0ZuVkRCU3BrWnZiRkdnekFwRzhZUW5aTjFUMnY1TVdMeDllbGdheUJ0VHE2MVJIQnVSbzQ2VFZQVkNaY0RjMFllSk0wQ1BOdE9tVE4ybjlzZEV4VnpJYUlIYzBwVTJkdDRjRWR3N2p3YzZWdkxoaUt4cGFIVDZKbHpueHczVkhQdFVCdzdYRHZUcVpRZFpQcUpKZmYzRTFvUUloeWRTZEp5S3R6VGFOeGwxQlVPQVhmYkVFZG5jeFM3eUxEbE9HNGNvTXpRSGpTTEZOM09PZloxSzUvTUREcnY1RTV2WkprWnJjWmIyMzY4MUFLa3RjR3VzZ054cEhjYzMrUEFlRDNnaTIyZGphblE2MEhhZ3JEVk55R3krUjBKZUc0ZVZJbGc1Zkc4NzVpL0NzdzhOYWpnWFI3aTdPcDgvd2dzczkvTGFqaFRmMHRvSUluSU0xeW5UL3NmakJseHV0NVMxd2JEcGM4Q3BFN3BYWHgvWmtYRzBSMFpUcmpvdW1jeG9XVlhvb2FEU2JIOXlRZ09uNEtrSVF6WTdwUS9XSmFZbTU2YXVqRXdkVFUzdGVJM3FEd21sWmw4NHlwekVaM05KWW9iY1dlelZqNk9Vdm5TWnJnTDNvdExLUUYyQW1VNkRtUUpPYVZib1NpVWFydTFaL0hTNlZuWDBObVZBV3cxQmVJNS83MC9haGxOYWNVdFRYN3dIOXhYOERzNzlNUTg0aHV3TDFjeHRoanJuRDlGSFErVDBNK1NDSVRMbjhTVzRha2Rybnp1aXVpUVBGZ1BhSjNJM21RQjVCaWgycXZUcU5LYjJzcVAySGVKVVg4UnRGbnVqbHVuRGdFMHRUVm9meXhWTGJNYW94VVVrWUR6ZnI0a1oxSFhYTm5GQ3NESjFlYWNPaG1zalZGZW0xdmFOY0l2TTAvMHVubzA5b1craHkyMkdUaHorelRVOEtRUXJjdXl2VFFLU3RxejAvOWQxenFXVVBnNG9GMFNYdE9RSkRObkFuTGFSSFFxQkxZTEZtWTRNZ1crSzZQUDRSVU5rYUVwaVk5bW5zWk01eExKeVdLZEkwNVo2bFh1UXhIWmlod29KMnNlejNrVTg5dW1YWS9oMmRndmtCZ04yNytudU9teVFZV2tZeWdqbTc2N04yTXlXdGpVZzJ5Mndjazc4akpvT0pUSjJRcHVNUENPUWNwNk94TE9Nb1V2WWpnV2oxcEZ1V0g5SUxrLzBDVW5RQ1BJY2htampuTXBFYmQrY0ozTHF1b3NtS1RSVkZDanJNZlpHRExZZkdZSUJTWmprcnM2dExhMU5qVFMwc25SbFlRVHR4Ym1mZGVaN1ZEUzc3SGVJcEp6Z1BUbmRrRFN6TGxPbTFwNi9LYU1pOGV0M0R0NGZncm0yQnlBelZUazFOSFJtcnd4bTYxc2EvZnhWWFRiU0xzTitPT2FwNndhUXdZSFNWa1NVNDdVK3NtY3ZwbGFQYlNSSmxLbU1uRnM2ZCtMVGZJVG54QzhNTGMyUkRiMTN1cGRYWDZjTGxvOUpCa3U0VHZ6a3kzZ09uTVFSdlRyUGk5SzJXbXEvL2d3cFB3TXlza1V3eDM3bkVXK0xkU2liUnI2dGJiRHZjTFN2bjQvbDg3SSt1ZUpMR3BvWkVub09Ga2Z3MUs2Znh4N1hmY2I3QzJ0K2xENlV6V3dSREFXUytJUDVFVTdIOTNZL0xaNjRmb1JQdWdMdTJidUg3MjJXZW1BZTNreHRKMnQ0RXBOZmx2WERYamFZVTd1YitGQkUrK09uNTRDcngrK1RtcjZnUU1pbWprYWpDZG52MUpPdEFjb285aTdoMVpmOTBTbTkxL1BWc1ZNbGgrL0ZuTlg0WXM4Y3lVU3hqNk5EakdsbzhoemIzSmxHU2k0citjck9TNk9PNlhYMFhLV1BMdHNTY3NRSFd3cXlReG1OSWhJTCt5WURIbTJTREs2ZVBibE8xWHpkTitDQUxXVU5ReUVpZWxpWGQ1WE1uOW1MUWMwV1Z6S0xyK2tBd1paU3N4L2NEdTk1SEZOZUtPODZ4U1Z4US9YaUVlOEhra3pmYWVvN3hiVGVrdVdpK2VFVFp6UnFHVWI4czZlVlNMWDBMUFptTGM3SExPQWptWUpZVEtuRDFqa0p1ejVUcmZjZ0RRVGFicFVuZ2lkemtYT0xlZnlKS3MzajAyZUp2eEpPUEw0MzU2RUM4M1RPRDU3c2ZhZS8zOU5VKzIyUklkMURuNU9aNGtSeWttU21ydmkxczdJL0ZZcjlQZFZXSlQvWHE0aEptckhpVnowbGtwRVVTRFE1bDZkREJUWVpmekNmSEdYb3c4alVsUW0rL2h4d1IvaVhZell3WkNtYmtkZjJZK3lCdmp3cHIxYzB2UFRNM2gwbGxUQzgvNm51Z3FjclkrM0RtSU81RmR0clV3UVYvQ2RxN1oxbnoxd0g3bERaVUlYd3BlcS9LaVBSd1oyYXZjZm5qK1hvdnpQM0hmcmhvZG9MZjd0cHJpMjBjdE5tOS9lbTlmb2FSRUdXTjd1Ly8zSFRmRjBoaFBmSjg5cGRMZ01IVDltOGFRYWg1Ymw0Y0xKQzZDVkdBY3liM2FiMEtzZlp5OUpOM1NocjNqU1hiaEtuUVJZdjgrUCt4OHp5U0xQS3JZV1NJSEpKZTBxd2RpTTNUVitXc1UzbWRTUExScTdUN0diTGxYdlRkTGN1eEpkaEhJWlc1RFM3ZjIxK3M0UG9XK28zYjVxM3NIblRUTHhmZzNUcFdrNWViN1ZxL2cyallBVm90WFJuL3RKTi9SZzV6VzducG9sUkRDejA2Q0lybjdvd2pweTAyVzFSTjgzRVhRYXhzNzlFVXpkTlRNcDRsZTJ2dGYrNGFaN1RKSW9kZCtvaUYyYnhzcUJkNGk3VElNM2NDQktjTEFqZE5CM0g1QUhGdFJ4dEdXVHVNNzU3YzRwd0d1endxTFlZa0FiTmVHbDVMbytzTk1WcjRha0ppS3Rsa09WOEhHWHVsclEvdmFiaU1sNGx6UzdMc21UUXZndXArL3VoRGFucWlUcnVQbXNXTkptUzVxY0tqS3E1OEppQnE3SXZyMzcxRDh4dnl3bitDYmpZL2pBVGx5NXBrdUxqVlpRMXV6UytrTWFySlN3MkFnckNJQ08vd1dTRm1VRlJJZDViYmxpSWRKdG14a0dCK0c4ck42MFBaZHJIUTVsMkJ3Lzk0NmFabm5QTlFpamV2Q3lEZFlCY3orMm4wRUpGMzFiMzFVS3BlOU9FVm1MWkFRcXlvQURNV2NZSkpsNXZOQ0trd1FSN2psQ3V4SEVtQk1oTjh6Unp3LzNqeTFYVVMrVTR3cmNyVnBCcmF1b3VLMWtwVFI5cG5DdjdhZkYrdUc4eFdJN3doemI1dld3dnEvcDVNZnBaak53bGdUaHRkditLQVVxaDc0WlcxVzlXZkRxb0pJcWk2RnZ5LzR5aXV1Ui9zM25UZk1XUTExdlM3bndYaFlFWHhVdjNZSXlsbkpzWXVrSmhCd1BtSEdYblhHSXk3VFVNVmM5aFNEbDk0R2dvSmZtd25Oc1ltcnpFL2lqTTc1K2tuRk10RWUya2dVeERZc2dVL0h0c2F0dFVFcDNVWmlUUDFnVEtZUHpFRG1HS2ZWeGJGQ2hMTjVFMElQbWg0L3Vpc0RKNzhWd1MyOGhraEtxRmFBTkRFRnE2aitPaE1rN3RKNk9BZTdIRGJWc1MyWlU1NVRZVkRxUlFJT0JTUzJ1amtSZXZGRUYrVllsZnJtSjQ5MldPWUNIUEpGRkpZRFIrR29WTzR2QVB4YjhpaXV5UXpjMUp2REtpSkI5dGluOHR6Vm5aclNIaWczWnM1bmlzSDlXdTdaendmczBIWTIvQ3NKbU40UmFIdnNGa05PUzUwTksyQ0c3aTMwYVIzSUs5K0xkUk9QUXQ4bG5KaXM5c2Jtbnc2U2tpTk5VTWZaallMYkNUK3FpdjZPT25VY1RsTnBNZ296VjVHb1ZvWVdyOU5SL0VLMGVrc2FIL2pRL2FER1RrdFNtcUJBWkZaT2M0RHJRajdNQ1NzbEZTS203cXZtL3JYR3JxNHlkMUFUaWxUd3Vqa0Y3d1NBQlRWUjZOZ0t4T3dGQWwxeGEwYnpHQXdNNkhKUzZETVZtWE9BMGZQTHltdm4rbnZsK0lrZDJ0RlNiSVRiL1pGbHk0a1hONzZHNC9jUmVsbkJOY0VXUlEzSzRsa1JUdXJ1M1FUTXdXeUEzNEhHMDY4cG8wRklWOXoyQlkwdmhoNkpKbjUxeUFwWlZrUEFTWkZOeWFPY2ZiREV0Sm9yQ1doTDNMTjFQVkRhYThnS01wU1JSeXFJUEVDUjg4VzJQSnFURlpVM3NvNWc5UjVPaERId2FjRDNPT3dkemFkQVRHMU5DdWdFL0lqQkJoNmlQczZ1QnJHSGFYY0dUaW1lS0RaNFRDM0dJQWx2YW5uM1pLWDVVbzhIUlJsaEhRY3hoUzJXR3RaQWRGTUNmUERCU0VKY0hRRlZTNXhJZlQ5U3ByeUs0Y1VVaHNERnZ0ZWkzN3U2ZHZQUk5Vbm1CMkpOR2hTWk5MeVBwMnBOQjJDSFlqNWgwWUh4TUNFMnhOM2p6RmszTHVCWTVMM2ovMk81SUFwak9TNWFNM3RnZ29ZOG90Q3Y2MzUzYk9MY3dwdHpBMFpRMDNWMDVaYUc0NlZkc0RuVkk0MEJkbU14cE1KeFI0QldBNHZuYnlZb1ZLWU95U0k5ZnlPWGc0T1lXaEY2WnVaRlhweDBnclNycEdtcHpiVS9xMGFRZzVSSk9NU1ZpQ1pSRUc3ZFJtWk45K2pHbjVjWnp2NlhlMVJLajRjNTFXVWtmcXkydGI1OVoyQ0ZhT0NIYWttVllVY2tLZnZCZmJtcERBbkF0dEVkeHZPalJqYXB2a1N2YS9QMEdzaE1QUGF6VDZ1OURpeWttWjBoOFdqYTY5U3llNWFrZmlKVUpEeWJ2Ky9Hd2h5TXJreXZQaWwyai9DRU93TUxYMjNDcm9XcFBMWHV6b3NtK0h5bG9TSC9icEVrbVVjMHNUOExpTnFXM1hVdDlIdGtoZDQ4Rk1GWWJEMmNKNUpTV0VRSDRCWVBpb0FCYW9GSmhleCtmbm5HeC9sYjhmUEIwbE9Id1M3eXNucXY5U2VGL0c0UWlmOGI0RUd0dWlUZWYxTWRQQVRoS0ZoYVdSRWtuZjBzZkUxcWd0THJlMGRqU2kvTVFJUVc2SEFtVk8zdE9EeVdRQ1dHbXFEZ1YxMGVaQUg3d3FmV1dzVXdJQS9ZZUwxUVRQQVVkRGNzcWxYam0xbHlmcUFqMHJOUHVrOW9WWGxmSmZBTTBXdHZmaWZMM0FHUXhwY3lwOWFMNURDUzE0VmZ0YkR2VE5GM1ZCWFlOMURVTzRza1JFR2hXd3pSbUZTbUtRVk1Ka2RWUksydDlmZitJREtodE40cm5VQi9kRnBkYURaNG9xc2RtMmlPWmxnKy9LTFU1NE40YU9mWWNqZXorWGVMLzBNMGlGQzlwOFQvQmVad3h0NFpIVXcyQ0lmWVkxMGRQWXo2Rm9IL0xjMnBseUt6dm5mQmdKdEtXYlYzMmhwMGs4eDE0Z0xQbis3T0UxZTBYWnVDNnZIWDA0SjlWbGVia3Y5R0g2SFBRV0xyMm5KNms0VUNrV3FBdFowR2t3blEybzJ2aDlNMnhINHBYdjEyMm5UR1JucGdJV3cxTlc2eHdhdjk5YzgxRFY4VG9wNEpkNGJnRkR4Smk2bEJuTTFvZXRjVmJKcmQwYVJxY254Y3BnbU9COVdLek4vUVpKS3JlRVE2enRoUm90OEJxbXVNa01IVkQyTHZhR2cyeXZaNmFJNDNUS0gwNFdSSytxQ21EN1NuLzdPZ0ZBbmUyU1V2YnJ1TXF4M1lKWjRSY2M0WG9xL3gwekZGTEkxSjRWRHczRW84SlBJdzNrbCthNUl2Y2RRcE93aHVlMHZiQTBnWnd5amxEZDk5MzJxK3MxV3VQSVltUHFROG9xVHJUbmh4UGVhN1REOTh3MURHbmZFVmpNZzA3UmxLYWVqRWtXUmpnKzhPSlFWYkkyNWlmemxTZTBOdE4rTmFxcXdRRWdOaGlHb0lodTVqRnBUalEvZHRMUjZkeFQxRnNCeVNFUXVjM2NORHVQUmlZMk0vRWNFcEd3K2FZajVKYjI0QkVQYXNwUnBsNUVIOGFVbkRramQveU1QZEM1elZBNElqbDZEUUttQU5CbEpJbGc1NGdxYWZtdUlobHNyYkMzQVFOdVowNjUwMmpGdyt0c09uM1AwR1FFV3krUFM5MUU5b1ZvNGlpNUxyS0w2NGN4aDkwejJudmdYTDBkdTRNMWpoTVFyMFkyZFRtejg2UDdKNUZOTGRxbzEvSkZSZEs4WnNrUEZqS241N2FJSTZmUyt4ZUxlc3FqTWJ0NEswOXAzeDV3aVIyV2xvWkVaelNPY1R1U2tFYVEyU0pUNzBVanZoZU5kOFptekR0T21lU3VSeEwxZXJMQnRNL09EcDdqbi9kZ0w2MXg3SjBlMXBEbXBLNHh1UFFNMGFKZS9HNU4yM3MxZXovWGMzbXZYdStvZnUyQ04vUFBqTWRaUGVFUlAycU5Pay92ZXBidjFSaGVyb1BOY0VReDBpNUh5a2Q0bjNpNEZ6ekpvcTUxZ0hGWGZCZ3BoN3JqZmhzUjYrakYyV2hLVmJreDBqS0o5UmZXTCthMGVGVUY5bkNjUWtkaHJZMDE5SFlVNE1nR1lmMjB4dkNiajVYbXJyL1dRZGhBY2R1V2VEbzhlYTFWUnViajIyMURvOU55em53VWNBSnNjUWlHUW82OUpxSVBSVE14R0NFbmRiNU1HMXZsODNVR2ptL3A1UFVqb2QyU1dKS2xLUnZtWG5SU2s5Y21NUEpzWGRjUVhTM3g5SXJvTmEvd21zYjV2UWNJcmhnR0RET1lPeUppTUMvTUFuL3Y1SFVkeUJYQlhPTHB4T0c1Ni9NSHZXdzA1VFltelNhd1ZjQlU0azFoV21KYlliU0l2dmR4NUVlOGhzcnFpaGx0RURpdzN2ZVJrZmN5cTNoRlNDa0w0NUtldmN3T09OSW9OcHBTSGh3UUdTRjR5ZE43YnlhaUVxK2hiNGZ5R3RZekk1Zm9LbUl2ZCt5Tk5FUmRzQS9lU0NPdkoyTkkwOTcrRlVkalQwTGJWQ3JwS1FmM1JhU2k3ZTBpYlUvM21SbEVzazRQejVrWm9ybjkwMkNZdk5WRTl5UnQ0cm4wQ0ZkU1gwRWtXMVJrQzR2WHN1aWdpTWpKNjlIb3hBNkYvQ0lmUkpDYXBNMFh5eFgzbGx4OXlDdjVUdFAzOS9mbmJrbHhqbmpydU92YktMNDlyeWVTY3E1dll0c3ZzaHRiQXl1SDJEZ3pnU0c3S2orVG5MbmRBaFRKamRkcVJ2Yit4MENKY2JSb2FZYm5haXc5YkEyUkpQcStVMlJNSjJBeDlneHlNRW8rSjdBbDA2WStmdUlqOGlvQ3ZEOGZTYzNuWSt5TkovSFRrWTRpUFI3Y29TQmlGci9ORzc1bytqelg4Mk55ZUc3bzhzNWgyQno3TS9WNy9PSGcrT2hRdm5aSS9WUjRrdVZyNURDc3V4N3BKOEIwVVB0Z3FsSm9CdnJnZVVLcG50SkhzNGs2SENzcTFpdGNIOE12RFp6RUZqZWVFYXFlVFY0ZHhMVXNFYXhLR1NEWkhWUGJJa2NFQzJtU0hOZHlGa1VNKzNyTzU0QUxEVzI3dzE3cldUMnZ1RTFzRFIzNkprUjU0OHdJdkJ1N2pOeHREV1IyYTloK0RucTVQRE5scTZvck9xa2hNbG9jL1J6MHR1TkhybXAyekV5TlhzTm8wWkVlKy9sem4wNCtlc2pkYWpIMGZmc3RHZjI4Y0JJQmdDRmEvSDhsVUNmRldRVlQ5NFh1aDdDSTUzYVduaURNUklWWkZQZ2ZGWVp4cWFYUnlhRUFtNXZEZ2RxUkhzZWJzVWp0RzhSc2pjMWRMQ0J6bFpscGk3SkJUcUN4SWpvVG90bEZJZHFPNXo0V29nOFZpN1ZZbG0xMXJncENzb3lkQzJGVHZYOGJVOE1KRVRicDVGQkRFZzl2cjRFYnNpV0toSXBhdk8wQVE4aDdKOGwyUXRWRG9Qd2N2TmZ2K1hGSm1GQStOMXM0Z2s3UmdrNmhaNTNtcGpOS0FSTmFHYzZvKzZ2U01hbVMxUXMwd2ZDK293SW9HSUd5NVJCMVRNSkJia0MyY3BuZ2d3emVHZEwrcld6R2xDTmhsYVdaaVpFZnlnTW5SVUxFTTBPMmRKVVV1blMxTVBmblp5V051OWlUUXRPSHJVa0dXL0pDOGo2aGhtYTl5OUtuT2lSSkRVT3dkVFN3TzVkYTllSno4cXlmWTZrbGFuZ3dYSnNENG5LUlkwc3pORW5wdHp2bGNrZmJJbkpBMGVLcWR5RWsrSm5qa3VSeDBYYkdLSndkS2NuazdONisxREtCSVZnb0EwQ1NaQ3JwTTFkb0c1czRxandDMXBTK293OFRPM1FFN09JNSs3ZjNqUStKMDZKK2FIWlVnM1NVN0tCOVI1UmpSU2ZIMkRzU2xrZG55WStzYXU4eWRHNHpDb21ia2RzaG9JcVd3SWMxa2RsSkxRbFRoQzlyS0lMYzBNbTYzbFM3UDB1ZWxLSEpjUUpudithSFFvekRjd05sRFVVMnRSbW5QUzFDalF0dmpmR3hpMFpDKzQrYWxmdE9tNzEwUkZ4cWt6U3p2Q0R5emhYS3pCR0ZDRFB2SDZ0TTlybVJMNWdWK1JYSFlTYURWaWI5a0k4ZkpZcjNrbjJoWUhreVcvUWs5NnZYZVE2SGFnK2J3S05hWTdLeDluWGlqL3NNR0k0NUV6ZkVtdzFnUmZMaFRTMWZOZ3YwZURaOHo3Zkk1ZGtsMzBLaTVjWEhmWXQycTkyNWI5VUs2TjcxbU9udkxNc3llN0ZwRnErUklVVjB4M1ZpbDB2QkdERm9mcUdtNjVNVlhKK3BoMnBSRjR1Y0x0VkQwU2REYWVaaFh3OTF2ZTdvck5ib2o1dG1hRVhCcTV0bXpXN3o5dmIyUi9SL0dsTUNZZlVpK1lzdit2NTJzU3I4UjNSNG4zYTNzYVovUklzZ2NycU5LUm55STZwZUprNWU2WDc4SHZxMzNoT1BSeVBMZHFzdlJXajRMZ3J2VXY4YmVVdjVtM0Rla3BlUUYwOWRmbTM2bTQ5ZmU3QjZlZnJKZS9RdmpGeFgxUGpScE5zL210ZUdoVlprZWE1emErZmR4c0JGNFk4SXM2cmJlRTZzMzFidWp5ak5sa0hrUFZhMDIzOXJ3Q09IWjc3NDd2dm0wVUIxMmxmdzBQcjc1MnUzcTI4Zk9CMkMvL3VTVkJ5LzB1bWFZUEJrMU5oS3Zpd2J0MEVVWkxmRkMrYi9SOHJKbm1hRUVJNTlsLzZHdW8zL0tpYTR2VzN3UzlmSzNJYmxPRUVXeEpHRjlxL2RUOGw3OTUzZzlkVmR1bEhXY0tOMXNJeWowSTJ5RWt4ZTZmZG0vY1pqYjliamV0UCsyWGNzL09mSGh2MmF1V24yMGJFNGRQalA4cXNRYXZCai9Vcmd4ZmRYNUhEbWFFSXMzOVZrWkt3bXpRYU5TcXdiLzE3ZXdzcjczMHRRUktVbnp4cTkwYWp4b2toQUd2WEYvclR4TEYrSHJURjdyaS94MVdudzd2eFpVMkhLL3F5NU1HWFA1OW96UWx4YVVkWW9TazhiaWJzTWd4UkxiTnI0QzdaT3dkSjFDSDlxMys5QXQvOXY4UVV0alI4LzRObDZwMkEreTQwcFAraVBlNDFrWmFNQXZvVld5ZlQzSDdtKy9QNWJVZjRiUWNEYysrK0dBWFA5SHdUREYwMUpsZks4WmtSZUttY3ZBekZhaFM2UHJDRDh1a0hCei95UHRDUnA0a0tDN3FHdG9rTC90bkhVWFlFdjdoM1pja2psb3BZZkc0Mnl4NkxiWU1UZ1QzQy8za0YyM2I4a1kvN1h3ZndTdXd0UHM0b0o4Qlh5UldEazNpMzV2ZHZZZjBsVEk3T1ducHU5a0t1bmVDVExPSXRoakxxTkdmOVNYRHBtUWpXd0NreTZEUktZNEl0cDJlalQvWWZROHN2aWVQS3F0V09KdEpJay9YWVF5OGY5MlArVnpDOUpaaGs5cDkwR1RVUWtXMXFaNitVbEtRcTVWWEJzYVdYdUJSa0tyUXo2b3pyMS9nUWxQazZMU2xncUtPcWN4ei9vR0tJL0JkTm5PTFFuSy9sdzNEVlZnNlpzZWVzMldKYXRyc0s0K2tLdC9jRGJLMXNiLzVCbXhub28yZDMzSmxaeXNCLzJzdTkzN0RicTdZNkhZZGRCYlRTdWRYcDFHNlJWcXo2MDN2TjFORWVqNFN6ajVPVFNMWGFFNnBjdXQ0UmRXS2ZlSE5adFpNdlYrVjAxZFpkSDlLMnIzUGZKVytQSHk0bDJMaWM3MThQNHg0M1dGMWFvNVJMcWM1RGNxN0NNd3hQQ0ZPbWVKemRYM05lVFc1OVZiUFdmaFp0ZkFlVU1UaHpxL2ROQWVnek1HYXhWQVBwUEErODVRSHVZUlJ3YW5nSGFiWHhiVzh0dktMQy8xUXdpVm1qZkVxL3lsVXZGVnU4NVBzTEEzZFpVVHlYQ3BHWDFiTnVWL2F1bmwyL2g2WlhMbmEzMVVhY05ydDFHcDM3N1Fxc3I5a2VPTmxLOTY3WGJvSTl1SHZlL2RodnR3ODNqeHQxL1VWSzBmdzRsanNPRVNsTENJRHZWd2pCWllmcFQ0ZkhsSXNYZGJaQmsrTEZHUG9rNGF0UFFWNmNoaWZMRHJUVUpHY2Z4S3Jxb2ZvOEZ2TkVJOGNBWEsvT3ZiNHZ6U1U1U2xKZm1jbUs0Y0plM2JwUXQ4eVFPb296a05SMzd6cW1lS0FBOXQ3L0hTeWFYWXVFakFrRjhSZjU4T1B3dVFyREs1UjR0OTlWTUx2a2kwdHEzaWRMRkN3TElONkdTTDFaZUY5L1ZpZkpmUXpmelk2ZlpiYWFwMWZ6ai93VUFBUC8vS240bWJpQjZBQUE9
+  kind: Secret
+  metadata:
+    creationTimestamp: "2026-09-07T19:02:52Z"
+    labels:
+      modifiedAt: "1788807788"
+      name: postgres
+      owner: helm
+      status: deployed
+      version: "1"
+    name: sh.helm.release.v1.postgres.v1
+    namespace: dev
+    resourceVersion: "5008"
+    uid: f587362d-a1c4-440d-ad5f-21254149e695
+  type: helm.sh/release.v1
+kind: List
+metadata:
+  resourceVersion: ""

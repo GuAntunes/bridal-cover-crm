@@ -22,7 +22,7 @@ help: ## Mostrar comandos disponíveis
 install: ## Instalar ArgoCD no cluster (manifest non-HA)
 	@echo "$(GREEN)Instalando ArgoCD...$(NC)"
 	kubectl create namespace $(ARGOCD_NAMESPACE) --dry-run=client -o yaml | kubectl apply -f -
-	kubectl apply -n $(ARGOCD_NAMESPACE) -f $(ARGOCD_INSTALL_URL)
+	kubectl apply --server-side --force-conflicts -n $(ARGOCD_NAMESPACE) -f $(ARGOCD_INSTALL_URL)
 	@echo "$(YELLOW)Aguardando pods...$(NC)"
 	kubectl wait --for=condition=Ready pods --all -n $(ARGOCD_NAMESPACE) --timeout=300s
 	@echo "$(GREEN)ArgoCD instalado!$(NC)"
@@ -60,3 +60,39 @@ validate: ## Validar YAMLs sem aplicar no cluster
 	kubectl apply --dry-run=client -f applications/
 	kubectl apply --dry-run=client -f bootstrap/
 	@echo "$(GREEN)YAMLs validos$(NC)"
+
+REPO_URL := git@github.com:GuAntunes/bridal-cover-crm.git
+DEPLOY_KEY := $(HOME)/.ssh/argocd_bridal_cover_crm
+
+.PHONY: generate-deploy-key
+generate-deploy-key: ## Gerar par de chaves SSH para Deploy Key do GitHub
+	@test -f $(DEPLOY_KEY) || ssh-keygen -t ed25519 -f $(DEPLOY_KEY) -N "" -C "argocd-deploy-key-bridal-cover-crm"
+	@chmod 600 $(DEPLOY_KEY)
+	@echo "$(GREEN)Chave gerada em $(DEPLOY_KEY)$(NC)"
+	@make show-deploy-key
+
+.PHONY: show-deploy-key
+show-deploy-key: ## Exibir chave publica para adicionar no GitHub
+	@echo "$(YELLOW)Adicione em: https://github.com/GuAntunes/bridal-cover-crm/settings/keys$(NC)"
+	@cat $(DEPLOY_KEY).pub
+
+.PHONY: setup-repo-secret
+setup-repo-secret: generate-deploy-key ## Registrar repo SSH no ArgoCD (Secret no cluster)
+	kubectl create secret generic bridal-cover-crm-repo -n $(ARGOCD_NAMESPACE) \
+		--from-literal=url=$(REPO_URL) \
+		--from-file=sshPrivateKey=$(DEPLOY_KEY) \
+		--dry-run=client -o yaml | kubectl apply -f -
+	kubectl label secret bridal-cover-crm-repo -n $(ARGOCD_NAMESPACE) \
+		argocd.argoproj.io/secret-type=repository --overwrite
+	kubectl rollout restart deployment argocd-repo-server -n $(ARGOCD_NAMESPACE)
+	@echo "$(GREEN)Secret do repositorio aplicado$(NC)"
+	@echo "$(YELLOW)Adicione a Deploy Key no GitHub: make show-deploy-key$(NC)"
+
+.PHONY: verify-repo
+verify-repo: ## Verificar conexao com o repositorio Git
+	@kubectl port-forward svc/argocd-server -n $(ARGOCD_NAMESPACE) 8080:443 >/dev/null 2>&1 & \
+		PF_PID=$$!; sleep 3; \
+		ARGOCD_PASS=$$(kubectl -n $(ARGOCD_NAMESPACE) get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d); \
+		argocd login localhost:8080 --username admin --password "$$ARGOCD_PASS" --insecure >/dev/null 2>&1 && \
+		argocd repo list || true; \
+		kill $$PF_PID 2>/dev/null || true
