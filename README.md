@@ -54,7 +54,7 @@ Start with [`docs/README.md`](docs/README.md) for a complete guide.
 | CI/CD | Jenkins |
 | Containerization | Docker + Docker Compose |
 | Container Registry | Docker Hub |
-| Orchestration | Kubernetes |
+| Orchestration | Kubernetes (repo [platform-gitops](https://github.com/GuAntunes/platform-gitops)) |
 | Caching (optional) | Redis |
 | Messaging (optional) | Kafka |
 | External API | Google Places API |
@@ -94,7 +94,7 @@ Start with [`docs/README.md`](docs/README.md) for a complete guide.
 - ✅ Docker + Docker Compose configurado
 - ✅ Jenkins CI/CD configurado
 - ✅ Docker Hub para registry de imagens
-- ✅ Kubernetes documentado e configurado
+- ✅ Imagens Docker por ambiente (deploy K8s no repo platform-gitops)
 - [ ] Logs, Alerts, Usage metrics
 
 ---
@@ -264,81 +264,7 @@ bridal-cover-crm/
 ---
 ## 🚀 Deploy para Produção
 
-### Estrutura de Deployment
-
-Este projeto usa **Helm** para gerenciar aplicações e **kubectl** apenas para recursos de infraestrutura base.
-
-```
-📦 Deployment Strategy:
-├── Helm (aplicações)          ← Backend + PostgreSQL
-│   └── helm-chart/bridal-cover-crm/
-│
-└── kubectl (infraestrutura)   ← PersistentVolumes, Namespaces
-    └── k8s/infrastructure/
-```
-
-**⚠️ Nota:** Os diretórios `k8s/base/` e `k8s/overlays/` estão **deprecated** e serão removidos.
-
----
-
-### 1️⃣ Setup de Infraestrutura (Uma vez)
-
-```bash
-# Criar diretórios físicos para PVs
-sudo mkdir -p /mnt/data/postgres-{dev,staging,prod}
-sudo chmod -R 777 /mnt/data/
-
-# Aplicar PersistentVolumes
-kubectl apply -f k8s/infrastructure/postgres-volumes.yaml
-
-# Verificar
-kubectl get pv
-```
-
----
-
-### 2️⃣ Deploy da Aplicação com Helm
-
-```bash
-cd helm-chart/
-
-# DEV
-helm upgrade --install bridal-crm-dev bridal-cover-crm \
-  --namespace dev \
-  --create-namespace \
-  --values bridal-cover-crm/values-dev.yaml
-
-# STAGING
-helm upgrade --install bridal-crm-staging bridal-cover-crm \
-  --namespace staging \
-  --create-namespace \
-  --values bridal-cover-crm/values-staging.yaml
-
-# PROD
-helm upgrade --install bridal-crm-prod bridal-cover-crm \
-  --namespace prod \
-  --create-namespace \
-  --values bridal-cover-crm/values-prod.yaml
-```
-
----
-
-### 3️⃣ Verificar Status
-
-```bash
-# Status dos releases
-helm list -A
-
-# Status dos pods
-kubectl get pods -n dev
-kubectl get pods -n staging
-kubectl get pods -n prod
-
-# Logs
-kubectl logs -n dev -l app.kubernetes.io/name=bridal-cover-crm --tail=100
-```
-
----
+Manifests Helm, Argo CD e overlays por ambiente ficam no repositório **[platform-gitops](https://github.com/GuAntunes/platform-gitops)**. Este repo contém apenas o código da aplicação e a publicação de imagens Docker.
 
 ### 🐳 Build de Imagens por Ambiente
 
@@ -359,41 +285,19 @@ make docker-release-prod     # Build multi-plataforma + push (latest)
 make docker-release-all      # Build e push de todos
 ```
 
----
-
-### 🔄 Workflow Completo de Deploy
+### 🔄 Workflow de release
 
 ```bash
 # 1. Build e push da imagem
 make docker-release-dev
 
-# 2. Deploy/Update no Kubernetes via Helm
-cd helm-chart/
-helm upgrade bridal-crm-dev bridal-cover-crm \
-  --namespace dev \
-  --values bridal-cover-crm/values-dev.yaml
-
-# 3. Verificar
-kubectl get pods -n dev -w
-```
-
----
-
-### 🔙 Rollback
-
-```bash
-# Ver histórico de releases
-helm history bridal-crm-dev -n dev
-
-# Fazer rollback para versão anterior
-helm rollback bridal-crm-dev -n dev
+# 2. Atualizar tag/imagem no platform-gitops e sync via Argo CD
 ```
 
 **📚 Documentação:**
-- 🐳 [Docker Build Guide](docs/deployment/docker-build-guide.md) - Build de imagens por ambiente
-- 🚀 [Docker Build Quick](DOCKER-BUILD-QUICK.md) - Guia rápido de build
-- 🐳 [Docker Hub Guide](docs/deployment/docker-hub-guide.md) - Publicação no Docker Hub
-- ☸️ [Kubernetes Documentation](docs/kubernetes/README.md) - Deploy e gerenciamento K8s
+- 🐳 [Docker Hub Guide](docs/deployment/docker-hub-guide.md) - Build e push de imagens
+- 🚀 [Deployment Guide](docs/deployment/deployment-guide.md) - CI/CD local e Jenkins
+- ☸️ [platform-gitops](https://github.com/GuAntunes/platform-gitops) - Helm, overlays e Argo CD
 
 ---
 ## 📌 Final Notes

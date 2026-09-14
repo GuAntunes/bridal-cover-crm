@@ -4,15 +4,6 @@ Esta pasta contém documentação sobre tecnologias e conceitos que serão imple
 
 ## 📋 Conteúdo
 
-### **[Kubernetes](../kubernetes/README.md)** ✅
-- Documentação completa movida para [`docs/kubernetes/`](../kubernetes/)
-- Inclui: Instalação, conceitos, dashboard, comandos e boas práticas
-- **Status:** Documentação disponível para consulta e aprendizado
-
-### **argocd.md**
-- GitOps para deploy contínuo
-- **Quando implementar:** Quando tiver cluster Kubernetes em produção e quiser automação completa de deploy
-
 ### **domain-events.md**
 - Eventos de domínio para comunicação entre bounded contexts
 - **Quando implementar:** Quando tiver múltiplos agregados e precisar de comunicação assíncrona
@@ -20,6 +11,10 @@ Esta pasta contém documentação sobre tecnologias e conceitos que serão imple
 ### **bounded-contexts.md**
 - Divisão do domínio em múltiplos contextos
 - **Quando implementar:** Quando o Lead Management estiver completo e surgir necessidade de outros contextos
+
+### Deploy em Kubernetes / GitOps
+
+Manifests Helm e Argo CD vivem no repositório **[platform-gitops](https://github.com/GuAntunes/platform-gitops)** (fora deste repo).
 
 ---
 
@@ -47,4 +42,3 @@ Esta pasta contém documentação sobre tecnologias e conceitos que serão imple
 Estes documentos foram criados como parte do processo de aprendizado sobre arquitetura de software moderna. Mantê-los aqui serve como referência para quando o projeto crescer e essas tecnologias se tornarem necessárias.
 
 **Princípio:** *Implement when needed, not because it's cool* 🚀
-

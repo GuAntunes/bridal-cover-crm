@@ -50,24 +50,19 @@ Tecnologias em uso:
 Como deployar:
 
 - **[deployment-guide.md](deployment/deployment-guide.md)** — Deploy local e CI/CD
-- **[docker-hub-guide.md](deployment/docker-hub-guide.md)** ⭐ — Docker Hub: Build, Push e Deploy
-- **[kubernetes/](kubernetes/README.md)** ⭐ — Documentação completa de Kubernetes
-  - Instalação (Ubuntu, macOS, Windows)
-  - Conceitos fundamentais
-  - Dashboard com NodePort
-  - Comandos essenciais e boas práticas
+- **[docker-hub-guide.md](deployment/docker-hub-guide.md)** ⭐ — Docker Hub: build e push de imagens
+
+Deploy em Kubernetes (Helm + Argo CD) está no repositório **[platform-gitops](https://github.com/GuAntunes/platform-gitops)**.
 
 ### 6️⃣ **Technologies & Infrastructure**
 DevOps e infraestrutura:
 
 - **[jenkins.md](technologies/jenkins.md)** — Setup do Jenkins
-- **[Kubernetes Docs](kubernetes/)** — Orquestração de containers
 
 ### 7️⃣ **Future Plans** 🔮
 Documentação para o futuro:
 
-- **[future/](future/)** — Tecnologias avançadas (ArgoCD, Domain Events, etc.)
-  - Estas tecnologias serão implementadas quando o projeto estiver mais maduro
+- **[future/](future/)** — Domain events, bounded contexts, etc.
 
 ---
 
@@ -140,7 +135,7 @@ Documentação para o futuro:
 
 ### Para DevOps
 ```
-🚀 Deployment Guide → 🐳 Docker Hub Guide → 🔧 Jenkins Guide → ☸️ Kubernetes
+🚀 Deployment Guide → 🐳 Docker Hub Guide → 🔧 Jenkins → ☸️ platform-gitops (K8s/GitOps)
 ```
 
 ---

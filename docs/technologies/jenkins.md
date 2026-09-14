@@ -470,16 +470,9 @@ stage('Push Docker Image') {
 }
 ```
 
-### Kubernetes Deploy
+### GitOps (platform-gitops)
 
-```groovy
-stage('Deploy to K8s') {
-    steps {
-        sh 'kubectl apply -f k8s/deployment.yaml'
-        sh 'kubectl rollout status deployment/app'
-    }
-}
-```
+Deploy em cluster não usa manifests neste repo. Após push da imagem Docker, atualize a tag no repositório **platform-gitops** e dispare sync no Argo CD (manual ou via API/CLI).
 
 ## 🔄 Webhooks e Triggers
 

@@ -1,6 +1,6 @@
 # 🐳 Guia Completo: Docker Hub com BridalCover CRM
 
-Este guia mostra como configurar e usar o Docker Hub para hospedar as imagens Docker da aplicação BridalCover CRM e fazer deploy no Kubernetes.
+Este guia mostra como configurar e usar o Docker Hub para hospedar as imagens Docker da aplicação BridalCover CRM. Deploy em Kubernetes fica no repositório **platform-gitops**.
 
 ---
 
@@ -10,7 +10,7 @@ Este guia mostra como configurar e usar o Docker Hub para hospedar as imagens Do
 2. [Configuração Inicial](#configuração-inicial)
 3. [Build e Push de Imagens](#build-e-push-de-imagens)
 4. [Integração com Desenvolvimento](#integração-com-desenvolvimento)
-5. [Uso no Kubernetes](#uso-no-kubernetes)
+5. [Deploy no cluster (GitOps)](#deploy-no-cluster-gitops)
 6. [Automatização com CI/CD](#automatização-com-cicd)
 7. [Comandos Úteis](#comandos-úteis)
 8. [Troubleshooting](#troubleshooting)
@@ -25,7 +25,7 @@ Este guia mostra como configurar e usar o Docker Hub para hospedar as imagens Do
 ### Funcionalidades Principais:
 - 🏷️ **Armazenamento de imagens**: hospeda suas imagens Docker
 - 🔄 **Versionamento**: múltiplas tags/versões da mesma imagem
-- 🌐 **Distribuição**: Kubernetes pode baixar suas imagens de qualquer lugar
+- 🌐 **Distribuição**: clusters Kubernetes podem baixar suas imagens de qualquer lugar
 - 🆓 **Plano gratuito**: repositórios públicos ilimitados + 1 privado
 
 ### Workflow Completo:
@@ -35,11 +35,9 @@ Este guia mostra como configurar e usar o Docker Hub para hospedar as imagens Do
 docker build -t bridal-cover-crm:v1 .
     ↓ 2. Push para Docker Hub
 docker push seu-usuario/bridal-cover-crm:v1
-    ↓ 3. Deploy no Kubernetes
-[Kubernetes - Produção]
-    ↓ 4. Pull da imagem
-kubectl apply -f k8s/deployment.yaml
-    ↓ 5. Aplicação rodando
+    ↓ 3. Atualizar tag no platform-gitops + sync Argo CD
+[Cluster Kubernetes]
+    ↓ 4. Pull da imagem e rollout
 ```
 
 ---
@@ -245,154 +243,20 @@ make test
 # 2. Build e push para Docker Hub
 make docker-release
 
-# 3. Deploy no Kubernetes (próxima seção)
-kubectl apply -f k8s/
+# 3. Atualizar imagem no platform-gitops e sync Argo CD
 ```
 
 ---
 
-## Uso no Kubernetes
+## Deploy no cluster (GitOps)
 
-### Configuração do Deployment
+Manifests Helm e Applications Argo CD **não** ficam neste repositório. Use **[platform-gitops](https://github.com/GuAntunes/platform-gitops)**:
 
-Edite seu arquivo `k8s/deployment.yaml` para usar a imagem do Docker Hub:
+1. Build e push da imagem (`make docker-release-dev` ou equivalente).
+2. Atualize `image.tag` (ou delta em `*-values.yaml`) no platform-gitops.
+3. Sync manual na UI do Argo CD (ou `argocd app sync`).
 
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: bridal-cover-crm
-  namespace: bridal-crm
-  labels:
-    app: bridal-cover-crm
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: bridal-cover-crm
-  template:
-    metadata:
-      labels:
-        app: bridal-cover-crm
-    spec:
-      containers:
-      - name: bridal-cover-crm
-        # 👇 Imagem do Docker Hub
-        image: seu-usuario/bridal-cover-crm:latest
-        imagePullPolicy: Always  # Sempre baixa a versão mais recente
-        ports:
-        - containerPort: 8082
-          name: http
-        env:
-        - name: SPRING_PROFILES_ACTIVE
-          value: "prod"
-        - name: SPRING_DATASOURCE_URL
-          valueFrom:
-            configMapKeyRef:
-              name: app-config
-              key: database-url
-        - name: SPRING_DATASOURCE_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: db-credentials
-              key: username
-        - name: SPRING_DATASOURCE_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: db-credentials
-              key: password
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "250m"
-          limits:
-            memory: "1Gi"
-            cpu: "500m"
-        livenessProbe:
-          httpGet:
-            path: /actuator/health
-            port: 8082
-          initialDelaySeconds: 60
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /actuator/health/readiness
-            port: 8082
-          initialDelaySeconds: 30
-          periodSeconds: 5
-```
-
-### Deploy no Kubernetes
-
-```bash
-# Configurar kubectl para acessar cluster remoto
-export KUBECONFIG=~/.kube/config-remote
-
-# Criar namespace (primeira vez)
-kubectl create namespace bridal-crm
-
-# Criar secrets (primeira vez)
-kubectl create secret generic db-credentials \
-  --from-literal=username=postgres \
-  --from-literal=password=sua-senha-segura \
-  -n bridal-crm
-
-# Aplicar configurações
-kubectl apply -f k8s/
-
-# Verificar deploy
-kubectl rollout status deployment/bridal-cover-crm -n bridal-crm
-
-# Ver pods rodando
-kubectl get pods -n bridal-crm
-
-# Ver logs
-kubectl logs -f deployment/bridal-cover-crm -n bridal-crm
-```
-
-### Atualizar Versão no Kubernetes
-
-```bash
-# Método 1: Atualizar diretamente (usa imagePullPolicy: Always)
-kubectl rollout restart deployment/bridal-cover-crm -n bridal-crm
-
-# Método 2: Setar imagem específica
-kubectl set image deployment/bridal-cover-crm \
-  bridal-cover-crm=seu-usuario/bridal-cover-crm:1.0.0 \
-  -n bridal-crm
-
-# Acompanhar rollout
-kubectl rollout status deployment/bridal-cover-crm -n bridal-crm
-
-# Histórico de deploys
-kubectl rollout history deployment/bridal-cover-crm -n bridal-crm
-
-# Rollback se necessário
-kubectl rollout undo deployment/bridal-cover-crm -n bridal-crm
-```
-
-### Workflow Completo de Deploy
-
-```bash
-# 1. Fazer alterações no código
-vim src/main/kotlin/...
-
-# 2. Commitar
-git add .
-git commit -m "feat: nova funcionalidade"
-
-# 3. Build e push para Docker Hub
-make docker-release
-
-# 4. Deploy no Kubernetes
-kubectl set image deployment/bridal-cover-crm \
-  bridal-cover-crm=seu-usuario/bridal-cover-crm:latest \
-  -n bridal-crm
-
-# 5. Verificar
-kubectl get pods -n bridal-crm
-kubectl logs -f deployment/bridal-cover-crm -n bridal-crm
-```
+O cluster faz pull da imagem publicada no Docker Hub conforme o chart referencia `repository` e `tag`.
 
 ---
 
@@ -798,11 +662,8 @@ Use este checklist toda vez que fizer deploy:
 - [ ] Build da imagem Docker (`make docker-build`)
 - [ ] Push para Docker Hub (`make docker-push`)
 - [ ] Verificar imagem no Docker Hub (web interface)
-- [ ] Secrets configurados no Kubernetes
-- [ ] Deploy no Kubernetes (`kubectl apply -f k8s/`)
-- [ ] Verificar rollout (`kubectl rollout status`)
-- [ ] Verificar pods rodando (`kubectl get pods`)
-- [ ] Verificar logs (`kubectl logs -f`)
+- [ ] Tag de imagem atualizada no platform-gitops
+- [ ] Sync Argo CD da application do backend
 - [ ] Testar aplicação (`curl` ou browser)
 - [ ] Monitorar por alguns minutos
 
@@ -818,7 +679,7 @@ Use este checklist toda vez que fizer deploy:
 
 ### Documentos Relacionados:
 - [Deployment Guide](./deployment-guide.md)
-- [Kubernetes Setup](../kubernetes/README.md)
+- [platform-gitops](https://github.com/GuAntunes/platform-gitops)
 - [Jenkins CI/CD](../technologies/jenkins.md)
 
 ---
@@ -831,14 +692,10 @@ docker login
 
 # Workflow diário
 make docker-release          # Build + Push
-kubectl apply -f k8s/        # Deploy
-
-# Verificação
-kubectl get pods -n bridal-crm
-kubectl logs -f deployment/bridal-cover-crm -n bridal-crm
+# Atualizar platform-gitops + sync Argo CD
 ```
 
-🎉 **Pronto!** Sua aplicação agora está no Docker Hub e pode ser deployada em qualquer cluster Kubernetes!
+🎉 **Pronto!** Sua imagem está no Docker Hub e pode ser referenciada pelo GitOps no platform-gitops.
 
 ---
 
