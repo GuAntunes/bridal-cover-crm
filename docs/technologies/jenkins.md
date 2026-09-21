@@ -1,5 +1,7 @@
 # Jenkins - CI/CD e Automação de Build
 
+> **Jenkins no cluster (Argo CD):** guia passo a passo em [deployment/jenkins-kubernetes.md](../deployment/jenkins-kubernetes.md). Índice: [jenkins-guide.md](../jenkins-guide.md).
+
 ## 📖 O que é Jenkins?
 
 **Jenkins** é uma ferramenta open-source de automação que permite implementar **Continuous Integration (CI)** e **Continuous Deployment (CD)**. Ele automatiza a construção, teste e deploy de aplicações, garantindo que mudanças no código sejam integradas e validadas continuamente.

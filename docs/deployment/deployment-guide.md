@@ -285,7 +285,8 @@ Quando implementado:
 ## 📚 Referências
 
 - [Docker Documentation](https://docs.docker.com/)
-- [Jenkins Documentation](../technologies/jenkins.md)
+- [Jenkins no Kubernetes](jenkins-kubernetes.md)
+- [Jenkins (referência / Compose)](../technologies/jenkins.md)
 - [Getting Started Guide](../development/getting-started.md)
 - [platform-gitops](https://github.com/GuAntunes/platform-gitops) — Helm, overlays e Argo CD
 

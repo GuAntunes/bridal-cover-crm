@@ -245,7 +245,7 @@ Para configurar o Jenkins pela primeira vez:
 1. Inicie o Jenkins: `make jenkins-up`
 2. Obtenha a senha inicial: `make jenkins-password`
 3. Acesse http://localhost:9090
-4. Siga o guia completo em [`docs/jenkins-guide.md`](docs/jenkins-guide.md)
+4. Siga o guia em [`docs/jenkins-guide.md`](docs/jenkins-guide.md) (local) ou [`docs/deployment/jenkins-kubernetes.md`](docs/deployment/jenkins-kubernetes.md) (cluster)
 
 ### Estrutura do Projeto
 

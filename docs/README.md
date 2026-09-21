@@ -50,6 +50,8 @@ Tecnologias em uso:
 Como deployar:
 
 - **[deployment-guide.md](deployment/deployment-guide.md)** — Deploy local e CI/CD
+- **[jenkins-kubernetes.md](deployment/jenkins-kubernetes.md)** ⭐ — Jenkins no cluster (Argo + etapas do pipeline)
+- **[jenkins-guide.md](jenkins-guide.md)** — Índice: K8s vs Docker Compose
 - **[docker-hub-guide.md](deployment/docker-hub-guide.md)** ⭐ — Docker Hub: build e push de imagens
 
 Deploy em Kubernetes (Helm + Argo CD) está no repositório **[platform-gitops](https://github.com/GuAntunes/platform-gitops)**.
@@ -57,7 +59,7 @@ Deploy em Kubernetes (Helm + Argo CD) está no repositório **[platform-gitops](
 ### 6️⃣ **Technologies & Infrastructure**
 DevOps e infraestrutura:
 
-- **[jenkins.md](technologies/jenkins.md)** — Setup do Jenkins
+- **[jenkins.md](technologies/jenkins.md)** — Referência Jenkins (conceitos e Compose)
 
 ### 7️⃣ **Future Plans** 🔮
 Documentação para o futuro:
@@ -135,7 +137,7 @@ Documentação para o futuro:
 
 ### Para DevOps
 ```
-🚀 Deployment Guide → 🐳 Docker Hub Guide → 🔧 Jenkins → ☸️ platform-gitops (K8s/GitOps)
+🚀 Deployment Guide → ☸️ Jenkins K8s → 🐳 Docker Hub → platform-gitops (Argo CD)
 ```
 
 ---
